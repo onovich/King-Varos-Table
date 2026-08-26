@@ -51,7 +51,7 @@ def main() -> int:
     for region in level.regions:
         metrics = region.metrics
         print(
-            f"  {region.name}: {len(region.cells)} cells, "
+            f"  region {region.region_id}: {len(region.cells)} cells, "
             f"{metrics.visible_clue_count}/{metrics.full_clue_count} clues, "
             f"{metrics.solver_steps} deterministic steps, "
             f"unique={metrics.unique_verified}"

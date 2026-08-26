@@ -39,6 +39,10 @@ def verify_unique(
     proof of uniqueness.
     """
 
+    if cell_count < 1:
+        raise ValueError("cell_count must be positive")
+    if timeout_ms < 1:
+        raise ValueError("timeout_ms must be positive")
     executable = shutil.which("minizinc")
     if executable is None:
         raise MiniZincUnavailable("MiniZinc executable was not found on PATH")

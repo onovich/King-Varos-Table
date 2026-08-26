@@ -1,5 +1,6 @@
 import shutil
 import unittest
+from pathlib import Path
 
 from proverbs.level import build_level, build_region_map, calculate_clues
 from proverbs.minizinc_check import verify_unique
@@ -53,7 +54,7 @@ class NoGuessSolverTests(unittest.TestCase):
 @unittest.skipUnless(shutil.which("minizinc"), "MiniZinc is not installed")
 class MiniZincVerificationTests(unittest.TestCase):
     def test_unique_solution_check_distinguishes_a_second_solution(self):
-        model_path = "models/region_unique.mzn"
+        model_path = Path(__file__).resolve().parents[1] / "models" / "region_unique.mzn"
 
         self.assertFalse(
             verify_unique(2, [Constraint((0, 1), 1)], (1, 0), model_path=model_path)

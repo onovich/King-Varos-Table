@@ -197,7 +197,6 @@ def _prune_region(
     working = dict(full_clues)
     shuffled_clues = list(region_cells)
     rng.shuffle(shuffled_clues)
-    local_index = {global_index: local for local, global_index in enumerate(region_cells)}
     target_local = tuple(target[index] for index in region_cells)
 
     for clue_index in shuffled_clues:

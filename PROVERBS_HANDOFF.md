@@ -3,6 +3,18 @@
 更新时间：2026-08-27  
 交接目标：在 `D:\WebProjects\LearnProverbs` 继续研究 Proverbs 的玩法、关卡生成、无猜解题器，以及 MiniZinc 是否适合作为生成验证工具。
 
+## 0. 当前接手状态（2026-08-27）
+
+第一阶段已落地为可运行的本地原型：
+
+- 本地 Git 仓库已初始化在 `main`，当前没有远端配置，也没有执行 push。
+- `proverbs/` 实现了同区域 3×3 线索计算、只做确定性推导的 `NoGuessSolver`、随机答案与贪心删线索生成。
+- `models/region_unique.mzn` 通过阻塞目标答案来检查是否存在第二个满足解；默认生成命令要求 MiniZinc 明确证明唯一性。
+- `web/` 提供 15×15、四个暂定大区的可玩页面；公开题面不携带隐藏答案，浏览器端提示器与 Python 求解规则保持一致。
+- `npm test` 已覆盖区域裁剪、求解器状态、MiniZinc 第二解判定和真实关卡生成；`npm run generate` 可重新生成 `web/data/demo-level.json`。
+
+当前实现是规则闭环原型，不声称复现 Proverbs 的原始素材、正式区域布局或未公开的高级 solver 规则。
+
 ## 1. 旧会话与迁移范围
 
 此前的专项调研会话：

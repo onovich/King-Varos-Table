@@ -74,7 +74,7 @@ class NoGuessSolver:
         steps: list[SolverStep] = []
 
         while True:
-            residuals: list[tuple[tuple[int, ...], int, tuple[int, ...]]] = []
+            residuals: list[tuple[tuple[int, ...], int]] = []
             changed = False
 
             for constraint in constraints:
@@ -93,7 +93,7 @@ class NoGuessSolver:
                 if not unknown_cells:
                     continue
 
-                residuals.append((unknown_cells, remaining, constraint.cells))
+                residuals.append((unknown_cells, remaining))
                 if remaining == 0:
                     forced_value = 0
                     rule = "zero"
@@ -133,19 +133,17 @@ class NoGuessSolver:
             # Compare residual constraints. When A is a subset of B, B - A
             # has an exactly known remainder. This is still a direct logical
             # consequence and does not involve a trial assignment.
-            derived: list[tuple[tuple[int, ...], int, tuple[int, ...]]] = []
-            for left_index, (left_cells, left_remaining, left_source) in enumerate(residuals):
+            derived_constraint_added = False
+            for left_index, (left_cells, left_remaining) in enumerate(residuals):
                 left_set = set(left_cells)
-                for right_cells, right_remaining, right_source in residuals[left_index + 1 :]:
+                for right_cells, right_remaining in residuals[left_index + 1 :]:
                     right_set = set(right_cells)
                     if left_set < right_set:
                         difference = tuple(sorted(right_set - left_set))
                         difference_total = right_remaining - left_remaining
-                        source = right_source
                     elif right_set < left_set:
                         difference = tuple(sorted(left_set - right_set))
                         difference_total = left_remaining - right_remaining
-                        source = left_source
                     else:
                         continue
 
@@ -159,9 +157,9 @@ class NoGuessSolver:
                     if difference and (difference, difference_total) not in constraint_keys:
                         constraint_keys.add((difference, difference_total))
                         constraints.append(Constraint(difference, difference_total))
-                        derived.append((difference, difference_total, source))
+                        derived_constraint_added = True
 
-            if derived:
+            if derived_constraint_added:
                 # Let the next pass apply zero/full rules to the new facts.
                 continue
 
