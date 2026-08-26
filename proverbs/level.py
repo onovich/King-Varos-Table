@@ -63,6 +63,9 @@ class GeneratedLevel:
                 min(clue for region in self.regions for clue in region.clues.values()),
                 max(clue for region in self.regions for clue in region.clues.values()),
             ],
+            "reasoningLevel": "advanced"
+            if any(region.metrics.reasoning_level == "advanced" for region in self.regions)
+            else "basic",
             "regionMap": list(self.region_map),
             "regions": [
                 {
@@ -279,6 +282,8 @@ def build_level(
                 failed = True
                 break
 
+            basic_steps = sum(1 for step in result.steps if step.reasoning_level == "basic")
+            advanced_steps = sum(1 for step in result.steps if step.reasoning_level == "advanced")
             generated_regions.append(
                 RegionLevel(
                     region_id,
@@ -290,10 +295,10 @@ def build_level(
                         len(clues),
                         len(visible_clues),
                         len(result.steps),
-                        sum(1 for step in result.steps if step.reasoning_level == "basic"),
+                        basic_steps,
                         unique_verified,
-                        sum(1 for step in result.steps if step.reasoning_level == "basic"),
-                        sum(1 for step in result.steps if step.reasoning_level == "advanced"),
+                        basic_steps,
+                        advanced_steps,
                         result.reasoning_level,
                         sum(target[index] for index in cells),
                         len(cells) - sum(target[index] for index in cells),

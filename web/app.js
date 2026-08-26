@@ -241,8 +241,19 @@ function isRegionComplete(item) {
 }
 
 function nextStepFor(item) {
-  return item.result.steps.find(
+  return item?.result?.steps.find(
     (candidate) => state.values[item.region.cells[candidate.cell]] === UNKNOWN,
+  );
+}
+
+function regionHasAdvancedReasoning(region) {
+  return region.metrics?.reasoningLevel === "advanced" || region.metrics?.advancedSteps > 0;
+}
+
+function levelHasAdvancedReasoning() {
+  return (
+    state.level.reasoningLevel === "advanced" ||
+    state.level.regions.some(regionHasAdvancedReasoning)
   );
 }
 
@@ -264,10 +275,11 @@ function renderTabs(analysis = null) {
   for (const region of regions) {
     const button = document.createElement("button");
     const item = analysis?.results.find((candidate) => candidate.region.id === region.id);
+    const advanced = regionHasAdvancedReasoning(region) || nextStepFor(item)?.reasoningLevel === "advanced";
     const suffix = item
       ? isRegionComplete(item)
         ? " · 已完成"
-        : nextStepFor(item)?.reasoningLevel === "advanced"
+        : advanced
           ? " · 高级"
           : ""
       : "";
@@ -363,6 +375,7 @@ function updateStats(analysis) {
   const total = state.level.width * state.level.height;
   const clueCount = state.level.regions.reduce((sum, region) => sum + Object.keys(region.clues).length, 0);
   const nextStep = analysis.results.map(nextStepFor).find(Boolean);
+  const advancedLevel = levelHasAdvancedReasoning();
   refs.regionCount.textContent = String(state.level.regions.length);
   refs.cellCount.textContent = String(total);
   refs.clueCount.textContent = String(clueCount);
@@ -375,8 +388,19 @@ function updateStats(analysis) {
     refs.reasoningBadge.textContent = "本页完成";
     refs.reasoningBadge.dataset.level = "complete";
   } else if (nextStep) {
-    refs.reasoningBadge.textContent = nextStep.reasoningLevel === "advanced" ? "高级推理" : "基础推理";
-    refs.reasoningBadge.dataset.level = nextStep.reasoningLevel;
+    if (nextStep.reasoningLevel === "advanced") {
+      refs.reasoningBadge.textContent = "高级推理";
+      refs.reasoningBadge.dataset.level = "advanced";
+    } else if (advancedLevel) {
+      refs.reasoningBadge.textContent = "含高级推理";
+      refs.reasoningBadge.dataset.level = "advanced";
+    } else {
+      refs.reasoningBadge.textContent = "基础推理";
+      refs.reasoningBadge.dataset.level = "basic";
+    }
+  } else if (advancedLevel) {
+    refs.reasoningBadge.textContent = "含高级推理";
+    refs.reasoningBadge.dataset.level = "advanced";
   } else {
     refs.reasoningBadge.textContent = "等待标记";
     refs.reasoningBadge.dataset.level = "waiting";

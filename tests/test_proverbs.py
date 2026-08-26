@@ -89,6 +89,7 @@ class LevelGenerationTests(unittest.TestCase):
         self.assertGreaterEqual(sum(level.target), 0.45 * len(level.target))
         self.assertLessEqual(sum(level.target), 0.55 * len(level.target))
         self.assertEqual(public_payload["clueRange"], [0, 9])
+        self.assertEqual(public_payload["reasoningLevel"], "advanced")
         self.assertEqual(len(public_payload["regions"]), 4)
         self.assertTrue(all(region["metrics"]["uniqueVerified"] for region in public_payload["regions"]))
         self.assertTrue(all(region["metrics"]["visibleClueCount"] < region["metrics"]["fullClueCount"] for region in public_payload["regions"]))
