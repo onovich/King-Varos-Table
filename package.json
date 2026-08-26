@@ -1,0 +1,11 @@
+{
+  "name": "learnproverbs",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Proverbs-inspired Fill-a-Pix prototype with MiniZinc-verified levels.",
+  "scripts": {
+    "start": "python -m http.server 4173 --directory web",
+    "test": "python -m unittest discover -s tests",
+    "generate": "python tools/generate_level.py --output web/data/demo-level.json"
+  }
+}

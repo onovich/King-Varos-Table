@@ -1,0 +1,79 @@
+import shutil
+import unittest
+
+from proverbs.level import build_level, build_region_map, calculate_clues
+from proverbs.minizinc_check import verify_unique
+from proverbs.solver import Constraint, NoGuessSolver
+
+
+class RegionModelTests(unittest.TestCase):
+    def test_neighborhood_is_clipped_to_the_same_region(self):
+        region_map = [
+            0, 0, 1,
+            0, 1, 1,
+            0, 1, 1,
+        ]
+
+        target = [0, 0, 1, 0, 0, 1, 0, 1, 0]
+        clues = calculate_clues(3, 3, region_map, target)
+
+        self.assertEqual(clues[0], 0)
+        self.assertEqual(clues[4], 3)
+        self.assertEqual(clues[8], 2)
+
+    def test_demo_region_map_has_four_non_empty_regions(self):
+        region_map = build_region_map(15, 15)
+
+        self.assertEqual(set(region_map), {0, 1, 2, 3})
+        self.assertTrue(all(region_map.count(region_id) > 20 for region_id in range(4)))
+
+
+class NoGuessSolverTests(unittest.TestCase):
+    def test_propagates_zero_and_full_constraints_without_guessing(self):
+        constraints = [
+            Constraint((0, 1), 0),
+            Constraint((1, 2), 1),
+            Constraint((2, 3), 1),
+        ]
+
+        result = NoGuessSolver(4, constraints).solve()
+
+        self.assertEqual(result.status, "solved")
+        self.assertEqual(result.values, (0, 0, 1, 0))
+        self.assertGreaterEqual(len(result.steps), 3)
+        self.assertTrue(all(step.rule != "guess" for step in result.steps))
+
+    def test_reports_stalled_when_deduction_cannot_choose_a_value(self):
+        result = NoGuessSolver(2, [Constraint((0, 1), 1)]).solve()
+
+        self.assertEqual(result.status, "stalled")
+        self.assertEqual(result.values, (-1, -1))
+
+
+@unittest.skipUnless(shutil.which("minizinc"), "MiniZinc is not installed")
+class MiniZincVerificationTests(unittest.TestCase):
+    def test_unique_solution_check_distinguishes_a_second_solution(self):
+        model_path = "models/region_unique.mzn"
+
+        self.assertFalse(
+            verify_unique(2, [Constraint((0, 1), 1)], (1, 0), model_path=model_path)
+        )
+        self.assertTrue(
+            verify_unique(
+                2,
+                [Constraint((0,), 1), Constraint((1,), 0)],
+                (1, 0),
+                model_path=model_path,
+            )
+        )
+
+
+class LevelGenerationTests(unittest.TestCase):
+    def test_generated_public_level_keeps_solution_hidden_and_proves_regions_unique(self):
+        level = build_level(seed=20260828, verify_with_minizinc=True)
+        public_payload = level.public_dict()
+
+        self.assertNotIn("solution", public_payload)
+        self.assertEqual(len(public_payload["regions"]), 4)
+        self.assertTrue(all(region["metrics"]["uniqueVerified"] for region in public_payload["regions"]))
+        self.assertTrue(all(region["metrics"]["visibleClueCount"] < region["metrics"]["fullClueCount"] for region in public_payload["regions"]))
