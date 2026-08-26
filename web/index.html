@@ -27,7 +27,7 @@
           <h2 id="rulesHeading">让数字自己开口。</h2>
           <p class="lede">
             每个数字只数它所在色块里的 3×3 邻域。亮格是 <span class="inline-mark bright">✦</span>，暗格是
-            <span class="inline-mark dark">×</span>；边界之外的格子从来不计入。
+            <span class="inline-mark dark">×</span>；数字范围为 0—9，边界之外的格子从来不计入。
           </p>
 
           <div class="rule-card" aria-label="操作说明">
@@ -82,10 +82,14 @@
             <div>
               <p class="section-kicker">THE UNFINISHED FOLIO</p>
               <h2 id="puzzleHeading">未完成的版画</h2>
+              <p class="puzzle-description">20×20 棋盘 · 同色区域内计数 · 每页保证唯一解</p>
             </div>
-            <div class="progress-stamp" aria-live="polite">
-              <span>已落笔</span>
-              <strong id="progressLabel">0 / 225</strong>
+            <div class="puzzle-meta">
+              <div class="reasoning-badge" id="reasoningBadge" data-level="waiting" aria-live="polite">等待标记</div>
+              <div class="progress-stamp" aria-live="polite">
+                <span>已落笔</span>
+                <strong id="progressLabel">0 / 400</strong>
+              </div>
             </div>
           </div>
 
@@ -97,8 +101,8 @@
               id="board"
               role="grid"
               aria-label="箴言残卷逻辑棋盘"
-              aria-rowcount="15"
-              aria-colcount="15"
+              aria-rowcount="20"
+              aria-colcount="20"
             ></div>
           </div>
 
@@ -107,6 +111,7 @@
               <span><i class="key-swatch key-clue"></i>数字线索</span>
               <span><i class="key-swatch key-region"></i>区域边界</span>
               <span><i class="key-swatch key-hint"></i>提示位置</span>
+              <span><i class="key-swatch key-hint-source"></i>推理范围</span>
             </div>
             <p class="board-message" id="boardMessage" role="status" aria-live="polite">
               先选择一个数字，看看它的 3×3 范围。

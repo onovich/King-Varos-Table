@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate and export a small Proverbs-inspired demo level."""
+"""Generate and export a Proverbs-inspired demo level."""
 
 from __future__ import annotations
 
@@ -17,9 +17,9 @@ from proverbs.level import build_level, write_public_level
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--seed", type=int, default=20260827)
-    parser.add_argument("--width", type=int, default=15)
-    parser.add_argument("--height", type=int, default=15)
+    parser.add_argument("--seed", type=int, default=20260828)
+    parser.add_argument("--width", type=int, default=20)
+    parser.add_argument("--height", type=int, default=20)
     parser.add_argument(
         "--output",
         type=Path,
@@ -30,6 +30,11 @@ def main() -> int:
         "--skip-minizinc",
         action="store_true",
         help="skip strict uniqueness verification; intended only for local iteration",
+    )
+    parser.add_argument(
+        "--allow-narrow-clue-range",
+        action="store_true",
+        help="allow a custom level whose generated clues do not span the full 0–9 range",
     )
     parser.add_argument(
         "--include-solution",
@@ -43,6 +48,7 @@ def main() -> int:
         height=args.height,
         seed=args.seed,
         verify_with_minizinc=not args.skip_minizinc,
+        require_full_clue_range=not args.allow_narrow_clue_range,
     )
     write_public_level(level, args.output, include_solution=args.include_solution)
 

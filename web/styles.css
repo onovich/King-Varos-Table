@@ -361,6 +361,51 @@ h2 {
   margin-bottom: 0;
 }
 
+.puzzle-description {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.puzzle-meta {
+  display: grid;
+  flex-shrink: 0;
+  justify-items: end;
+  gap: 8px;
+}
+
+.reasoning-badge {
+  padding: 6px 9px;
+  color: var(--muted);
+  background: rgba(23, 39, 41, 0.08);
+  border: 1px solid rgba(23, 39, 41, 0.2);
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.reasoning-badge[data-level="basic"] {
+  color: var(--cobalt);
+  border-color: rgba(80, 121, 128, 0.55);
+}
+
+.reasoning-badge[data-level="advanced"] {
+  color: var(--paper-light);
+  background: var(--signal);
+  border-color: var(--signal);
+}
+
+.reasoning-badge[data-level="complete"] {
+  color: var(--ink);
+  background: var(--focus);
+  border-color: var(--focus);
+}
+
+.reasoning-badge[data-level="waiting"] {
+  color: var(--muted);
+}
+
 .progress-stamp {
   display: grid;
   min-width: 92px;
@@ -426,9 +471,9 @@ h2 {
 
 .board {
   display: grid;
-  grid-template-columns: repeat(var(--columns, 15), minmax(28px, 1fr));
+  grid-template-columns: repeat(var(--columns, 20), minmax(28px, 1fr));
   gap: 2px;
-  min-width: 580px;
+  min-width: 700px;
   padding: 2px;
   background: #101b1c;
 }
@@ -537,6 +582,10 @@ h2 {
   animation: hintPulse 900ms ease-in-out 2;
 }
 
+.cell.is-hint-source:not(.is-hint) {
+  box-shadow: inset 0 0 0 2px rgba(216, 100, 67, 0.62);
+}
+
 .cell.is-conflict {
   box-shadow: inset 0 0 0 3px #f38a6a;
 }
@@ -578,6 +627,10 @@ h2 {
 
 .key-hint {
   background: var(--signal);
+}
+
+.key-hint-source {
+  background: rgba(216, 100, 67, 0.46);
 }
 
 .board-message {
@@ -698,7 +751,7 @@ h2 {
   }
 
   .board {
-    min-width: 520px;
+    min-width: 680px;
   }
 
   .puzzle-footer {

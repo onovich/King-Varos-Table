@@ -50,6 +50,16 @@ class NoGuessSolverTests(unittest.TestCase):
         self.assertEqual(result.status, "stalled")
         self.assertEqual(result.values, (-1, -1))
 
+    def test_marks_subset_difference_deduction_as_advanced(self):
+        result = NoGuessSolver(
+            3,
+            [Constraint((0, 1), 1), Constraint((0, 1, 2), 1)],
+        ).solve()
+
+        self.assertEqual(result.values, (-1, -1, 0))
+        self.assertEqual(result.steps[0].reasoning_level, "advanced")
+        self.assertEqual(result.steps[0].rule, "advanced_zero")
+
 
 @unittest.skipUnless(shutil.which("minizinc"), "MiniZinc is not installed")
 class MiniZincVerificationTests(unittest.TestCase):
@@ -75,6 +85,18 @@ class LevelGenerationTests(unittest.TestCase):
         public_payload = level.public_dict()
 
         self.assertNotIn("solution", public_payload)
+        self.assertEqual((level.width, level.height), (20, 20))
+        self.assertGreaterEqual(sum(level.target), 0.45 * len(level.target))
+        self.assertLessEqual(sum(level.target), 0.55 * len(level.target))
+        self.assertEqual(public_payload["clueRange"], [0, 9])
         self.assertEqual(len(public_payload["regions"]), 4)
         self.assertTrue(all(region["metrics"]["uniqueVerified"] for region in public_payload["regions"]))
         self.assertTrue(all(region["metrics"]["visibleClueCount"] < region["metrics"]["fullClueCount"] for region in public_payload["regions"]))
+        self.assertTrue(
+            all(
+                region["metrics"]["brightCount"] == region["metrics"]["darkCount"]
+                and region["metrics"]["reasoningLevel"] == "advanced"
+                and region["metrics"]["advancedSteps"] > 0
+                for region in public_payload["regions"]
+            )
+        )

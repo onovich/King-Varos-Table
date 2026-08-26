@@ -15,13 +15,15 @@ class Constraint:
 
     cells: tuple[int, ...]
     total: int
+    derived: bool
 
-    def __init__(self, cells: Iterable[int], total: int):
+    def __init__(self, cells: Iterable[int], total: int, derived: bool = False):
         normalized = tuple(sorted(set(cells)))
         if not normalized:
             raise ValueError("a constraint must contain at least one cell")
         object.__setattr__(self, "cells", normalized)
         object.__setattr__(self, "total", int(total))
+        object.__setattr__(self, "derived", bool(derived))
 
 
 @dataclass(frozen=True)
@@ -34,6 +36,7 @@ class SolverStep:
     source_cells: tuple[int, ...]
     remaining: int
     explanation: str
+    reasoning_level: str = "basic"
 
 
 @dataclass(frozen=True)
@@ -42,6 +45,10 @@ class SolveResult:
     values: tuple[int, ...]
     steps: tuple[SolverStep, ...]
     contradiction: Optional[str] = None
+
+    @property
+    def reasoning_level(self) -> str:
+        return "advanced" if any(step.reasoning_level == "advanced" for step in self.steps) else "basic"
 
 
 class NoGuessSolver:
@@ -96,14 +103,22 @@ class NoGuessSolver:
                 residuals.append((unknown_cells, remaining))
                 if remaining == 0:
                     forced_value = 0
-                    rule = "zero"
-                    explanation = "剩余亮格数为 0，未知格全部为暗格"
+                    basic_rule = "zero"
+                    basic_explanation = "剩余亮格数为 0，未知格全部为暗格"
                 elif remaining == len(unknown_cells):
                     forced_value = 1
-                    rule = "full"
-                    explanation = "剩余亮格数等于未知格数，未知格全部为亮格"
+                    basic_rule = "full"
+                    basic_explanation = "剩余亮格数等于未知格数，未知格全部为亮格"
                 else:
                     continue
+
+                reasoning_level = "advanced" if constraint.derived else "basic"
+                rule = f"advanced_{basic_rule}" if reasoning_level == "advanced" else basic_rule
+                explanation = (
+                    f"高级推理：通过重叠线索的差集得到约束；{basic_explanation}"
+                    if reasoning_level == "advanced"
+                    else basic_explanation
+                )
 
                 for cell in unknown_cells:
                     if values[cell] == UNKNOWN:
@@ -116,6 +131,7 @@ class NoGuessSolver:
                                 constraint.cells,
                                 remaining,
                                 explanation,
+                                reasoning_level,
                             )
                         )
                         changed = True
@@ -156,7 +172,7 @@ class NoGuessSolver:
                         )
                     if difference and (difference, difference_total) not in constraint_keys:
                         constraint_keys.add((difference, difference_total))
-                        constraints.append(Constraint(difference, difference_total))
+                        constraints.append(Constraint(difference, difference_total, derived=True))
                         derived_constraint_added = True
 
             if derived_constraint_added:

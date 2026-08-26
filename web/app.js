@@ -15,6 +15,7 @@ const refs = {
   cellCount: document.querySelector("#cellCount"),
   clueCount: document.querySelector("#clueCount"),
   proofStatus: document.querySelector("#proofStatus"),
+  reasoningBadge: document.querySelector("#reasoningBadge"),
   progressLabel: document.querySelector("#progressLabel"),
   seedLabel: document.querySelector("#seedLabel"),
 };
@@ -25,6 +26,7 @@ const state = {
   clues: [],
   selectedRegion: null,
   hintIndex: null,
+  hintSourceIndices: new Set(),
   conflictIndices: new Set(),
 };
 
@@ -65,10 +67,11 @@ function neighboursForCell(index) {
   return result;
 }
 
-function normalizeConstraint(cells, total) {
+function normalizeConstraint(cells, total, advanced = false) {
   return {
     cells: [...new Set(cells)].sort((a, b) => a - b),
     total,
+    advanced,
   };
 }
 
@@ -79,7 +82,7 @@ function constraintKey(constraint) {
 function solveDeterministically(cellCount, inputConstraints, initialValues) {
   const values = [...initialValues];
   const constraints = inputConstraints.map((constraint) =>
-    normalizeConstraint(constraint.cells, constraint.total),
+    normalizeConstraint(constraint.cells, constraint.total, constraint.advanced),
   );
   const keys = new Set(constraints.map(constraintKey));
   const steps = [];
@@ -110,18 +113,28 @@ function solveDeterministically(cellCount, inputConstraints, initialValues) {
       const forcedValue = remaining === 0 ? DARK : remaining === unknownCells.length ? BRIGHT : null;
       if (forcedValue === null) continue;
 
+      const basicRule = forcedValue === DARK ? "zero" : "full";
+      const reasoningLevel = constraint.advanced ? "advanced" : "basic";
+
       for (const cell of unknownCells) {
         if (values[cell] === UNKNOWN) {
           values[cell] = forcedValue;
           steps.push({
-            rule: forcedValue === DARK ? "zero" : "full",
+            rule: reasoningLevel === "advanced" ? `advanced_${basicRule}` : basicRule,
             cell,
             value: forcedValue,
             sourceCells: constraint.cells,
             explanation:
-              forcedValue === DARK
-                ? "剩余亮格数为 0，未知格必为暗格。"
-                : "剩余亮格数等于未知格数，未知格必为亮格。",
+              reasoningLevel === "advanced"
+                ? `高级推理：通过重叠线索的差集得到约束；${
+                    forcedValue === DARK
+                      ? "剩余亮格数为 0，未知格必为暗格。"
+                      : "剩余亮格数等于未知格数，未知格必为亮格。"
+                  }`
+                : forcedValue === DARK
+                  ? "剩余亮格数为 0，未知格必为暗格。"
+                  : "剩余亮格数等于未知格数，未知格必为亮格。",
+            reasoningLevel,
           });
           changed = true;
         }
@@ -160,7 +173,7 @@ function solveDeterministically(cellCount, inputConstraints, initialValues) {
           };
         }
 
-        const derivedConstraint = normalizeConstraint(difference, differenceTotal);
+        const derivedConstraint = normalizeConstraint(difference, differenceTotal, true);
         const key = constraintKey(derivedConstraint);
         if (!keys.has(key) && difference.length > 0) {
           keys.add(key);
@@ -192,12 +205,19 @@ function regionProblem(region) {
 function analyseBoard() {
   const results = state.level.regions.map((region) => ({ region, ...regionProblem(region) }));
   const conflicts = new Set();
+  const contradiction = results.find((item) => item.result.status === "contradiction");
   for (const item of results) {
     if (item.result.status === "contradiction") {
       item.region.cells.forEach((index) => conflicts.add(index));
     }
   }
-  return { results, conflicts };
+  return {
+    results,
+    conflicts,
+    contradictionMessage: contradiction
+      ? `${contradiction.region.name}：${contradiction.result.message}`
+      : null,
+  };
 }
 
 function edgeClasses(index) {
@@ -211,6 +231,19 @@ function edgeClasses(index) {
   if (y === height - 1 || regionMap[index + width] !== regionId) classes.push("edge-bottom");
   if (x === 0 || regionMap[index - 1] !== regionId) classes.push("edge-left");
   return classes;
+}
+
+function isRegionComplete(item) {
+  return (
+    item.result.status === "solved" &&
+    item.region.cells.every((globalIndex) => state.values[globalIndex] !== UNKNOWN)
+  );
+}
+
+function nextStepFor(item) {
+  return item.result.steps.find(
+    (candidate) => state.values[item.region.cells[candidate.cell]] === UNKNOWN,
+  );
 }
 
 function renderTabs(analysis = null) {
@@ -230,12 +263,19 @@ function renderTabs(analysis = null) {
 
   for (const region of regions) {
     const button = document.createElement("button");
-    const solved = analysis?.results.find((item) => item.region.id === region.id)?.result.status === "solved";
+    const item = analysis?.results.find((candidate) => candidate.region.id === region.id);
+    const suffix = item
+      ? isRegionComplete(item)
+        ? " · 已完成"
+        : nextStepFor(item)?.reasoningLevel === "advanced"
+          ? " · 高级"
+          : ""
+      : "";
     button.type = "button";
     button.className = "region-tab";
     button.setAttribute("role", "tab");
     button.setAttribute("aria-selected", String(state.selectedRegion === region.id));
-    button.innerHTML = `<span class="tab-dot" aria-hidden="true"></span>${region.name}${solved ? " · 已解" : ""}`;
+    button.innerHTML = `<span class="tab-dot" aria-hidden="true"></span>${region.name}${suffix}`;
     button.style.color = `var(--${region.accent})`;
     button.addEventListener("click", () => {
       state.selectedRegion = region.id;
@@ -268,6 +308,7 @@ function renderBoard(focusIndex = null) {
       clue === null ? "no-clue" : "has-clue",
       state.selectedRegion !== null && state.selectedRegion !== region.id ? "is-muted" : "",
       state.hintIndex === index ? "is-hint" : "",
+      state.hintSourceIndices.has(index) ? "is-hint-source" : "",
       state.conflictIndices.has(index) ? "is-conflict" : "",
       ...edgeClasses(index),
     ]
@@ -318,14 +359,28 @@ function renderBoard(focusIndex = null) {
 
 function updateStats(analysis) {
   const placed = state.values.filter((value) => value !== UNKNOWN).length;
-  const solved = analysis.results.filter((item) => item.result.status === "solved").length;
+  const solved = analysis.results.filter(isRegionComplete).length;
   const total = state.level.width * state.level.height;
   const clueCount = state.level.regions.reduce((sum, region) => sum + Object.keys(region.clues).length, 0);
+  const nextStep = analysis.results.map(nextStepFor).find(Boolean);
   refs.regionCount.textContent = String(state.level.regions.length);
   refs.cellCount.textContent = String(total);
   refs.clueCount.textContent = String(clueCount);
   refs.progressLabel.textContent = `${placed} / ${total}`;
-  refs.proofStatus.textContent = solved === state.level.regions.length ? "已解开" : "唯一已证";
+  refs.proofStatus.textContent = solved === state.level.regions.length ? "已完成" : "唯一已证";
+  if (analysis.conflicts.size > 0) {
+    refs.reasoningBadge.textContent = "先处理矛盾";
+    refs.reasoningBadge.dataset.level = "waiting";
+  } else if (solved === state.level.regions.length) {
+    refs.reasoningBadge.textContent = "本页完成";
+    refs.reasoningBadge.dataset.level = "complete";
+  } else if (nextStep) {
+    refs.reasoningBadge.textContent = nextStep.reasoningLevel === "advanced" ? "高级推理" : "基础推理";
+    refs.reasoningBadge.dataset.level = nextStep.reasoningLevel;
+  } else {
+    refs.reasoningBadge.textContent = "等待标记";
+    refs.reasoningBadge.dataset.level = "waiting";
+  }
 }
 
 function renderAll(focusIndex = null, analysis = null) {
@@ -339,10 +394,15 @@ function renderAll(focusIndex = null, analysis = null) {
 function setCell(index, value) {
   state.values[index] = value;
   state.hintIndex = null;
+  state.hintSourceIndices = new Set();
   const analysis = analyseBoard();
   renderAll(index, analysis);
   if (analysis.conflicts.size > 0) {
-    setMessage(refs.boardMessage, "这一步让某个数字超出可能范围；橙色边框标出了受影响区域。", "error");
+    setMessage(
+      refs.boardMessage,
+      `${analysis.contradictionMessage ?? "这一步让某个数字超出可能范围。"} 橙色边框标出了受影响区域。`,
+      "error",
+    );
   } else {
     setMessage(refs.boardMessage, "记录已更新。需要时可以让提示器寻找下一条必然关系。", "neutral");
   }
@@ -352,30 +412,45 @@ function requestHint() {
   const analysis = analyseBoard();
   if (analysis.conflicts.size > 0) {
     state.hintIndex = null;
+    state.hintSourceIndices = new Set();
     renderAll(null, analysis);
-    setMessage(refs.statusNote, "当前盘面有矛盾，先把橙色边框附近的标记改回未知。", "error");
+    setMessage(
+      refs.statusNote,
+      `${analysis.contradictionMessage ?? "当前盘面有矛盾。"} 先把橙色边框附近的标记改回未知。`,
+      "error",
+    );
     setMessage(refs.boardMessage, "提示器不会跨过矛盾替你猜。", "error");
     return;
   }
 
   for (const item of analysis.results) {
-    const step = item.result.steps.find((candidate) => state.values[item.region.cells[candidate.cell]] === UNKNOWN);
+    const step = nextStepFor(item);
     if (step) {
       const globalIndex = item.region.cells[step.cell];
       state.hintIndex = globalIndex;
+      state.hintSourceIndices = new Set(
+        step.sourceCells.map((localIndex) => item.region.cells[localIndex]),
+      );
       renderAll(null, analysis);
+      const explanation =
+        step.reasoningLevel === "advanced"
+          ? step.explanation.replace(/^高级推理：/, "")
+          : step.explanation;
       setMessage(
         refs.statusNote,
-        `${item.region.name}：${step.explanation} 橙色边框是必然可落笔的位置。`,
+        `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级推理" : "基础推理"}：${explanation} 橙色边框是必然可落笔的位置。`,
         "success",
       );
-      setMessage(refs.boardMessage, "提示只展示逻辑结论，不会自动替你填入。", "neutral");
+      setMessage(refs.boardMessage, "橙色外圈是必然落笔的位置，细线框是本步推导所涉及的关联格。", "neutral");
       return;
     }
   }
 
-  const solved = analysis.results.every((item) => item.result.status === "solved");
+  const solved = analysis.results.every(isRegionComplete);
   if (solved) {
+    state.hintIndex = null;
+    state.hintSourceIndices = new Set();
+    renderAll(null, analysis);
     setMessage(refs.statusNote, "这一页已经被完整解开。", "success");
     setMessage(refs.boardMessage, "所有区域都通过了确定性推导。", "success");
   } else {
@@ -388,12 +463,17 @@ function checkBoard() {
   const analysis = analyseBoard();
   renderAll(null, analysis);
   if (analysis.conflicts.size > 0) {
-    setMessage(refs.statusNote, "发现矛盾。橙色边框所在区域里，至少有一个标记与数字范围冲突。", "error");
+    setMessage(
+      refs.statusNote,
+      `${analysis.contradictionMessage ?? "发现矛盾。"} 橙色边框所在区域里，至少有一个标记与数字范围冲突。`,
+      "error",
+    );
     setMessage(refs.boardMessage, "把可疑标记改回未知，再继续推理。", "error");
     return;
   }
-  if (analysis.results.every((item) => item.result.status === "solved")) {
+  if (analysis.results.every(isRegionComplete)) {
     state.hintIndex = null;
+    state.hintSourceIndices = new Set();
     renderAll(null, analysis);
     setMessage(refs.statusNote, "完成。每个区域都被纯逻辑解开，且题面只有这一组答案。", "success");
     setMessage(refs.boardMessage, "箴言残卷的这一页，落印。", "success");
@@ -407,6 +487,7 @@ function checkBoard() {
 function resetBoard() {
   state.values = new Array(state.level.width * state.level.height).fill(UNKNOWN);
   state.hintIndex = null;
+  state.hintSourceIndices = new Set();
   state.conflictIndices = new Set();
   renderAll();
   setMessage(refs.statusNote, "棋盘已清空。你不需要猜，只需要找出下一条必然关系。", "neutral");
@@ -424,6 +505,7 @@ function prepareLevel(level) {
   }
   state.selectedRegion = null;
   state.hintIndex = null;
+  state.hintSourceIndices = new Set();
   state.conflictIndices = new Set();
   refs.subtitle.textContent = level.subtitle;
   refs.seedLabel.textContent = `SEED ${level.seed}`;

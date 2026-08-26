@@ -22,6 +22,13 @@ class RegionMetrics:
     solver_steps: int
     first_forced_cells: int
     unique_verified: bool
+    basic_steps: int
+    advanced_steps: int
+    reasoning_level: str
+    bright_count: int
+    dark_count: int
+    clue_min: int
+    clue_max: int
 
 
 @dataclass(frozen=True)
@@ -52,6 +59,10 @@ class GeneratedLevel:
             "width": self.width,
             "height": self.height,
             "seed": self.seed,
+            "clueRange": [
+                min(clue for region in self.regions for clue in region.clues.values()),
+                max(clue for region in self.regions for clue in region.clues.values()),
+            ],
             "regionMap": list(self.region_map),
             "regions": [
                 {
@@ -66,6 +77,13 @@ class GeneratedLevel:
                         "solverSteps": region.metrics.solver_steps,
                         "firstForcedCells": region.metrics.first_forced_cells,
                         "uniqueVerified": region.metrics.unique_verified,
+                        "basicSteps": region.metrics.basic_steps,
+                        "advancedSteps": region.metrics.advanced_steps,
+                        "reasoningLevel": region.metrics.reasoning_level,
+                        "brightCount": region.metrics.bright_count,
+                        "darkCount": region.metrics.dark_count,
+                        "clueMin": region.metrics.clue_min,
+                        "clueMax": region.metrics.clue_max,
                     },
                 }
                 for region in self.regions
@@ -162,25 +180,15 @@ def _solve_region(
     ).solve()
 
 
-def _make_sparse_target(width: int, height: int, region_map: list[int], rng: random.Random) -> list[int]:
-    """Make a sparse, separated light pattern that is friendly to first clues."""
+def _make_balanced_target(width: int, height: int, region_map: list[int], rng: random.Random) -> list[int]:
+    """Make a dense target with a near-even light/dark split per region."""
 
     target = [0] * (width * height)
     for region_id in range(4):
         cells = list(_region_cells(region_map, region_id))
         rng.shuffle(cells)
-        selected: list[int] = []
-        for candidate in cells:
-            x, y = candidate % width, candidate // width
-            if all(
-                max(abs(x - chosen % width), abs(y - chosen // width)) > 2
-                for chosen in selected
-            ):
-                if not selected or rng.random() < 0.34:
-                    selected.append(candidate)
-        if not selected:
-            selected.append(cells[0])
-        for cell in selected:
+        bright_count = len(cells) // 2
+        for cell in cells[:bright_count]:
             target[cell] = 1
     return target
 
@@ -198,9 +206,12 @@ def _prune_region(
     shuffled_clues = list(region_cells)
     rng.shuffle(shuffled_clues)
     target_local = tuple(target[index] for index in region_cells)
+    required_clues = {next(cell for cell in region_cells if full_clues[cell] == clue) for clue in set(full_clues.values())}
 
     for clue_index in shuffled_clues:
-        if len(working) <= 1:
+        if clue_index in required_clues:
+            continue
+        if len(working) <= len(required_clues):
             break
         trial = dict(working)
         del trial[clue_index]
@@ -216,19 +227,22 @@ def _prune_region(
 
 def build_level(
     *,
-    width: int = 15,
-    height: int = 15,
-    seed: int = 20260827,
+    width: int = 20,
+    height: int = 20,
+    seed: int = 20260828,
     max_attempts: int = 100,
     verify_with_minizinc: bool = True,
+    require_full_clue_range: bool = True,
 ) -> GeneratedLevel:
     """Generate a playable level with no-guess regions and unique solutions."""
 
     base_region_map = build_region_map(width, height)
     for attempt in range(1, max_attempts + 1):
         rng = random.Random(seed + attempt * 1009)
-        target = _make_sparse_target(width, height, base_region_map, rng)
+        target = _make_balanced_target(width, height, base_region_map, rng)
         full_clues = calculate_clues(width, height, base_region_map, target)
+        if require_full_clue_range and (min(full_clues) != 0 or max(full_clues) != 9):
+            continue
         generated_regions: list[RegionLevel] = []
         failed = False
 
@@ -276,13 +290,25 @@ def build_level(
                         len(clues),
                         len(visible_clues),
                         len(result.steps),
-                        sum(1 for step in result.steps if step.rule in ("zero", "full")),
+                        sum(1 for step in result.steps if step.reasoning_level == "basic"),
                         unique_verified,
+                        sum(1 for step in result.steps if step.reasoning_level == "basic"),
+                        sum(1 for step in result.steps if step.reasoning_level == "advanced"),
+                        result.reasoning_level,
+                        sum(target[index] for index in cells),
+                        len(cells) - sum(target[index] for index in cells),
+                        min(visible_clues.values()),
+                        max(visible_clues.values()),
                     ),
                 )
             )
 
-        if not failed and len(generated_regions) == 4:
+        visible_values = [clue for region in generated_regions for clue in region.clues.values()]
+        if (
+            not failed
+            and len(generated_regions) == 4
+            and (not require_full_clue_range or (min(visible_values) == 0 and max(visible_values) == 9))
+        ):
             return GeneratedLevel(
                 width,
                 height,
