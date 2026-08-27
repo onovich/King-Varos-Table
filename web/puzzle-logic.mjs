@@ -22,6 +22,90 @@ export function neighboursForCell(level, index) {
   return result;
 }
 
+export function findDirectClueHint(level, region, values) {
+  const candidates = [];
+
+  for (const [rawIndex, rawClue] of Object.entries(region.clues)) {
+    const clueIndex = Number(rawIndex);
+    const clueValue = Number(rawClue);
+    const scopeCells = neighboursForCell(level, clueIndex);
+    const unknownCells = scopeCells.filter((index) => values[index] === UNKNOWN);
+    const knownBright = scopeCells.filter((index) => values[index] === BRIGHT).length;
+    const knownDark = scopeCells.filter((index) => values[index] === DARK).length;
+    const remaining = clueValue - knownBright;
+
+    if (remaining < 0 || remaining > unknownCells.length) {
+      return {
+        status: "contradiction",
+        kind: "direct-clue",
+        cell: null,
+        clueIndex,
+        scopeCells,
+        unknownCells,
+        forcedCells: [],
+        message: `线索 ${clueValue} 还需要 ${remaining} 个亮格，但只剩 ${unknownCells.length} 个未知格。`,
+      };
+    }
+    if (unknownCells.length === 0) continue;
+
+    const value = remaining === 0
+      ? DARK
+      : remaining === unknownCells.length
+        ? BRIGHT
+        : null;
+    if (value === null) continue;
+
+    candidates.push({
+      status: "ok",
+      kind: "direct-clue",
+      rule: value === DARK ? "zero" : "full",
+      cell: clueIndex,
+      clueIndex,
+      clueValue,
+      value,
+      scopeCells,
+      sourceCells: scopeCells,
+      sourceClueIndices: [clueIndex],
+      unknownCells,
+      forcedCells: unknownCells,
+      knownBright,
+      knownDark,
+      remaining,
+      prerequisiteCells: scopeCells.filter((index) => values[index] !== UNKNOWN),
+      dependsOnPlayerMarks: knownBright + knownDark > 0,
+      reasoningLevel: "basic",
+      clipped: scopeCells.length < 9,
+      explanation: value === DARK
+        ? "这条数字线索已经不再需要亮格，范围内所有未知格都必为暗格。"
+        : "这条数字线索所需的亮格数等于未知格数，范围内所有未知格都必为亮格。",
+    });
+  }
+
+  candidates.sort((left, right) => {
+    if (left.dependsOnPlayerMarks !== right.dependsOnPlayerMarks) {
+      return left.dependsOnPlayerMarks ? -1 : 1;
+    }
+    const leftKnown = left.knownBright + left.knownDark;
+    const rightKnown = right.knownBright + right.knownDark;
+    if (leftKnown !== rightKnown) return rightKnown - leftKnown;
+    if (left.unknownCells.length !== right.unknownCells.length) {
+      return left.unknownCells.length - right.unknownCells.length;
+    }
+    return left.clueIndex - right.clueIndex;
+  });
+
+  return candidates[0] ?? {
+    status: "stalled",
+    kind: "direct-clue",
+    cell: null,
+    clueIndex: null,
+    scopeCells: [],
+    unknownCells: [],
+    forcedCells: [],
+    message: "当前没有可以由单个数字直接结算的范围。",
+  };
+}
+
 function normalizeConstraint(cells, total, metadata = {}) {
   const clueIndex = metadata.clueIndex ?? null;
   const sourceClueIndices = metadata.sourceClueIndices ?? (clueIndex === null ? [] : [clueIndex]);
@@ -275,6 +359,7 @@ export function analyseRegion(level, region, values) {
     initialValues,
     result,
     hint: nextActionableStep(region, result, initialValues),
+    directHint: findDirectClueHint(level, region, values),
   };
 }
 

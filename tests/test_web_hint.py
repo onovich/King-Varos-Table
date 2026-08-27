@@ -6,6 +6,90 @@ from pathlib import Path
 
 @unittest.skipUnless(shutil.which("node"), "Node.js is required for browser hint tests")
 class BrowserHintEngineTests(unittest.TestCase):
+    def test_direct_hint_targets_the_clue_and_its_region_clipped_scope(self):
+        script = r'''
+import assert from "node:assert/strict";
+import { DARK, UNKNOWN, findDirectClueHint } from "./web/puzzle-logic.mjs";
+
+const level = {
+  width: 3,
+  height: 3,
+  regionMap: [0, 0, 1, 0, 0, 1, 1, 1, 1],
+};
+const region = {
+  id: 0,
+  cells: [0, 1, 3, 4],
+  clues: { 0: 0 },
+};
+const values = Array(9).fill(UNKNOWN);
+values[1] = DARK;
+
+const hint = findDirectClueHint(level, region, values);
+assert.equal(hint.status, "ok");
+assert.equal(hint.kind, "direct-clue");
+assert.equal(hint.clueIndex, 0);
+assert.equal(hint.cell, 0);
+assert.deepEqual(hint.scopeCells, [0, 1, 3, 4]);
+assert.deepEqual(hint.unknownCells, [0, 3, 4]);
+assert.deepEqual(hint.forcedCells, [0, 3, 4]);
+assert.equal(hint.value, DARK);
+assert.equal(hint.knownBright, 0);
+assert.equal(hint.knownDark, 1);
+assert.equal(hint.remaining, 0);
+assert.equal(hint.dependsOnPlayerMarks, true);
+'''
+        result = subprocess.run(
+            [shutil.which("node"), "--input-type=module", "--eval", script],
+            cwd=Path(__file__).resolve().parents[1],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+
+    def test_direct_hint_can_cover_all_nine_cells_and_never_upgrades_to_a_difference(self):
+        script = r'''
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { BRIGHT, DARK, UNKNOWN, findDirectClueHint } from "./web/puzzle-logic.mjs";
+
+const fullLevel = {
+  width: 3,
+  height: 3,
+  regionMap: Array(9).fill(0),
+};
+const fullRegion = {
+  id: 0,
+  cells: Array.from({ length: 9 }, (_, index) => index),
+  clues: { 4: 9 },
+};
+const fullHint = findDirectClueHint(fullLevel, fullRegion, Array(9).fill(UNKNOWN));
+assert.equal(fullHint.status, "ok");
+assert.equal(fullHint.clueIndex, 4);
+assert.equal(fullHint.cell, 4);
+assert.deepEqual(fullHint.scopeCells, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+assert.deepEqual(fullHint.forcedCells, [0, 1, 2, 3, 4, 5, 6, 7, 8]);
+assert.equal(fullHint.value, BRIGHT);
+assert.equal(fullHint.clipped, false);
+
+const level = JSON.parse(fs.readFileSync("./web/data/demo-level.json", "utf8"));
+const values = Array(level.width * level.height).fill(UNKNOWN);
+for (const index of [210, 211, 230, 231]) values[index] = DARK;
+const region = level.regions.find((candidate) => candidate.name === "钟楼西庭");
+const stalled = findDirectClueHint(level, region, values);
+assert.equal(stalled.status, "stalled");
+assert.equal(stalled.cell, null);
+assert.equal(stalled.kind, "direct-clue");
+'''
+        result = subprocess.run(
+            [shutil.which("node"), "--input-type=module", "--eval", script],
+            cwd=Path(__file__).resolve().parents[1],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+
     def test_hint_replays_current_board_and_exposes_its_proof(self):
         script = r'''
 import assert from "node:assert/strict";

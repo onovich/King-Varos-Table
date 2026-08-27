@@ -335,121 +335,6 @@ h2 {
   color: #d1edbb;
 }
 
-.hint-proof {
-  margin-top: 20px;
-  padding: 15px;
-  color: rgba(242, 236, 223, 0.82);
-  background: rgba(10, 23, 24, 0.2);
-  border: 1px solid rgba(242, 236, 223, 0.22);
-  border-left: 3px solid var(--focus);
-}
-
-.hint-proof-kicker {
-  margin: 0 0 6px;
-  color: var(--focus);
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-}
-
-.hint-proof h3 {
-  margin: 0 0 12px;
-  color: var(--paper-light);
-  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
-  font-size: 1.18rem;
-  font-weight: 600;
-}
-
-.hint-proof-notation {
-  color: rgba(242, 236, 223, 0.48);
-  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.hint-proof-conclusion {
-  margin: 0 0 12px;
-  padding: 9px 10px;
-  color: var(--ink);
-  background: var(--focus);
-  font-size: 0.76rem;
-  font-weight: 800;
-  line-height: 1.45;
-}
-
-.hint-proof-mode {
-  margin: 0 0 10px;
-  color: rgba(242, 236, 223, 0.68);
-  font-size: 0.66rem;
-  line-height: 1.5;
-}
-
-.hint-proof-steps {
-  display: grid;
-  gap: 9px;
-  margin: 0;
-  padding-left: 1.25rem;
-}
-
-.hint-proof-step {
-  padding-left: 3px;
-  color: rgba(242, 236, 223, 0.78);
-  font-size: 0.7rem;
-  line-height: 1.55;
-}
-
-.hint-proof-step strong,
-.hint-proof-step span {
-  display: block;
-}
-
-.hint-proof-step strong {
-  margin-bottom: 2px;
-  color: var(--paper-light);
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
-}
-
-.hint-proof-equation {
-  margin: 1px 0;
-  padding: 7px 8px;
-  color: var(--ink);
-  background: rgba(239, 198, 108, 0.88);
-  border-left: 2px solid var(--signal);
-  font-family: Georgia, "Times New Roman", serif;
-}
-
-.hint-proof-equation strong,
-.hint-proof-equation span {
-  color: var(--ink);
-}
-
-.hint-proof-conclusion-step strong {
-  color: var(--focus);
-}
-
-.hint-proof-context {
-  margin: 13px 0 0;
-  padding-top: 10px;
-  color: rgba(242, 236, 223, 0.56);
-  border-top: 1px solid rgba(242, 236, 223, 0.17);
-  font-size: 0.67rem;
-  line-height: 1.55;
-}
-
-.hint-proof-invalid {
-  margin: 0;
-  padding: 10px;
-  color: #ffd8cc;
-  background: rgba(216, 100, 67, 0.2);
-  border: 1px solid rgba(243, 138, 106, 0.62);
-  font-size: 0.72rem;
-  line-height: 1.55;
-}
-
 .puzzle-panel {
   min-width: 0;
   padding: clamp(16px, 2.6vw, 32px);
@@ -576,6 +461,59 @@ h2 {
   border-radius: 50%;
 }
 
+.board-hint-summary {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  color: var(--ink);
+  background: rgba(239, 198, 108, 0.28);
+  border-top: 1px solid rgba(216, 100, 67, 0.62);
+  border-bottom: 1px solid rgba(216, 100, 67, 0.38);
+  border-left: 4px solid var(--signal);
+}
+
+.board-hint-summary[hidden] {
+  display: none;
+}
+
+.board-hint-kicker,
+.board-hint-summary h3,
+.board-hint-facts,
+.board-hint-equation,
+.board-hint-action {
+  margin: 0;
+}
+
+.board-hint-kicker {
+  color: var(--signal);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.board-hint-summary h3 {
+  font-size: 1rem;
+}
+
+.board-hint-facts,
+.board-hint-action {
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.board-hint-equation {
+  width: fit-content;
+  margin: 3px 0;
+  padding: 5px 8px;
+  color: var(--ink);
+  background: rgba(239, 198, 108, 0.78);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .board-frame {
   overflow: auto;
   padding: 10px;
@@ -676,23 +614,15 @@ h2 {
   opacity: 0.28;
 }
 
-.cell.is-hint-result {
-  z-index: 3;
-  box-shadow: inset 0 0 0 3px var(--signal), 0 0 0 2px var(--focus);
-}
-
 .cell.is-hint {
   z-index: 4;
   box-shadow: inset 0 0 0 4px var(--signal), 0 0 0 2px var(--focus);
   animation: hintPulse 900ms ease-in-out 2;
 }
 
-.cell.is-hint-proof:not(.is-hint):not(.is-hint-result):not(.is-hint-source) {
-  box-shadow: inset 0 0 0 1px rgba(216, 100, 67, 0.42);
-}
-
-.cell.is-hint-source:not(.is-hint):not(.is-hint-result) {
-  box-shadow: inset 0 0 0 2px rgba(216, 100, 67, 0.62);
+.cell.is-hint-scope:not(.is-hint) {
+  z-index: 2;
+  box-shadow: inset 0 0 0 2px rgba(216, 100, 67, 0.48);
 }
 
 .cell.is-conflict {
@@ -738,12 +668,9 @@ h2 {
   background: var(--signal);
 }
 
-.key-hint-source {
-  background: rgba(216, 100, 67, 0.46);
-}
-
-.key-hint-proof {
-  background: rgba(216, 100, 67, 0.24);
+.key-hint-scope {
+  background: transparent;
+  border: 2px solid rgba(216, 100, 67, 0.52);
 }
 
 .board-message {

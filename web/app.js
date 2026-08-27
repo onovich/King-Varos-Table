@@ -4,7 +4,6 @@ import {
   UNKNOWN,
   analyseRegion,
 } from "./puzzle-logic.mjs";
-import { buildHintProof } from "./hint-proof.mjs";
 
 const refs = {
   subtitle: document.querySelector("#levelSubtitle"),
@@ -19,8 +18,12 @@ const refs = {
   cellCount: document.querySelector("#cellCount"),
   clueCount: document.querySelector("#clueCount"),
   proofStatus: document.querySelector("#proofStatus"),
-  hintProof: document.querySelector("#hintProof"),
-  hintProofBody: document.querySelector("#hintProofBody"),
+  boardHintSummary: document.querySelector("#boardHintSummary"),
+  boardHintKicker: document.querySelector("#boardHintKicker"),
+  boardHintTitle: document.querySelector("#boardHintTitle"),
+  boardHintFacts: document.querySelector("#boardHintFacts"),
+  boardHintEquation: document.querySelector("#boardHintEquation"),
+  boardHintAction: document.querySelector("#boardHintAction"),
   reasoningBadge: document.querySelector("#reasoningBadge"),
   progressLabel: document.querySelector("#progressLabel"),
   seedLabel: document.querySelector("#seedLabel"),
@@ -32,9 +35,7 @@ const state = {
   clues: [],
   selectedRegion: null,
   hintIndex: null,
-  hintResultIndices: new Set(),
-  hintSourceIndices: new Set(),
-  hintProofIndices: new Set(),
+  hintScopeIndices: new Set(),
   conflictIndices: new Set(),
 };
 
@@ -101,7 +102,7 @@ function isRegionComplete(item) {
 }
 
 function nextStepFor(item) {
-  return item?.hint ?? null;
+  return item?.directHint?.status === "ok" ? item.directHint : null;
 }
 
 function hintItems(analysis) {
@@ -110,11 +111,8 @@ function hintItems(analysis) {
 }
 
 function compareHintCandidates(left, right) {
-  if (left.proof.dependsOnPlayerMarks !== right.proof.dependsOnPlayerMarks) {
-    return left.proof.dependsOnPlayerMarks ? -1 : 1;
-  }
-  if (left.step.reasoningLevel !== right.step.reasoningLevel) {
-    return left.step.reasoningLevel === "basic" ? -1 : 1;
+  if (left.step.dependsOnPlayerMarks !== right.step.dependsOnPlayerMarks) {
+    return left.step.dependsOnPlayerMarks ? -1 : 1;
   }
   if (left.step.forcedCells.length !== right.step.forcedCells.length) {
     return left.step.forcedCells.length - right.step.forcedCells.length;
@@ -126,14 +124,13 @@ function hintCandidates(analysis) {
   return hintItems(analysis)
     .map((item) => {
       const step = nextStepFor(item);
-      return step ? { item, step, proof: buildHintProof(state.level, state.clues, state.values, step) } : null;
+      return step ? { item, step } : null;
     })
-    .filter((candidate) => candidate?.proof);
+    .filter(Boolean);
 }
 
 function nextHintCandidate(analysis) {
   return hintCandidates(analysis)
-    .filter((candidate) => candidate.proof.valid)
     .sort(compareHintCandidates)[0] ?? null;
 }
 
@@ -143,152 +140,31 @@ function coordinateFor(index) {
   return `第${row}行第${column}列`;
 }
 
-function cellDescription(index) {
-  const clue = state.clues[index];
-  return `${coordinateFor(index)}${clue === null ? "" : `（显示线索${clue}）`}`;
-}
-
-function cellListDescription(indices) {
-  return indices.map((index) => cellDescription(index)).join("、");
-}
-
 function valueDescription(value) {
   return value === DARK ? "暗格" : "亮格";
 }
 
-function proofTokenList(indices, separator = " + ") {
-  return indices.length ? indices.map((index) => `R${Math.floor(index / state.level.width) + 1}C${(index % state.level.width) + 1}`).join(separator) : "无";
-}
+function renderBoardHint(hint) {
+  refs.boardHintSummary.hidden = !hint;
+  if (!hint) return;
 
-function appendProofStep(parent, label, text, className = "") {
-  const item = document.createElement("li");
-  item.className = ["hint-proof-step", className].filter(Boolean).join(" ");
-  const title = document.createElement("strong");
-  title.textContent = label;
-  const detail = document.createElement("span");
-  detail.textContent = text;
-  item.append(title, detail);
-  parent.append(item);
-}
+  const row = Math.floor(hint.clueIndex / state.level.width) + 1;
+  const column = (hint.clueIndex % state.level.width) + 1;
+  const scopeDescription = hint.clipped
+    ? `区域边界将 3×3 范围裁成 ${hint.scopeCells.length} 格（包含数字格自身）`
+    : "完整 3×3 范围共 9 格（包含数字格自身）";
 
-function constraintDescription(model) {
-  const source = model.clueIndex === null
-    ? model.label
-    : `${cellDescription(model.clueIndex)} = ${model.clueValue}`;
-  const scope = model.cells.length === 9
-    ? "同一区域内、包含数字格自身的完整 3×3 范围共 9 格"
-    : `同一区域边界把包含数字格自身的 3×3 范围裁成 ${model.cells.length} 格`;
-  const settled = model.knownBright + model.knownDark;
-  const settledDescription = settled > 0
-    ? `其中已有 ${model.knownBright} 格确定为亮、${model.knownDark} 格确定为暗；`
-    : "其中还没有已确定格；";
-  return `${source}；${scope}。${settledDescription}剩余未知集合 { ${proofTokenList(model.unknownCells, "、")} } 还需 ${model.remaining} 个亮格。`;
-}
-
-function renderHintProof(proof) {
-  refs.hintProof.hidden = !proof;
-  refs.hintProofBody.replaceChildren();
-  if (!proof) return;
-
-  if (!proof.valid) {
-    const rejected = document.createElement("p");
-    rejected.className = "hint-proof-invalid";
-    rejected.textContent = `提示证明未通过一致性校验，已拒绝展示结论：${proof.error}`;
-    refs.hintProofBody.append(rejected);
-    return;
-  }
-
-  if (proof.reasoningLevel === "advanced") {
-    const mode = document.createElement("p");
-    mode.className = "hint-proof-mode";
-    mode.textContent = "本作扩展：这是一条可审计的双线索差集分析，不冒充原版的单线索 Hint。";
-    refs.hintProofBody.append(mode);
-  }
-
-  const conclusion = document.createElement("p");
-  conclusion.className = "hint-proof-conclusion";
-  conclusion.textContent = `结论：${cellListDescription(proof.forcedCells)} → ${valueDescription(proof.target.value)}`;
-  refs.hintProofBody.append(conclusion);
-
-  const steps = document.createElement("ol");
-  steps.className = "hint-proof-steps";
-  if (proof.kind === "subset-difference") {
-    appendProofStep(
-      steps,
-      "S · 小集合",
-      constraintDescription(proof.subset),
-    );
-    appendProofStep(
-      steps,
-      "L · 大集合",
-      constraintDescription(proof.superset),
-    );
-    appendProofStep(
-      steps,
-      "包含关系",
-      `S 的 ${proof.subset.unknownCells.length} 个未知格全部位于 L；L 比 S 多出 ${proofTokenList(proof.differenceCells, "、")}。`,
-      "hint-proof-shared",
-    );
-    appendProofStep(
-      steps,
-      "L − S",
-      `${proofTokenList(proof.differenceCells, " + ")} = ${proof.superset.remaining} − ${proof.subset.remaining} = ${proof.differenceTotal} 个亮格。`,
-      "hint-proof-equation",
-    );
-    appendProofStep(
-      steps,
-      "因此",
-      `${proof.differenceCells.length} 个未知格中恰有 ${proof.differenceTotal} 个亮格，所以它们全部是${valueDescription(proof.target.value)}。`,
-      "hint-proof-conclusion-step",
-    );
-  } else {
-    const source = proof.source;
-    appendProofStep(
-      steps,
-      "唯一线索",
-      constraintDescription(source),
-    );
-    appendProofStep(
-      steps,
-      "因此",
-      source.remaining === 0
-        ? "剩余亮格数为 0，所有未知格都是暗格。"
-        : `剩余亮格数等于未知格数量 ${source.unknownCells.length}，所有未知格都是亮格。`,
-      "hint-proof-conclusion-step",
-    );
-  }
-  refs.hintProofBody.append(steps);
-
-  const context = document.createElement("p");
-  context.className = "hint-proof-context";
-  const placed = state.values.filter((value) => value !== UNKNOWN).length;
-  if (proof.playerKnownCells.length > 0) {
-    const participants = [
-      proof.playerKnownBrightCells.length > 0
-        ? `亮格 ${cellListDescription(proof.playerKnownBrightCells)}`
-        : "",
-      proof.playerKnownDarkCells.length > 0
-        ? `暗格 ${cellListDescription(proof.playerKnownDarkCells)}`
-        : "",
-    ].filter(Boolean).join("；");
-    context.textContent = `当前已落笔 ${placed} 格；其中 ${participants} 参与了这条证明。`;
-  } else if (placed > 0) {
-    context.textContent = `当前已落笔 ${placed} 格，但它们不在这条证明的范围内；这一步由题面线索自身推出，并没有冒充成由这 ${placed} 格新推出的结论。`;
-  } else {
-    context.textContent = "当前还没有玩家落子；这是一条由题面线索直接推出的必然关系。";
-  }
-  refs.hintProofBody.append(context);
+  refs.boardHintKicker.textContent = `基础提示 · R${row}C${column}`;
+  refs.boardHintTitle.textContent = `先看${coordinateFor(hint.clueIndex)}的数字 ${hint.clueValue}`;
+  refs.boardHintFacts.textContent = `${scopeDescription}；当前已亮 ${hint.knownBright} 格、已暗 ${hint.knownDark} 格、未知 ${hint.unknownCells.length} 格。`;
+  refs.boardHintEquation.textContent = hint.value === DARK
+    ? `${hint.clueValue} − ${hint.knownBright} = 0：不再需要亮格。`
+    : `${hint.clueValue} − ${hint.knownBright} = ${hint.remaining}：正好等于未知格数量。`;
+  refs.boardHintAction.textContent = `因此，把该范围内 ${hint.unknownCells.length} 个未知格全部标成${valueDescription(hint.value)}。`;
 }
 
 function regionHasAdvancedReasoning(region) {
   return region.metrics?.reasoningLevel === "advanced" || region.metrics?.advancedSteps > 0;
-}
-
-function levelHasAdvancedReasoning() {
-  return (
-    state.level.reasoningLevel === "advanced" ||
-    state.level.regions.some(regionHasAdvancedReasoning)
-  );
 }
 
 function renderTabs(analysis = null) {
@@ -356,9 +232,7 @@ function renderBoard(focusIndex = null) {
       clue === null ? "no-clue" : "has-clue",
       state.selectedRegion !== null && state.selectedRegion !== region.id ? "is-muted" : "",
       state.hintIndex === index ? "is-hint" : "",
-      state.hintResultIndices.has(index) ? "is-hint-result" : "",
-      state.hintSourceIndices.has(index) ? "is-hint-source" : "",
-      state.hintProofIndices.has(index) ? "is-hint-proof" : "",
+      state.hintScopeIndices.has(index) ? "is-hint-scope" : "",
       state.conflictIndices.has(index) ? "is-conflict" : "",
       ...edgeClasses(index),
     ]
@@ -370,7 +244,13 @@ function renderBoard(focusIndex = null) {
     button.setAttribute("aria-colindex", String(x + 1));
     button.setAttribute(
       "aria-label",
-      `${region.name}，第 ${y + 1} 行第 ${x + 1} 列，${clue === null ? "没有数字线索" : `线索 ${clue}`}，当前${valueLabel(value)}`,
+      `${region.name}，第 ${y + 1} 行第 ${x + 1} 列，${clue === null ? "没有数字线索" : `线索 ${clue}`}，当前${valueLabel(value)}${
+        state.hintIndex === index
+          ? "，当前提示数字，强高亮"
+          : state.hintScopeIndices.has(index)
+            ? "，当前提示范围，弱高亮"
+            : ""
+      }`,
     );
 
     const clueSpan = document.createElement("span");
@@ -405,7 +285,6 @@ function updateStats(analysis) {
   const total = state.level.width * state.level.height;
   const clueCount = state.level.regions.reduce((sum, region) => sum + Object.keys(region.clues).length, 0);
   const nextStep = nextHintCandidate(analysis)?.step ?? null;
-  const advancedLevel = levelHasAdvancedReasoning();
   refs.regionCount.textContent = String(state.level.regions.length);
   refs.cellCount.textContent = String(total);
   refs.clueCount.textContent = String(clueCount);
@@ -418,21 +297,10 @@ function updateStats(analysis) {
     refs.reasoningBadge.textContent = "本页完成";
     refs.reasoningBadge.dataset.level = "complete";
   } else if (nextStep) {
-    if (nextStep.reasoningLevel === "advanced") {
-      refs.reasoningBadge.textContent = "高级分析 · 扩展";
-      refs.reasoningBadge.dataset.level = "advanced";
-    } else if (advancedLevel) {
-      refs.reasoningBadge.textContent = "含高级推理";
-      refs.reasoningBadge.dataset.level = "advanced";
-    } else {
-      refs.reasoningBadge.textContent = "基础推理";
-      refs.reasoningBadge.dataset.level = "basic";
-    }
-  } else if (advancedLevel) {
-    refs.reasoningBadge.textContent = "含高级推理";
-    refs.reasoningBadge.dataset.level = "advanced";
+    refs.reasoningBadge.textContent = "基础提示可用";
+    refs.reasoningBadge.dataset.level = "basic";
   } else {
-    refs.reasoningBadge.textContent = "等待标记";
+    refs.reasoningBadge.textContent = "暂无基础提示";
     refs.reasoningBadge.dataset.level = "waiting";
   }
 }
@@ -447,10 +315,8 @@ function renderAll(focusIndex = null, analysis = null) {
 
 function clearHint() {
   state.hintIndex = null;
-  state.hintResultIndices = new Set();
-  state.hintSourceIndices = new Set();
-  state.hintProofIndices = new Set();
-  renderHintProof(null);
+  state.hintScopeIndices = new Set();
+  renderBoardHint(null);
 }
 
 function setCell(index, value) {
@@ -485,35 +351,26 @@ function requestHint() {
 
   const candidate = nextHintCandidate(analysis);
   if (candidate) {
-    const { item, step, proof } = candidate;
-    state.hintIndex = step.cell;
-    state.hintResultIndices = new Set(proof.forcedCells);
-    state.hintSourceIndices = new Set(step.sourceClueIndices);
-    state.hintProofIndices = new Set(proof.proofIndices);
+    const { item, step } = candidate;
+    state.hintIndex = step.clueIndex;
+    state.hintScopeIndices = new Set(
+      step.scopeCells.filter((index) => index !== step.clueIndex),
+    );
     renderAll(null, analysis);
-    renderHintProof(proof);
-    const proofKind = proof.kind === "subset-difference" ? "两个剩余未知集合的差集" : "单条数字线索";
+    renderBoardHint(step);
     setMessage(
       refs.statusNote,
-      `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级分析（本作扩展）" : "基础推理"}：已生成一张可核对的${proofKind}证明。`,
+      `${item.region.name} · 基础提示：请看${coordinateFor(step.clueIndex)}的数字 ${step.clueValue}。`,
       "success",
     );
     setMessage(
       refs.boardMessage,
-      `橙色外圈标出这一步推出的全部结论格，脉冲格只是其中的落笔起点；细线框是数字线索，淡色内框是证明覆盖范围。${
-        proof.dependsOnPlayerMarks ? "这条证明使用了当前已落笔格。" : "当前已落笔格不在这条证明中，结论来自题面本身。"
-      }`,
+      `粗橙框是提示数字；弱橙框是它在同一区域内的有效 3×3 范围。只根据这个数字就能处理整个高亮范围。`,
       "neutral",
     );
-    return;
-  }
-
-  const rejected = hintCandidates(analysis).find((item) => !item.proof.valid);
-  if (rejected) {
-    renderAll(null, analysis);
-    renderHintProof(rejected.proof);
-    setMessage(refs.statusNote, "提示器发现了一条候选推理，但证明校验未通过，因此没有给出结论。", "error");
-    setMessage(refs.boardMessage, "这不是玩家需要判断的步骤；提示器已主动拒绝不自洽的证明。", "error");
+    if (window.matchMedia("(max-width: 920px)").matches) {
+      refs.boardHintSummary.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
     return;
   }
 
@@ -526,8 +383,8 @@ function requestHint() {
   } else {
     const scope = state.selectedRegion === null ? "当前盘面" : "当前区域";
     renderAll(null, analysis);
-    setMessage(refs.statusNote, `${scope}暂时找不到仅凭已落笔状态可以说明的下一条必然关系；请检查是否漏看了边界。`, "neutral");
-    setMessage(refs.boardMessage, "没有猜测分支，提示器只接受当前盘面已经提供的已知格。", "neutral");
+    setMessage(refs.statusNote, `${scope}暂时没有能由单个数字直接结算的范围。`, "neutral");
+    setMessage(refs.boardMessage, "提示不会悄悄升级成双线索作差；继续落笔，或切换到另一个区域。", "neutral");
   }
 }
 
