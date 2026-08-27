@@ -32,6 +32,7 @@ const state = {
   clues: [],
   selectedRegion: null,
   hintIndex: null,
+  hintResultIndices: new Set(),
   hintSourceIndices: new Set(),
   hintProofIndices: new Set(),
   conflictIndices: new Set(),
@@ -121,13 +122,18 @@ function compareHintCandidates(left, right) {
   return left.item.region.id - right.item.region.id;
 }
 
-function nextHintCandidate(analysis) {
+function hintCandidates(analysis) {
   return hintItems(analysis)
     .map((item) => {
       const step = nextStepFor(item);
       return step ? { item, step, proof: buildHintProof(state.level, state.clues, state.values, step) } : null;
     })
-    .filter(Boolean)
+    .filter((candidate) => candidate?.proof);
+}
+
+function nextHintCandidate(analysis) {
+  return hintCandidates(analysis)
+    .filter((candidate) => candidate.proof.valid)
     .sort(compareHintCandidates)[0] ?? null;
 }
 
@@ -165,10 +171,39 @@ function appendProofStep(parent, label, text, className = "") {
   parent.append(item);
 }
 
+function constraintDescription(model) {
+  const source = model.clueIndex === null
+    ? model.label
+    : `${cellDescription(model.clueIndex)} = ${model.clueValue}`;
+  const scope = model.cells.length === 9
+    ? "同一区域内、包含数字格自身的完整 3×3 范围共 9 格"
+    : `同一区域边界把包含数字格自身的 3×3 范围裁成 ${model.cells.length} 格`;
+  const settled = model.knownBright + model.knownDark;
+  const settledDescription = settled > 0
+    ? `其中已有 ${model.knownBright} 格确定为亮、${model.knownDark} 格确定为暗；`
+    : "其中还没有已确定格；";
+  return `${source}；${scope}。${settledDescription}剩余未知集合 { ${proofTokenList(model.unknownCells, "、")} } 还需 ${model.remaining} 个亮格。`;
+}
+
 function renderHintProof(proof) {
   refs.hintProof.hidden = !proof;
   refs.hintProofBody.replaceChildren();
   if (!proof) return;
+
+  if (!proof.valid) {
+    const rejected = document.createElement("p");
+    rejected.className = "hint-proof-invalid";
+    rejected.textContent = `提示证明未通过一致性校验，已拒绝展示结论：${proof.error}`;
+    refs.hintProofBody.append(rejected);
+    return;
+  }
+
+  if (proof.reasoningLevel === "advanced") {
+    const mode = document.createElement("p");
+    mode.className = "hint-proof-mode";
+    mode.textContent = "本作扩展：这是一条可审计的双线索差集分析，不冒充原版的单线索 Hint。";
+    refs.hintProofBody.append(mode);
+  }
 
   const conclusion = document.createElement("p");
   conclusion.className = "hint-proof-conclusion";
@@ -180,30 +215,30 @@ function renderHintProof(proof) {
   if (proof.kind === "subset-difference") {
     appendProofStep(
       steps,
-      "A · 较大范围",
-      `${cellDescription(proof.larger.clueIndex)} = ${proof.larger.clueValue}；${proofTokenList(proof.larger.unknownCells, "、")} 中有 ${proof.larger.remaining} 个亮格。`,
+      "S · 小集合",
+      constraintDescription(proof.subset),
     );
     appendProofStep(
       steps,
-      "B · 较小范围",
-      `${cellDescription(proof.smaller.clueIndex)} = ${proof.smaller.clueValue}；${proofTokenList(proof.smaller.unknownCells, "、")} 中有 ${proof.smaller.remaining} 个亮格。`,
+      "L · 大集合",
+      constraintDescription(proof.superset),
     );
     appendProofStep(
       steps,
-      "共同部分",
-      `${proofTokenList(proof.sharedCells, "、")} 在 A、B 中都出现，因此相减时被消掉。`,
+      "包含关系",
+      `S 的 ${proof.subset.unknownCells.length} 个未知格全部位于 L；L 比 S 多出 ${proofTokenList(proof.differenceCells, "、")}。`,
       "hint-proof-shared",
     );
     appendProofStep(
       steps,
-      "A − B",
-      `${proofTokenList(proof.differenceCells, " + ")} = ${proof.larger.remaining} − ${proof.smaller.remaining} = ${proof.differenceTotal} 个亮格。`,
+      "L − S",
+      `${proofTokenList(proof.differenceCells, " + ")} = ${proof.superset.remaining} − ${proof.subset.remaining} = ${proof.differenceTotal} 个亮格。`,
       "hint-proof-equation",
     );
     appendProofStep(
       steps,
       "因此",
-      `${proof.differenceCells.length} 个未知格中只需 ${proof.differenceTotal} 个亮格，所以它们全部是${valueDescription(proof.target.value)}。`,
+      `${proof.differenceCells.length} 个未知格中恰有 ${proof.differenceTotal} 个亮格，所以它们全部是${valueDescription(proof.target.value)}。`,
       "hint-proof-conclusion-step",
     );
   } else {
@@ -211,7 +246,7 @@ function renderHintProof(proof) {
     appendProofStep(
       steps,
       "唯一线索",
-      `${cellDescription(source.clueIndex)} = ${source.clueValue}；范围内有 ${source.unknownCells.length} 个未知格，当前还需要 ${source.remaining} 个亮格。`,
+      constraintDescription(source),
     );
     appendProofStep(
       steps,
@@ -228,7 +263,15 @@ function renderHintProof(proof) {
   context.className = "hint-proof-context";
   const placed = state.values.filter((value) => value !== UNKNOWN).length;
   if (proof.playerKnownCells.length > 0) {
-    context.textContent = `当前已落笔 ${placed} 格；其中 ${cellListDescription(proof.playerKnownCells)} 参与了这条证明。`;
+    const participants = [
+      proof.playerKnownBrightCells.length > 0
+        ? `亮格 ${cellListDescription(proof.playerKnownBrightCells)}`
+        : "",
+      proof.playerKnownDarkCells.length > 0
+        ? `暗格 ${cellListDescription(proof.playerKnownDarkCells)}`
+        : "",
+    ].filter(Boolean).join("；");
+    context.textContent = `当前已落笔 ${placed} 格；其中 ${participants} 参与了这条证明。`;
   } else if (placed > 0) {
     context.textContent = `当前已落笔 ${placed} 格，但它们不在这条证明的范围内；这一步由题面线索自身推出，并没有冒充成由这 ${placed} 格新推出的结论。`;
   } else {
@@ -313,6 +356,7 @@ function renderBoard(focusIndex = null) {
       clue === null ? "no-clue" : "has-clue",
       state.selectedRegion !== null && state.selectedRegion !== region.id ? "is-muted" : "",
       state.hintIndex === index ? "is-hint" : "",
+      state.hintResultIndices.has(index) ? "is-hint-result" : "",
       state.hintSourceIndices.has(index) ? "is-hint-source" : "",
       state.hintProofIndices.has(index) ? "is-hint-proof" : "",
       state.conflictIndices.has(index) ? "is-conflict" : "",
@@ -375,7 +419,7 @@ function updateStats(analysis) {
     refs.reasoningBadge.dataset.level = "complete";
   } else if (nextStep) {
     if (nextStep.reasoningLevel === "advanced") {
-      refs.reasoningBadge.textContent = "高级推理";
+      refs.reasoningBadge.textContent = "高级分析 · 扩展";
       refs.reasoningBadge.dataset.level = "advanced";
     } else if (advancedLevel) {
       refs.reasoningBadge.textContent = "含高级推理";
@@ -403,6 +447,7 @@ function renderAll(focusIndex = null, analysis = null) {
 
 function clearHint() {
   state.hintIndex = null;
+  state.hintResultIndices = new Set();
   state.hintSourceIndices = new Set();
   state.hintProofIndices = new Set();
   renderHintProof(null);
@@ -442,23 +487,33 @@ function requestHint() {
   if (candidate) {
     const { item, step, proof } = candidate;
     state.hintIndex = step.cell;
+    state.hintResultIndices = new Set(proof.forcedCells);
     state.hintSourceIndices = new Set(step.sourceClueIndices);
     state.hintProofIndices = new Set(proof.proofIndices);
     renderAll(null, analysis);
     renderHintProof(proof);
-    const proofKind = proof.kind === "subset-difference" ? "两个重叠 3×3 范围的差集" : "单条数字线索";
+    const proofKind = proof.kind === "subset-difference" ? "两个剩余未知集合的差集" : "单条数字线索";
     setMessage(
       refs.statusNote,
-      `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级推理" : "基础推理"}：已生成一张可核对的${proofKind}证明。`,
+      `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级分析（本作扩展）" : "基础推理"}：已生成一张可核对的${proofKind}证明。`,
       "success",
     );
     setMessage(
       refs.boardMessage,
-      `橙色外圈是建议先落笔的位置；细线框是数字线索，淡色内框是这条证明实际覆盖的全部格子。${
+      `橙色外圈标出这一步推出的全部结论格，脉冲格只是其中的落笔起点；细线框是数字线索，淡色内框是证明覆盖范围。${
         proof.dependsOnPlayerMarks ? "这条证明使用了当前已落笔格。" : "当前已落笔格不在这条证明中，结论来自题面本身。"
       }`,
       "neutral",
     );
+    return;
+  }
+
+  const rejected = hintCandidates(analysis).find((item) => !item.proof.valid);
+  if (rejected) {
+    renderAll(null, analysis);
+    renderHintProof(rejected.proof);
+    setMessage(refs.statusNote, "提示器发现了一条候选推理，但证明校验未通过，因此没有给出结论。", "error");
+    setMessage(refs.boardMessage, "这不是玩家需要判断的步骤；提示器已主动拒绝不自洽的证明。", "error");
     return;
   }
 

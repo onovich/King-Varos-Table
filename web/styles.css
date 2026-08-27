@@ -380,6 +380,13 @@ h2 {
   line-height: 1.45;
 }
 
+.hint-proof-mode {
+  margin: 0 0 10px;
+  color: rgba(242, 236, 223, 0.68);
+  font-size: 0.66rem;
+  line-height: 1.5;
+}
+
 .hint-proof-steps {
   display: grid;
   gap: 9px;
@@ -430,6 +437,16 @@ h2 {
   color: rgba(242, 236, 223, 0.56);
   border-top: 1px solid rgba(242, 236, 223, 0.17);
   font-size: 0.67rem;
+  line-height: 1.55;
+}
+
+.hint-proof-invalid {
+  margin: 0;
+  padding: 10px;
+  color: #ffd8cc;
+  background: rgba(216, 100, 67, 0.2);
+  border: 1px solid rgba(243, 138, 106, 0.62);
+  font-size: 0.72rem;
   line-height: 1.55;
 }
 
@@ -659,17 +676,22 @@ h2 {
   opacity: 0.28;
 }
 
-.cell.is-hint {
+.cell.is-hint-result {
   z-index: 3;
   box-shadow: inset 0 0 0 3px var(--signal), 0 0 0 2px var(--focus);
+}
+
+.cell.is-hint {
+  z-index: 4;
+  box-shadow: inset 0 0 0 4px var(--signal), 0 0 0 2px var(--focus);
   animation: hintPulse 900ms ease-in-out 2;
 }
 
-.cell.is-hint-proof:not(.is-hint):not(.is-hint-source) {
+.cell.is-hint-proof:not(.is-hint):not(.is-hint-result):not(.is-hint-source) {
   box-shadow: inset 0 0 0 1px rgba(216, 100, 67, 0.42);
 }
 
-.cell.is-hint-source:not(.is-hint) {
+.cell.is-hint-source:not(.is-hint):not(.is-hint-result) {
   box-shadow: inset 0 0 0 2px rgba(216, 100, 67, 0.62);
 }
 

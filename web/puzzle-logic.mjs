@@ -81,9 +81,16 @@ function mapSummaryToGlobal(region, summary) {
 
 function mapDerivationToGlobal(region, derivation) {
   if (!derivation) return null;
+  const subset = derivation.subset ?? derivation.left;
+  const superset = derivation.superset ?? derivation.right;
+  const globalSubset = mapSummaryToGlobal(region, subset);
+  const globalSuperset = mapSummaryToGlobal(region, superset);
   return {
-    left: mapSummaryToGlobal(region, derivation.left),
-    right: mapSummaryToGlobal(region, derivation.right),
+    // Keep these aliases for old saved/debug data; new proof code uses the explicit names below.
+    left: globalSubset,
+    right: globalSuperset,
+    subset: globalSubset,
+    superset: globalSuperset,
     differenceCells: derivation.differenceCells.map((localIndex) => region.cells[localIndex]),
     differenceTotal: derivation.differenceTotal,
   };
@@ -224,6 +231,8 @@ export function solveDeterministically(cellCount, inputConstraints, initialValue
           };
         }
 
+        const subsetSummary = residualSummary(subset);
+        const supersetSummary = residualSummary(superset);
         const derivedConstraint = normalizeConstraint(difference, differenceTotal, {
           advanced: true,
           sourceClueIndices: uniqueSorted([
@@ -235,8 +244,8 @@ export function solveDeterministically(cellCount, inputConstraints, initialValue
             ...superset.prerequisiteCells,
           ]),
           derivation: {
-            left: residualSummary(subset),
-            right: residualSummary(superset),
+            subset: subsetSummary,
+            superset: supersetSummary,
             differenceCells: difference,
             differenceTotal,
           },
