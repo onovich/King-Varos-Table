@@ -341,14 +341,6 @@ function renderBoard(focusIndex = null) {
     clueSpan.setAttribute("aria-hidden", "true");
     button.append(clueSpan);
 
-    if (value !== UNKNOWN) {
-      const mark = document.createElement("span");
-      mark.className = "mark";
-      mark.textContent = value === BRIGHT ? "✦" : "×";
-      mark.setAttribute("aria-hidden", "true");
-      button.append(mark);
-    }
-
     button.addEventListener("click", (event) => {
       if (event.shiftKey) {
         setCell(index, state.values[index] === DARK ? UNKNOWN : DARK);

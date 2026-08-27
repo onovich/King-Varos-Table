@@ -512,19 +512,8 @@ h2 {
   opacity: 0;
 }
 
-.cell .mark {
-  position: absolute;
-  z-index: 2;
-  font-size: clamp(0.9rem, 1.9vw, 1.35rem);
-  line-height: 1;
-}
-
 .cell.state-light {
   background: var(--focus);
-}
-
-.cell.state-light .mark {
-  color: var(--ink);
 }
 
 .cell.state-dark {
@@ -534,10 +523,6 @@ h2 {
 
 .cell.state-dark .clue {
   color: var(--paper-light);
-}
-
-.cell.state-dark .mark {
-  color: var(--signal);
 }
 
 .cell.region-ochre:not(.state-light):not(.state-dark) {
