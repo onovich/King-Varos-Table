@@ -3,6 +3,8 @@ import {
   DARK,
   UNKNOWN,
   analyseRegion,
+  clearIncorrectValues,
+  deriveDirectSolution,
 } from "./puzzle-logic.mjs";
 
 const refs = {
@@ -13,6 +15,7 @@ const refs = {
   statusNote: document.querySelector("#statusNote"),
   hintButton: document.querySelector("#hintButton"),
   checkButton: document.querySelector("#checkButton"),
+  clearErrorsButton: document.querySelector("#clearErrorsButton"),
   resetButton: document.querySelector("#resetButton"),
   regionCount: document.querySelector("#regionCount"),
   cellCount: document.querySelector("#cellCount"),
@@ -26,6 +29,7 @@ const refs = {
 const state = {
   level: null,
   values: [],
+  solution: null,
   clues: [],
   selectedRegion: null,
   hintIndex: null,
@@ -378,6 +382,32 @@ function checkBoard() {
   setMessage(refs.boardMessage, "检查通过：目前的标记仍然可能成立。", "neutral");
 }
 
+function clearErrors() {
+  if (!state.solution) {
+    setMessage(refs.statusNote, "当前关卡无法重建完整答案，不能安全地清除错误标记。", "error");
+    setMessage(refs.boardMessage, "题面保持不变。", "neutral");
+    return;
+  }
+
+  const cleanup = clearIncorrectValues(state.values, state.solution);
+  state.values = cleanup.values;
+  clearHint();
+  const analysis = analyseBoard();
+  renderAll(null, analysis);
+
+  if (cleanup.removedIndices.length > 0) {
+    setMessage(
+      refs.statusNote,
+      `已清除 ${cleanup.removedIndices.length} 个错误标记；正确标记和未知格均保持不变。`,
+      "success",
+    );
+    setMessage(refs.boardMessage, "错误答案已全部移除，可以从当前正确进度继续。", "success");
+  } else {
+    setMessage(refs.statusNote, "当前没有错误标记，无需清除。", "neutral");
+    setMessage(refs.boardMessage, "棋盘没有发生变化。", "neutral");
+  }
+}
+
 function resetBoard() {
   state.values = new Array(state.level.width * state.level.height).fill(UNKNOWN);
   clearHint();
@@ -390,6 +420,7 @@ function resetBoard() {
 function prepareLevel(level) {
   state.level = level;
   state.values = new Array(level.width * level.height).fill(UNKNOWN);
+  state.solution = deriveDirectSolution(level);
   state.clues = new Array(level.width * level.height).fill(null);
   for (const region of level.regions) {
     for (const [rawIndex, clue] of Object.entries(region.clues)) {
@@ -399,6 +430,7 @@ function prepareLevel(level) {
   state.selectedRegion = null;
   clearHint();
   state.conflictIndices = new Set();
+  refs.clearErrorsButton.disabled = state.solution === null;
   refs.subtitle.textContent = level.subtitle;
   refs.seedLabel.textContent = `SEED ${level.seed}`;
   const initialAnalysis = analyseBoard();
@@ -419,6 +451,7 @@ async function loadLevel() {
 
 refs.hintButton.addEventListener("click", requestHint);
 refs.checkButton.addEventListener("click", checkBoard);
+refs.clearErrorsButton.addEventListener("click", clearErrors);
 refs.resetButton.addEventListener("click", resetBoard);
 
 loadLevel();

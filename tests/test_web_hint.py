@@ -15,9 +15,51 @@ class HintLayoutTests(unittest.TestCase):
         self.assertNotIn("boardHintSummary", script)
         self.assertNotIn(".board-hint-summary", styles)
 
+    def test_error_cleanup_is_a_permanent_control_not_a_board_overlay(self):
+        project_root = Path(__file__).resolve().parents[1]
+        html = (project_root / "web" / "index.html").read_text(encoding="utf-8")
+        script = (project_root / "web" / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn('id="clearErrorsButton"', html)
+        self.assertIn('refs.clearErrorsButton.addEventListener("click", clearErrors)', script)
+
 
 @unittest.skipUnless(shutil.which("node"), "Node.js is required for browser hint tests")
 class BrowserHintEngineTests(unittest.TestCase):
+    def test_error_cleanup_removes_only_wrong_marks_against_the_derived_solution(self):
+        script = r'''
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import {
+  BRIGHT,
+  DARK,
+  UNKNOWN,
+  clearIncorrectValues,
+  deriveDirectSolution,
+} from "./web/puzzle-logic.mjs";
+
+const level = JSON.parse(fs.readFileSync("./web/data/demo-level.json", "utf8"));
+const derivedSolution = deriveDirectSolution(level);
+assert.ok(derivedSolution);
+assert.equal(derivedSolution.length, 400);
+assert.ok(derivedSolution.every((value) => value === BRIGHT || value === DARK));
+
+const playerValues = [BRIGHT, DARK, UNKNOWN, DARK];
+const knownSolution = [BRIGHT, BRIGHT, DARK, DARK];
+const cleanup = clearIncorrectValues(playerValues, knownSolution);
+assert.deepEqual(cleanup.values, [BRIGHT, UNKNOWN, UNKNOWN, DARK]);
+assert.deepEqual(cleanup.removedIndices, [1]);
+assert.deepEqual(playerValues, [BRIGHT, DARK, UNKNOWN, DARK]);
+'''
+        result = subprocess.run(
+            [shutil.which("node"), "--input-type=module", "--eval", script],
+            cwd=Path(__file__).resolve().parents[1],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+
     def test_demo_level_is_solvable_using_only_direct_clue_hints(self):
         script = r'''
 import assert from "node:assert/strict";

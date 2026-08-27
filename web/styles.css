@@ -262,6 +262,12 @@ h2 {
   transform: translateY(-1px);
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none;
+}
+
 .button-primary {
   color: var(--ink);
   background: var(--focus);

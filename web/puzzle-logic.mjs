@@ -375,3 +375,39 @@ export function findNextHint(level, region, values) {
     message: analysis.result.message ?? null,
   };
 }
+
+export function deriveDirectSolution(level) {
+  const values = Array(level.width * level.height).fill(UNKNOWN);
+
+  while (true) {
+    let applied = false;
+    for (const region of level.regions) {
+      const hint = findDirectClueHint(level, region, values);
+      if (hint.status === "contradiction") return null;
+      if (hint.status !== "ok") continue;
+      for (const index of hint.forcedCells) values[index] = hint.value;
+      applied = true;
+      break;
+    }
+    if (applied) continue;
+    return values.every((value) => value !== UNKNOWN) ? values : null;
+  }
+}
+
+export function clearIncorrectValues(values, solution) {
+  if (!Array.isArray(values) || !Array.isArray(solution) || values.length !== solution.length) {
+    throw new TypeError("values and solution must be arrays of the same length");
+  }
+  if (solution.some((value) => value !== BRIGHT && value !== DARK)) {
+    throw new TypeError("solution must contain only bright or dark values");
+  }
+
+  const nextValues = [...values];
+  const removedIndices = [];
+  for (let index = 0; index < nextValues.length; index += 1) {
+    if (nextValues[index] === UNKNOWN || nextValues[index] === solution[index]) continue;
+    nextValues[index] = UNKNOWN;
+    removedIndices.push(index);
+  }
+  return { values: nextValues, removedIndices };
+}
