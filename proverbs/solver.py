@@ -60,11 +60,18 @@ class NoGuessSolver:
     ``stalled`` instead of branching.
     """
 
-    def __init__(self, cell_count: int, constraints: Iterable[Constraint]):
+    def __init__(
+        self,
+        cell_count: int,
+        constraints: Iterable[Constraint],
+        *,
+        allow_subset_difference: bool = True,
+    ):
         if cell_count < 1:
             raise ValueError("cell_count must be positive")
         self.cell_count = cell_count
         self.constraints = tuple(constraints)
+        self.allow_subset_difference = allow_subset_difference
         for constraint in self.constraints:
             if any(cell < 0 or cell >= cell_count for cell in constraint.cells):
                 raise ValueError("constraint contains a cell outside the board")
@@ -146,6 +153,12 @@ class NoGuessSolver:
             if changed:
                 continue
 
+            if not self.allow_subset_difference:
+                unknown_count = sum(value == UNKNOWN for value in values)
+                if unknown_count == 0:
+                    return SolveResult("solved", tuple(values), tuple(steps))
+                return SolveResult("stalled", tuple(values), tuple(steps))
+
             # Compare residual constraints. When A is a subset of B, B - A
             # has an exactly known remainder. This is still a direct logical
             # consequence and does not involve a trial assignment.
@@ -183,3 +196,18 @@ class NoGuessSolver:
             if unknown_count == 0:
                 return SolveResult("solved", tuple(values), tuple(steps))
             return SolveResult("stalled", tuple(values), tuple(steps))
+
+
+class DirectClueSolver(NoGuessSolver):
+    """Apply only zero/full deductions from the published clue windows.
+
+    This matches the player-facing hint contract: every step must be
+    explainable by one visible number and its clipped, same-region scope.
+    """
+
+    def __init__(self, cell_count: int, constraints: Iterable[Constraint]):
+        super().__init__(
+            cell_count,
+            constraints,
+            allow_subset_difference=False,
+        )

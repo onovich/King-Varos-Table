@@ -59,7 +59,7 @@ def main() -> int:
         print(
             f"  region {region.region_id}: {len(region.cells)} cells, "
             f"{metrics.visible_clue_count}/{metrics.full_clue_count} clues, "
-            f"{metrics.solver_steps} deterministic steps, "
+            f"{metrics.solver_steps} direct-clue steps, "
             f"unique={metrics.unique_verified}"
         )
     return 0

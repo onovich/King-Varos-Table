@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Iterable, Mapping
 
 from .minizinc_check import verify_unique
-from .solver import Constraint, NoGuessSolver, SolveResult
+from .solver import Constraint, DirectClueSolver, SolveResult
 
 
 REGION_NAMES = ("北门印室", "风车东隅", "谷仓南坡", "钟楼西庭")
@@ -177,19 +177,33 @@ def _solve_region(
     region_cells: tuple[int, ...],
     visible_clues: Mapping[int, int],
 ) -> SolveResult:
-    return NoGuessSolver(
+    return DirectClueSolver(
         len(region_cells),
         _region_constraints(width, height, region_map, region_cells, visible_clues),
     ).solve()
 
 
 def _make_balanced_target(width: int, height: int, region_map: list[int], rng: random.Random) -> list[int]:
-    """Make a dense target with a near-even light/dark split per region."""
+    """Make smooth, dense light/dark fields with an even split per region.
+
+    Uniformly scattered bits almost never expose a complete chain of direct
+    zero/full deductions. Blurring a seeded random field first creates the
+    contiguous runs found in hand-authored Fill-a-Pix art while retaining an
+    exact 1:1 light/dark balance inside every demo region.
+    """
+
+    scores = [rng.random() for _ in range(width * height)]
+    for _ in range(2):
+        smoothed_scores: list[float] = []
+        for index in range(width * height):
+            neighbourhood = neighbours_for_cell(width, height, region_map, index)
+            smoothed_scores.append(sum(scores[cell] for cell in neighbourhood) / len(neighbourhood))
+        scores = smoothed_scores
 
     target = [0] * (width * height)
     for region_id in range(4):
         cells = list(_region_cells(region_map, region_id))
-        rng.shuffle(cells)
+        cells.sort(key=lambda cell: (scores[cell], cell), reverse=True)
         bright_count = len(cells) // 2
         for cell in cells[:bright_count]:
             target[cell] = 1
@@ -224,7 +238,7 @@ def _prune_region(
 
     result = _solve_region(width, height, region_map, region_cells, working)
     if result.status != "solved" or result.values != target_local:
-        raise ValueError("pruned region is not solvable by the deterministic solver")
+        raise ValueError("pruned region is not solvable by direct clue deductions")
     return working, result
 
 
@@ -237,7 +251,7 @@ def build_level(
     verify_with_minizinc: bool = True,
     require_full_clue_range: bool = True,
 ) -> GeneratedLevel:
-    """Generate a playable level with no-guess regions and unique solutions."""
+    """Generate a unique level solvable by visible single-clue deductions."""
 
     base_region_map = build_region_map(width, height)
     for attempt in range(1, max_attempts + 1):
@@ -324,7 +338,7 @@ def build_level(
                 tuple(generated_regions),
             )
 
-    raise RuntimeError(f"could not generate a no-guess level after {max_attempts} attempts")
+    raise RuntimeError(f"could not generate a direct-solvable level after {max_attempts} attempts")
 
 
 def write_public_level(level: GeneratedLevel, output_path: str | Path, include_solution: bool = False) -> None:

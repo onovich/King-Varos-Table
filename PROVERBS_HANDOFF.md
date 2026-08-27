@@ -103,7 +103,7 @@ Proverbs 不是传统的“一个关卡一个棋盘”，而是一张五万多�
 → 所有未知格都是亮格
 ```
 
-约束重叠中的集合包含差集已作为第一条高级推导实现：若 A 是 B 的子集，则 B−A 的亮格数等于两条剩余数之差。浏览器和 Python 求解器都会把由此产生的强制落子标为高级推理；后续新增规则仍必须保证每一步都是逻辑必然结论。
+约束重叠中的集合包含差集已作为第一条高级推导实现：若 A 是 B 的子集，则 B−A 的亮格数等于两条剩余数之差。该能力目前只保留在内部 `NoGuessSolver` 中用于研究；公开关卡与浏览器默认提示改由 `DirectClueSolver` 验收，只允许一个题面数字直接结算其范围，避免“生成器认为可解、玩家提示却无法解释”的规则错位。
 
 ### 唯一解
 
@@ -118,8 +118,9 @@ constraint exists(i in CELLS)(x[i] != target[i]);
 因此推荐：
 
 ```text
-NoGuessSolver = 玩家能否通过逻辑完成
-MiniZinc     = 是否存在第二个数学解
+DirectClueSolver = 玩家能否按默认提示规则完成
+NoGuessSolver    = 更宽规则集下的高级难度研究
+MiniZinc         = 是否存在第二个数学解
 ```
 
 唯一解并不自动意味着玩家无需猜；一个谜题可能数学上唯一，但只能通过搜索得到。
@@ -140,7 +141,7 @@ sum(x[i] for i in clue.neighbours_in_same_region) = clue.number
     ├─ 维护 region mask
     ├─ 随机生成 target
     ├─ 计算邻居集合与线索
-    ├─ 运行 NoGuessSolver
+    ├─ 运行 DirectClueSolver 验收默认无猜链
     ├─ 删除线索并统计难度
     └─ 调用 MiniZinc 检查唯一解
 ```
