@@ -1,6 +1,9 @@
-const UNKNOWN = -1;
-const BRIGHT = 1;
-const DARK = 0;
+import {
+  BRIGHT,
+  DARK,
+  UNKNOWN,
+  analyseRegion,
+} from "./puzzle-logic.mjs";
 
 const refs = {
   subtitle: document.querySelector("#levelSubtitle"),
@@ -51,159 +54,11 @@ function regionFor(index) {
   return state.level.regions.find((region) => region.id === state.level.regionMap[index]);
 }
 
-function neighboursForCell(index) {
-  const { width, height, regionMap } = state.level;
-  const regionId = regionMap[index];
-  const x = index % width;
-  const y = Math.floor(index / width);
-  const result = [];
-
-  for (let neighbourY = Math.max(0, y - 1); neighbourY < Math.min(height, y + 2); neighbourY += 1) {
-    for (let neighbourX = Math.max(0, x - 1); neighbourX < Math.min(width, x + 2); neighbourX += 1) {
-      const neighbour = neighbourY * width + neighbourX;
-      if (regionMap[neighbour] === regionId) result.push(neighbour);
-    }
-  }
-  return result;
-}
-
-function normalizeConstraint(cells, total, advanced = false) {
-  return {
-    cells: [...new Set(cells)].sort((a, b) => a - b),
-    total,
-    advanced,
-  };
-}
-
-function constraintKey(constraint) {
-  return `${constraint.cells.join(",")}|${constraint.total}`;
-}
-
-function solveDeterministically(cellCount, inputConstraints, initialValues) {
-  const values = [...initialValues];
-  const constraints = inputConstraints.map((constraint) =>
-    normalizeConstraint(constraint.cells, constraint.total, constraint.advanced),
-  );
-  const keys = new Set(constraints.map(constraintKey));
-  const steps = [];
-
-  while (true) {
-    const residuals = [];
-    let changed = false;
-
-    for (const constraint of constraints) {
-      const knownSum = constraint.cells.reduce(
-        (sum, cell) => sum + (values[cell] === UNKNOWN ? 0 : values[cell]),
-        0,
-      );
-      const unknownCells = constraint.cells.filter((cell) => values[cell] === UNKNOWN);
-      const remaining = constraint.total - knownSum;
-
-      if (remaining < 0 || remaining > unknownCells.length) {
-        return {
-          status: "contradiction",
-          values,
-          steps,
-          message: `线索需要 ${remaining} 个亮格，但只剩 ${unknownCells.length} 个未知格。`,
-        };
-      }
-      if (unknownCells.length === 0) continue;
-
-      residuals.push({ unknownCells, remaining, sourceCells: constraint.cells });
-      const forcedValue = remaining === 0 ? DARK : remaining === unknownCells.length ? BRIGHT : null;
-      if (forcedValue === null) continue;
-
-      const basicRule = forcedValue === DARK ? "zero" : "full";
-      const reasoningLevel = constraint.advanced ? "advanced" : "basic";
-
-      for (const cell of unknownCells) {
-        if (values[cell] === UNKNOWN) {
-          values[cell] = forcedValue;
-          steps.push({
-            rule: reasoningLevel === "advanced" ? `advanced_${basicRule}` : basicRule,
-            cell,
-            value: forcedValue,
-            sourceCells: constraint.cells,
-            explanation:
-              reasoningLevel === "advanced"
-                ? `高级推理：通过重叠线索的差集得到约束；${
-                    forcedValue === DARK
-                      ? "剩余亮格数为 0，未知格必为暗格。"
-                      : "剩余亮格数等于未知格数，未知格必为亮格。"
-                  }`
-                : forcedValue === DARK
-                  ? "剩余亮格数为 0，未知格必为暗格。"
-                  : "剩余亮格数等于未知格数，未知格必为亮格。",
-            reasoningLevel,
-          });
-          changed = true;
-        }
-      }
-    }
-
-    if (changed) continue;
-
-    let derived = false;
-    for (let leftIndex = 0; leftIndex < residuals.length; leftIndex += 1) {
-      const left = residuals[leftIndex];
-      const leftSet = new Set(left.unknownCells);
-      for (const right of residuals.slice(leftIndex + 1)) {
-        const rightSet = new Set(right.unknownCells);
-        let difference;
-        let differenceTotal;
-        if (left.unknownCells.every((cell) => rightSet.has(cell)) && leftSet.size < rightSet.size) {
-          difference = right.unknownCells.filter((cell) => !leftSet.has(cell));
-          differenceTotal = right.remaining - left.remaining;
-        } else if (
-          right.unknownCells.every((cell) => leftSet.has(cell)) &&
-          rightSet.size < leftSet.size
-        ) {
-          difference = left.unknownCells.filter((cell) => !rightSet.has(cell));
-          differenceTotal = left.remaining - right.remaining;
-        } else {
-          continue;
-        }
-
-        if (differenceTotal < 0 || differenceTotal > difference.length) {
-          return {
-            status: "contradiction",
-            values,
-            steps,
-            message: "两条重叠线索推出了矛盾。",
-          };
-        }
-
-        const derivedConstraint = normalizeConstraint(difference, differenceTotal, true);
-        const key = constraintKey(derivedConstraint);
-        if (!keys.has(key) && difference.length > 0) {
-          keys.add(key);
-          constraints.push(derivedConstraint);
-          derived = true;
-        }
-      }
-    }
-
-    if (derived) continue;
-    if (values.every((value) => value !== UNKNOWN)) return { status: "solved", values, steps };
-    return { status: "stalled", values, steps };
-  }
-}
-
-function regionProblem(region) {
-  const localIndex = new Map(region.cells.map((globalIndex, local) => [globalIndex, local]));
-  const constraints = Object.entries(region.clues).map(([rawIndex, clue]) => {
-    const index = Number(rawIndex);
-    return normalizeConstraint(
-      neighboursForCell(index).map((globalIndex) => localIndex.get(globalIndex)),
-      clue,
-    );
-  });
-  const initial = region.cells.map((globalIndex) => state.values[globalIndex]);
-  return { localIndex, result: solveDeterministically(region.cells.length, constraints, initial) };
-}
-
 function analyseBoard() {
-  const results = state.level.regions.map((region) => ({ region, ...regionProblem(region) }));
+  const results = state.level.regions.map((region) => ({
+    region,
+    ...analyseRegion(state.level, region, state.values),
+  }));
   const conflicts = new Set();
   const contradiction = results.find((item) => item.result.status === "contradiction");
   for (const item of results) {
@@ -241,9 +96,55 @@ function isRegionComplete(item) {
 }
 
 function nextStepFor(item) {
-  return item?.result?.steps.find(
-    (candidate) => state.values[item.region.cells[candidate.cell]] === UNKNOWN,
-  );
+  return item?.hint ?? null;
+}
+
+function hintItems(analysis) {
+  if (state.selectedRegion === null) return analysis.results;
+  return analysis.results.filter((item) => item.region.id === state.selectedRegion);
+}
+
+function coordinateFor(index) {
+  const row = Math.floor(index / state.level.width) + 1;
+  const column = (index % state.level.width) + 1;
+  return `第${row}行第${column}列`;
+}
+
+function cellDescription(index) {
+  const clue = state.clues[index];
+  return `${coordinateFor(index)}${clue === null ? "" : `（显示线索${clue}）`}`;
+}
+
+function cellListDescription(indices) {
+  return indices.map((index) => cellDescription(index)).join("、");
+}
+
+function valueDescription(value) {
+  return value === DARK ? "暗格" : "亮格";
+}
+
+function residualDescription(residual) {
+  const source =
+    residual.clueIndex === null
+      ? "已推导约束"
+      : `${cellDescription(residual.clueIndex)}的线索`;
+  return `${source}当前剩余 ${residual.remaining} 个亮格，包含 ${residual.cells.length} 个未知格`;
+}
+
+function hintExplanation(hint) {
+  const target = cellDescription(hint.cell);
+  const value = valueDescription(hint.value);
+  const forced = cellListDescription(hint.forcedCells);
+
+  if (hint.reasoningLevel === "advanced" && hint.derivation) {
+    const { left, right, differenceCells, differenceTotal } = hint.derivation;
+    return `${target}必须标记为${value}。${residualDescription(right)}；${residualDescription(left)}。将较大范围减去较小范围，得到 ${cellListDescription(differenceCells)} 的剩余亮格数为 ${differenceTotal}，因此这些格全部是${value}。本步同一结论涉及：${forced}。`;
+  }
+
+  const sources = hint.sourceClueIndices.length
+    ? cellListDescription(hint.sourceClueIndices)
+    : "当前数字线索";
+  return `${target}必须标记为${value}。依据${sources}，当前约束已经确定这一步。本步同一结论涉及：${forced}。`;
 }
 
 function regionHasAdvancedReasoning(region) {
@@ -366,7 +267,7 @@ function updateStats(analysis) {
   const solved = analysis.results.filter(isRegionComplete).length;
   const total = state.level.width * state.level.height;
   const clueCount = state.level.regions.reduce((sum, region) => sum + Object.keys(region.clues).length, 0);
-  const nextStep = analysis.results.map(nextStepFor).find(Boolean);
+  const nextStep = hintItems(analysis).map(nextStepFor).find(Boolean);
   const advancedLevel = levelHasAdvancedReasoning();
   refs.regionCount.textContent = String(state.level.regions.length);
   refs.cellCount.textContent = String(total);
@@ -426,9 +327,9 @@ function setCell(index, value) {
 
 function requestHint() {
   const analysis = analyseBoard();
+  state.hintIndex = null;
+  state.hintSourceIndices = new Set();
   if (analysis.conflicts.size > 0) {
-    state.hintIndex = null;
-    state.hintSourceIndices = new Set();
     renderAll(null, analysis);
     setMessage(
       refs.statusNote,
@@ -439,25 +340,25 @@ function requestHint() {
     return;
   }
 
-  for (const item of analysis.results) {
+  for (const item of hintItems(analysis)) {
     const step = nextStepFor(item);
     if (step) {
-      const globalIndex = item.region.cells[step.cell];
-      state.hintIndex = globalIndex;
-      state.hintSourceIndices = new Set(
-        step.sourceCells.map((localIndex) => item.region.cells[localIndex]),
-      );
+      state.hintIndex = step.cell;
+      state.hintSourceIndices = new Set(step.sourceClueIndices);
       renderAll(null, analysis);
-      const explanation =
-        step.reasoningLevel === "advanced"
-          ? step.explanation.replace(/^高级推理：/, "")
-          : step.explanation;
       setMessage(
         refs.statusNote,
-        `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级推理" : "基础推理"}：${explanation} 橙色边框是必然可落笔的位置。`,
+        `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级推理" : "基础推理"}：${hintExplanation(step)}`,
         "success",
       );
-      setMessage(refs.boardMessage, "橙色外圈是必然落笔的位置，细线框是本步推导所涉及的关联格。", "neutral");
+      const peerCount = Math.max(0, step.forcedCells.length - 1);
+      setMessage(
+        refs.boardMessage,
+        `橙色外圈是当前建议先落笔的位置；细线框标出实际使用的数字线索。${
+          peerCount > 0 ? `同一条关系还同时确定另外 ${peerCount} 格。` : ""
+        } 本次判断基于按钮点击时的 ${state.values.filter((value) => value !== UNKNOWN).length} 个已落笔格。`,
+        "neutral",
+      );
       return;
     }
   }
@@ -470,8 +371,10 @@ function requestHint() {
     setMessage(refs.statusNote, "这一页已经被完整解开。", "success");
     setMessage(refs.boardMessage, "所有区域都通过了确定性推导。", "success");
   } else {
-    setMessage(refs.statusNote, "当前规则集找不到下一条直接必然关系；请检查是否漏看了边界。", "neutral");
-    setMessage(refs.boardMessage, "没有猜测分支，提示器在等待新的已知格。", "neutral");
+    const scope = state.selectedRegion === null ? "当前盘面" : "当前区域";
+    renderAll(null, analysis);
+    setMessage(refs.statusNote, `${scope}暂时找不到仅凭已落笔状态可以说明的下一条必然关系；请检查是否漏看了边界。`, "neutral");
+    setMessage(refs.boardMessage, "没有猜测分支，提示器只接受当前盘面已经提供的已知格。", "neutral");
   }
 }
 
