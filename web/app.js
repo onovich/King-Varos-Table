@@ -4,6 +4,7 @@ import {
   UNKNOWN,
   analyseRegion,
 } from "./puzzle-logic.mjs";
+import { buildHintProof } from "./hint-proof.mjs";
 
 const refs = {
   subtitle: document.querySelector("#levelSubtitle"),
@@ -18,6 +19,8 @@ const refs = {
   cellCount: document.querySelector("#cellCount"),
   clueCount: document.querySelector("#clueCount"),
   proofStatus: document.querySelector("#proofStatus"),
+  hintProof: document.querySelector("#hintProof"),
+  hintProofBody: document.querySelector("#hintProofBody"),
   reasoningBadge: document.querySelector("#reasoningBadge"),
   progressLabel: document.querySelector("#progressLabel"),
   seedLabel: document.querySelector("#seedLabel"),
@@ -30,6 +33,7 @@ const state = {
   selectedRegion: null,
   hintIndex: null,
   hintSourceIndices: new Set(),
+  hintProofIndices: new Set(),
   conflictIndices: new Set(),
 };
 
@@ -104,6 +108,29 @@ function hintItems(analysis) {
   return analysis.results.filter((item) => item.region.id === state.selectedRegion);
 }
 
+function compareHintCandidates(left, right) {
+  if (left.proof.dependsOnPlayerMarks !== right.proof.dependsOnPlayerMarks) {
+    return left.proof.dependsOnPlayerMarks ? -1 : 1;
+  }
+  if (left.step.reasoningLevel !== right.step.reasoningLevel) {
+    return left.step.reasoningLevel === "basic" ? -1 : 1;
+  }
+  if (left.step.forcedCells.length !== right.step.forcedCells.length) {
+    return left.step.forcedCells.length - right.step.forcedCells.length;
+  }
+  return left.item.region.id - right.item.region.id;
+}
+
+function nextHintCandidate(analysis) {
+  return hintItems(analysis)
+    .map((item) => {
+      const step = nextStepFor(item);
+      return step ? { item, step, proof: buildHintProof(state.level, state.clues, state.values, step) } : null;
+    })
+    .filter(Boolean)
+    .sort(compareHintCandidates)[0] ?? null;
+}
+
 function coordinateFor(index) {
   const row = Math.floor(index / state.level.width) + 1;
   const column = (index % state.level.width) + 1;
@@ -123,28 +150,91 @@ function valueDescription(value) {
   return value === DARK ? "暗格" : "亮格";
 }
 
-function residualDescription(residual) {
-  const source =
-    residual.clueIndex === null
-      ? "已推导约束"
-      : `${cellDescription(residual.clueIndex)}的线索`;
-  return `${source}当前剩余 ${residual.remaining} 个亮格，包含 ${residual.cells.length} 个未知格`;
+function proofTokenList(indices, separator = " + ") {
+  return indices.length ? indices.map((index) => `R${Math.floor(index / state.level.width) + 1}C${(index % state.level.width) + 1}`).join(separator) : "无";
 }
 
-function hintExplanation(hint) {
-  const target = cellDescription(hint.cell);
-  const value = valueDescription(hint.value);
-  const forced = cellListDescription(hint.forcedCells);
+function appendProofStep(parent, label, text, className = "") {
+  const item = document.createElement("li");
+  item.className = ["hint-proof-step", className].filter(Boolean).join(" ");
+  const title = document.createElement("strong");
+  title.textContent = label;
+  const detail = document.createElement("span");
+  detail.textContent = text;
+  item.append(title, detail);
+  parent.append(item);
+}
 
-  if (hint.reasoningLevel === "advanced" && hint.derivation) {
-    const { left, right, differenceCells, differenceTotal } = hint.derivation;
-    return `${target}必须标记为${value}。${residualDescription(right)}；${residualDescription(left)}。将较大范围减去较小范围，得到 ${cellListDescription(differenceCells)} 的剩余亮格数为 ${differenceTotal}，因此这些格全部是${value}。本步同一结论涉及：${forced}。`;
+function renderHintProof(proof) {
+  refs.hintProof.hidden = !proof;
+  refs.hintProofBody.replaceChildren();
+  if (!proof) return;
+
+  const conclusion = document.createElement("p");
+  conclusion.className = "hint-proof-conclusion";
+  conclusion.textContent = `结论：${cellListDescription(proof.forcedCells)} → ${valueDescription(proof.target.value)}`;
+  refs.hintProofBody.append(conclusion);
+
+  const steps = document.createElement("ol");
+  steps.className = "hint-proof-steps";
+  if (proof.kind === "subset-difference") {
+    appendProofStep(
+      steps,
+      "A · 较大范围",
+      `${cellDescription(proof.larger.clueIndex)} = ${proof.larger.clueValue}；${proofTokenList(proof.larger.unknownCells, "、")} 中有 ${proof.larger.remaining} 个亮格。`,
+    );
+    appendProofStep(
+      steps,
+      "B · 较小范围",
+      `${cellDescription(proof.smaller.clueIndex)} = ${proof.smaller.clueValue}；${proofTokenList(proof.smaller.unknownCells, "、")} 中有 ${proof.smaller.remaining} 个亮格。`,
+    );
+    appendProofStep(
+      steps,
+      "共同部分",
+      `${proofTokenList(proof.sharedCells, "、")} 在 A、B 中都出现，因此相减时被消掉。`,
+      "hint-proof-shared",
+    );
+    appendProofStep(
+      steps,
+      "A − B",
+      `${proofTokenList(proof.differenceCells, " + ")} = ${proof.larger.remaining} − ${proof.smaller.remaining} = ${proof.differenceTotal} 个亮格。`,
+      "hint-proof-equation",
+    );
+    appendProofStep(
+      steps,
+      "因此",
+      `${proof.differenceCells.length} 个未知格中只需 ${proof.differenceTotal} 个亮格，所以它们全部是${valueDescription(proof.target.value)}。`,
+      "hint-proof-conclusion-step",
+    );
+  } else {
+    const source = proof.source;
+    appendProofStep(
+      steps,
+      "唯一线索",
+      `${cellDescription(source.clueIndex)} = ${source.clueValue}；范围内有 ${source.unknownCells.length} 个未知格，当前还需要 ${source.remaining} 个亮格。`,
+    );
+    appendProofStep(
+      steps,
+      "因此",
+      source.remaining === 0
+        ? "剩余亮格数为 0，所有未知格都是暗格。"
+        : `剩余亮格数等于未知格数量 ${source.unknownCells.length}，所有未知格都是亮格。`,
+      "hint-proof-conclusion-step",
+    );
   }
+  refs.hintProofBody.append(steps);
 
-  const sources = hint.sourceClueIndices.length
-    ? cellListDescription(hint.sourceClueIndices)
-    : "当前数字线索";
-  return `${target}必须标记为${value}。依据${sources}，当前约束已经确定这一步。本步同一结论涉及：${forced}。`;
+  const context = document.createElement("p");
+  context.className = "hint-proof-context";
+  const placed = state.values.filter((value) => value !== UNKNOWN).length;
+  if (proof.playerKnownCells.length > 0) {
+    context.textContent = `当前已落笔 ${placed} 格；其中 ${cellListDescription(proof.playerKnownCells)} 参与了这条证明。`;
+  } else if (placed > 0) {
+    context.textContent = `当前已落笔 ${placed} 格，但它们不在这条证明的范围内；这一步由题面线索自身推出，并没有冒充成由这 ${placed} 格新推出的结论。`;
+  } else {
+    context.textContent = "当前还没有玩家落子；这是一条由题面线索直接推出的必然关系。";
+  }
+  refs.hintProofBody.append(context);
 }
 
 function regionHasAdvancedReasoning(region) {
@@ -169,6 +259,7 @@ function renderTabs(analysis = null) {
   allButton.textContent = "整页";
   allButton.addEventListener("click", () => {
     state.selectedRegion = null;
+    clearHint();
     renderAll();
   });
   refs.regionTabs.append(allButton);
@@ -192,6 +283,7 @@ function renderTabs(analysis = null) {
     button.style.color = `var(--${region.accent})`;
     button.addEventListener("click", () => {
       state.selectedRegion = region.id;
+      clearHint();
       renderAll();
     });
     refs.regionTabs.append(button);
@@ -222,6 +314,7 @@ function renderBoard(focusIndex = null) {
       state.selectedRegion !== null && state.selectedRegion !== region.id ? "is-muted" : "",
       state.hintIndex === index ? "is-hint" : "",
       state.hintSourceIndices.has(index) ? "is-hint-source" : "",
+      state.hintProofIndices.has(index) ? "is-hint-proof" : "",
       state.conflictIndices.has(index) ? "is-conflict" : "",
       ...edgeClasses(index),
     ]
@@ -267,7 +360,7 @@ function updateStats(analysis) {
   const solved = analysis.results.filter(isRegionComplete).length;
   const total = state.level.width * state.level.height;
   const clueCount = state.level.regions.reduce((sum, region) => sum + Object.keys(region.clues).length, 0);
-  const nextStep = hintItems(analysis).map(nextStepFor).find(Boolean);
+  const nextStep = nextHintCandidate(analysis)?.step ?? null;
   const advancedLevel = levelHasAdvancedReasoning();
   refs.regionCount.textContent = String(state.level.regions.length);
   refs.cellCount.textContent = String(total);
@@ -308,10 +401,16 @@ function renderAll(focusIndex = null, analysis = null) {
   updateStats(currentAnalysis);
 }
 
-function setCell(index, value) {
-  state.values[index] = value;
+function clearHint() {
   state.hintIndex = null;
   state.hintSourceIndices = new Set();
+  state.hintProofIndices = new Set();
+  renderHintProof(null);
+}
+
+function setCell(index, value) {
+  state.values[index] = value;
+  clearHint();
   const analysis = analyseBoard();
   renderAll(index, analysis);
   if (analysis.conflicts.size > 0) {
@@ -327,8 +426,7 @@ function setCell(index, value) {
 
 function requestHint() {
   const analysis = analyseBoard();
-  state.hintIndex = null;
-  state.hintSourceIndices = new Set();
+  clearHint();
   if (analysis.conflicts.size > 0) {
     renderAll(null, analysis);
     setMessage(
@@ -340,33 +438,33 @@ function requestHint() {
     return;
   }
 
-  for (const item of hintItems(analysis)) {
-    const step = nextStepFor(item);
-    if (step) {
-      state.hintIndex = step.cell;
-      state.hintSourceIndices = new Set(step.sourceClueIndices);
-      renderAll(null, analysis);
-      setMessage(
-        refs.statusNote,
-        `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级推理" : "基础推理"}：${hintExplanation(step)}`,
-        "success",
-      );
-      const peerCount = Math.max(0, step.forcedCells.length - 1);
-      setMessage(
-        refs.boardMessage,
-        `橙色外圈是当前建议先落笔的位置；细线框标出实际使用的数字线索。${
-          peerCount > 0 ? `同一条关系还同时确定另外 ${peerCount} 格。` : ""
-        } 本次判断基于按钮点击时的 ${state.values.filter((value) => value !== UNKNOWN).length} 个已落笔格。`,
-        "neutral",
-      );
-      return;
-    }
+  const candidate = nextHintCandidate(analysis);
+  if (candidate) {
+    const { item, step, proof } = candidate;
+    state.hintIndex = step.cell;
+    state.hintSourceIndices = new Set(step.sourceClueIndices);
+    state.hintProofIndices = new Set(proof.proofIndices);
+    renderAll(null, analysis);
+    renderHintProof(proof);
+    const proofKind = proof.kind === "subset-difference" ? "两个重叠 3×3 范围的差集" : "单条数字线索";
+    setMessage(
+      refs.statusNote,
+      `${item.region.name} · ${step.reasoningLevel === "advanced" ? "高级推理" : "基础推理"}：已生成一张可核对的${proofKind}证明。`,
+      "success",
+    );
+    setMessage(
+      refs.boardMessage,
+      `橙色外圈是建议先落笔的位置；细线框是数字线索，淡色内框是这条证明实际覆盖的全部格子。${
+        proof.dependsOnPlayerMarks ? "这条证明使用了当前已落笔格。" : "当前已落笔格不在这条证明中，结论来自题面本身。"
+      }`,
+      "neutral",
+    );
+    return;
   }
 
   const solved = analysis.results.every(isRegionComplete);
   if (solved) {
-    state.hintIndex = null;
-    state.hintSourceIndices = new Set();
+    clearHint();
     renderAll(null, analysis);
     setMessage(refs.statusNote, "这一页已经被完整解开。", "success");
     setMessage(refs.boardMessage, "所有区域都通过了确定性推导。", "success");
@@ -391,8 +489,7 @@ function checkBoard() {
     return;
   }
   if (analysis.results.every(isRegionComplete)) {
-    state.hintIndex = null;
-    state.hintSourceIndices = new Set();
+    clearHint();
     renderAll(null, analysis);
     setMessage(refs.statusNote, "完成。每个区域都被纯逻辑解开，且题面只有这一组答案。", "success");
     setMessage(refs.boardMessage, "箴言残卷的这一页，落印。", "success");
@@ -405,8 +502,7 @@ function checkBoard() {
 
 function resetBoard() {
   state.values = new Array(state.level.width * state.level.height).fill(UNKNOWN);
-  state.hintIndex = null;
-  state.hintSourceIndices = new Set();
+  clearHint();
   state.conflictIndices = new Set();
   renderAll();
   setMessage(refs.statusNote, "棋盘已清空。你不需要猜，只需要找出下一条必然关系。", "neutral");
@@ -423,8 +519,7 @@ function prepareLevel(level) {
     }
   }
   state.selectedRegion = null;
-  state.hintIndex = null;
-  state.hintSourceIndices = new Set();
+  clearHint();
   state.conflictIndices = new Set();
   refs.subtitle.textContent = level.subtitle;
   refs.seedLabel.textContent = `SEED ${level.seed}`;

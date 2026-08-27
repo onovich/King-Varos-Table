@@ -75,6 +75,12 @@
           <p class="status-note" id="statusNote" role="status" aria-live="polite">
             数字已经准备好。你不需要猜，只需要找出下一条必然关系。
           </p>
+
+          <section class="hint-proof" id="hintProof" hidden aria-labelledby="hintProofHeading">
+            <p class="hint-proof-kicker">THE PROOF</p>
+            <h3 id="hintProofHeading">为什么这一步必然成立 <span class="hint-proof-notation">R=行 · C=列</span></h3>
+            <div id="hintProofBody"></div>
+          </section>
         </aside>
 
         <section class="panel puzzle-panel" aria-labelledby="puzzleHeading">
@@ -112,6 +118,7 @@
               <span><i class="key-swatch key-region"></i>区域边界</span>
               <span><i class="key-swatch key-hint"></i>提示位置</span>
               <span><i class="key-swatch key-hint-source"></i>推理依据</span>
+              <span><i class="key-swatch key-hint-proof"></i>证明范围</span>
             </div>
             <p class="board-message" id="boardMessage" role="status" aria-live="polite">
               先选择一个数字，看看它的 3×3 范围。

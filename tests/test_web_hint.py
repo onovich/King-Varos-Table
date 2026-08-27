@@ -50,3 +50,41 @@ assert.equal(nextHint.value, DARK);
             check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
+
+    def test_hint_proof_explicitly_shows_the_two_overlapping_windows(self):
+        script = r'''
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { DARK, UNKNOWN, findNextHint } from "./web/puzzle-logic.mjs";
+import { buildHintProof } from "./web/hint-proof.mjs";
+
+const level = JSON.parse(fs.readFileSync("./web/data/demo-level.json", "utf8"));
+const values = Array(level.width * level.height).fill(UNKNOWN);
+for (const index of [160, 161, 180, 181]) values[index] = DARK;
+const clues = Array(level.width * level.height).fill(null);
+for (const region of level.regions) {
+  for (const [rawIndex, clue] of Object.entries(region.clues)) clues[Number(rawIndex)] = clue;
+}
+
+const region = level.regions.find((candidate) => candidate.id === 0);
+const hint = findNextHint(level, region, values);
+const proof = buildHintProof(level, clues, values, hint);
+assert.equal(proof.kind, "subset-difference");
+assert.equal(proof.target.index, 147);
+assert.equal(proof.target.value, DARK);
+assert.deepEqual(proof.larger.cells, [147, 148, 149, 167, 168, 169, 187, 188, 189]);
+assert.deepEqual(proof.smaller.cells, [167, 168, 169, 187, 188, 189]);
+assert.deepEqual(proof.sharedCells, [167, 168, 169, 187, 188, 189]);
+assert.deepEqual(proof.differenceCells, [147, 148, 149]);
+assert.equal(proof.differenceTotal, 0);
+assert.deepEqual(proof.playerKnownCells, []);
+assert.equal(proof.dependsOnPlayerMarks, false);
+'''
+        result = subprocess.run(
+            [shutil.which("node"), "--input-type=module", "--eval", script],
+            cwd=Path(__file__).resolve().parents[1],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr or result.stdout)
