@@ -4,6 +4,18 @@ import unittest
 from pathlib import Path
 
 
+class HintLayoutTests(unittest.TestCase):
+    def test_hint_does_not_render_an_expanding_summary_panel(self):
+        project_root = Path(__file__).resolve().parents[1]
+        html = (project_root / "web" / "index.html").read_text(encoding="utf-8")
+        script = (project_root / "web" / "app.js").read_text(encoding="utf-8")
+        styles = (project_root / "web" / "styles.css").read_text(encoding="utf-8")
+
+        self.assertNotIn("boardHintSummary", html)
+        self.assertNotIn("boardHintSummary", script)
+        self.assertNotIn(".board-hint-summary", styles)
+
+
 @unittest.skipUnless(shutil.which("node"), "Node.js is required for browser hint tests")
 class BrowserHintEngineTests(unittest.TestCase):
     def test_demo_level_is_solvable_using_only_direct_clue_hints(self):

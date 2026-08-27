@@ -18,12 +18,6 @@ const refs = {
   cellCount: document.querySelector("#cellCount"),
   clueCount: document.querySelector("#clueCount"),
   proofStatus: document.querySelector("#proofStatus"),
-  boardHintSummary: document.querySelector("#boardHintSummary"),
-  boardHintKicker: document.querySelector("#boardHintKicker"),
-  boardHintTitle: document.querySelector("#boardHintTitle"),
-  boardHintFacts: document.querySelector("#boardHintFacts"),
-  boardHintEquation: document.querySelector("#boardHintEquation"),
-  boardHintAction: document.querySelector("#boardHintAction"),
   reasoningBadge: document.querySelector("#reasoningBadge"),
   progressLabel: document.querySelector("#progressLabel"),
   seedLabel: document.querySelector("#seedLabel"),
@@ -138,29 +132,6 @@ function coordinateFor(index) {
   const row = Math.floor(index / state.level.width) + 1;
   const column = (index % state.level.width) + 1;
   return `第${row}行第${column}列`;
-}
-
-function valueDescription(value) {
-  return value === DARK ? "暗格" : "亮格";
-}
-
-function renderBoardHint(hint) {
-  refs.boardHintSummary.hidden = !hint;
-  if (!hint) return;
-
-  const row = Math.floor(hint.clueIndex / state.level.width) + 1;
-  const column = (hint.clueIndex % state.level.width) + 1;
-  const scopeDescription = hint.clipped
-    ? `区域边界将 3×3 范围裁成 ${hint.scopeCells.length} 格（包含数字格自身）`
-    : "完整 3×3 范围共 9 格（包含数字格自身）";
-
-  refs.boardHintKicker.textContent = `基础提示 · R${row}C${column}`;
-  refs.boardHintTitle.textContent = `先看${coordinateFor(hint.clueIndex)}的数字 ${hint.clueValue}`;
-  refs.boardHintFacts.textContent = `${scopeDescription}；当前已亮 ${hint.knownBright} 格、已暗 ${hint.knownDark} 格、未知 ${hint.unknownCells.length} 格。`;
-  refs.boardHintEquation.textContent = hint.value === DARK
-    ? `${hint.clueValue} − ${hint.knownBright} = 0：不再需要亮格。`
-    : `${hint.clueValue} − ${hint.knownBright} = ${hint.remaining}：正好等于未知格数量。`;
-  refs.boardHintAction.textContent = `因此，把该范围内 ${hint.unknownCells.length} 个未知格全部标成${valueDescription(hint.value)}。`;
 }
 
 function regionHasAdvancedReasoning(region) {
@@ -316,7 +287,6 @@ function renderAll(focusIndex = null, analysis = null) {
 function clearHint() {
   state.hintIndex = null;
   state.hintScopeIndices = new Set();
-  renderBoardHint(null);
 }
 
 function setCell(index, value) {
@@ -357,7 +327,6 @@ function requestHint() {
       step.scopeCells.filter((index) => index !== step.clueIndex),
     );
     renderAll(null, analysis);
-    renderBoardHint(step);
     setMessage(
       refs.statusNote,
       `${item.region.name} · 基础提示：请看${coordinateFor(step.clueIndex)}的数字 ${step.clueValue}。`,
@@ -368,9 +337,6 @@ function requestHint() {
       `粗橙框是提示数字；弱橙框是它在同一区域内的有效 3×3 范围。只根据这个数字就能处理整个高亮范围。`,
       "neutral",
     );
-    if (window.matchMedia("(max-width: 920px)").matches) {
-      refs.boardHintSummary.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
     return;
   }
 

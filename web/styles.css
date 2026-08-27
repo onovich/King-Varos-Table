@@ -461,59 +461,6 @@ h2 {
   border-radius: 50%;
 }
 
-.board-hint-summary {
-  display: grid;
-  gap: 4px;
-  margin: 0 0 16px;
-  padding: 12px 14px;
-  color: var(--ink);
-  background: rgba(239, 198, 108, 0.28);
-  border-top: 1px solid rgba(216, 100, 67, 0.62);
-  border-bottom: 1px solid rgba(216, 100, 67, 0.38);
-  border-left: 4px solid var(--signal);
-}
-
-.board-hint-summary[hidden] {
-  display: none;
-}
-
-.board-hint-kicker,
-.board-hint-summary h3,
-.board-hint-facts,
-.board-hint-equation,
-.board-hint-action {
-  margin: 0;
-}
-
-.board-hint-kicker {
-  color: var(--signal);
-  font-size: 0.6rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-
-.board-hint-summary h3 {
-  font-size: 1rem;
-}
-
-.board-hint-facts,
-.board-hint-action {
-  color: var(--muted);
-  font-size: 0.72rem;
-  line-height: 1.5;
-}
-
-.board-hint-equation {
-  width: fit-content;
-  margin: 3px 0;
-  padding: 5px 8px;
-  color: var(--ink);
-  background: rgba(239, 198, 108, 0.78);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
 .board-frame {
   overflow: auto;
   padding: 10px;
