@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
   <title id="title">King Varo's Table repository preview</title>
-  <desc id="desc">An ink-and-paper cover with the project title beside a four-region numbered logic map.</desc>
+  <desc id="desc">An ink-and-paper cover with the project title beside an exact twenty-by-twenty four-region logic map.</desc>
 
   <defs>
     <pattern id="paper-lines" width="8" height="8" patternUnits="userSpaceOnUse">
       <rect width="8" height="8" fill="#172729"/>
       <rect y="7" width="8" height="1" fill="#f2ecdf" opacity="0.025"/>
     </pattern>
-    <pattern id="cell-grid" width="44" height="44" patternUnits="userSpaceOnUse">
-      <path d="M44 0H0V44" fill="none" stroke="#172729" stroke-width="2"/>
-    </pattern>
     <filter id="paper-shadow" x="-20%" y="-20%" width="140%" height="150%">
       <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#071214" flood-opacity="0.38"/>
     </filter>
+    <clipPath id="board-clip">
+      <rect x="742" y="112" width="400" height="400"/>
+    </clipPath>
   </defs>
 
   <rect width="1280" height="640" fill="url(#paper-lines)"/>
@@ -41,74 +41,178 @@
     </g>
   </g>
 
-  <g transform="rotate(-1.5 938 320)" filter="url(#paper-shadow)">
-    <rect x="678" y="76" width="520" height="488" rx="4" fill="#e8e0d0" stroke="#f2ecdf" stroke-width="2"/>
-    <text x="708" y="116" fill="#d86443" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="2.8">MAP 01 / FOUR REGIONS</text>
-    <text x="1164" y="116" fill="#766d60" font-family="Georgia, Times New Roman, serif" font-size="17" text-anchor="end">3×3</text>
+  <g filter="url(#paper-shadow)">
+    <rect x="682" y="54" width="520" height="532" rx="4" fill="#e8e0d0" stroke="#f2ecdf" stroke-width="2"/>
+    <text x="712" y="91" fill="#d86443" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="2.8">MAP 01 / SEVEN REALMS</text>
+    <text x="1172" y="91" fill="#766d60" font-family="Georgia, Times New Roman, serif" font-size="17" text-anchor="end">3×3</text>
 
-    <g>
-      <rect x="708" y="142" width="220" height="176" fill="#e6d5a7"/>
-      <rect x="928" y="142" width="220" height="176" fill="#c4d3d2"/>
-      <rect x="708" y="318" width="220" height="176" fill="#c4d3ca"/>
-      <rect x="928" y="318" width="220" height="176" fill="#dfc2b4"/>
-
-      <g fill="#294043">
-        <rect x="708" y="142" width="44" height="44"/>
-        <rect x="840" y="186" width="44" height="44"/>
-        <rect x="884" y="274" width="44" height="44"/>
-        <rect x="972" y="142" width="44" height="44"/>
-        <rect x="1104" y="230" width="44" height="44"/>
-        <rect x="752" y="318" width="44" height="44"/>
-        <rect x="840" y="406" width="44" height="44"/>
-        <rect x="928" y="362" width="44" height="44"/>
-        <rect x="1060" y="450" width="44" height="44"/>
+    <g id="board-grid" data-columns="20" data-rows="20" data-cell-size="20" data-regions="7" shape-rendering="crispEdges">
+      <g clip-path="url(#board-clip)">
+        <rect x="742" y="112" width="400" height="400" fill="#e6d5a7"/>
+        <path d="M742 112H882V132H742Z M742 132H882V152H742Z M742 152H882V172H742Z M742 172H882V192H742Z M742 192H882V212H742Z M742 212H882V232H742Z M742 232H882V252H742Z M742 252H902V272H742Z M742 272H882V292H742Z M742 292H842V312H742Z" fill="#e6d5a7"/>
+        <path d="M882 112H1022V132H882Z M882 132H1022V152H882Z M882 152H1022V172H882Z M882 172H1022V192H882Z M882 192H1002V212H882Z M882 212H1002V232H882Z M882 232H1002V252H882Z M902 252H982V272H902Z" fill="#c4d3d2"/>
+        <path d="M1022 112H1142V132H1022Z M1022 132H1142V152H1022Z M1022 152H1142V172H1022Z M1022 172H1142V192H1022Z M1002 192H1142V212H1002Z M1002 212H1142V232H1002Z M1002 232H1142V252H1002Z M982 252H1122V272H982Z M982 272H1062V292H982Z" fill="#b9c6d3"/>
+        <path d="M742 312H842V332H742Z M742 332H862V352H742Z M742 352H862V372H742Z M742 372H862V392H742Z M742 392H882V412H742Z M742 412H882V432H742Z M742 432H882V452H742Z M742 452H882V472H742Z M742 472H902V492H742Z M742 492H902V512H742Z" fill="#c4d3ca"/>
+        <path d="M882 272H982V292H882Z M842 292H1002V312H842Z M842 312H1022V332H842Z M862 332H1002V352H862Z M862 352H1002V372H862Z M862 372H1002V392H862Z M882 392H1002V412H882Z M882 412H982V432H882Z M882 432H982V452H882Z M882 452H982V472H882Z M902 472H962V492H902Z M902 492H962V512H902Z" fill="#dfc2b4"/>
+        <path d="M1002 332H1042V352H1002Z M1002 352H1062V372H1002Z M1002 372H1082V392H1002Z M1002 392H1102V412H1002Z M982 412H1122V432H982Z M982 432H1142V452H982Z M982 452H1142V472H982Z M962 472H1142V492H962Z M962 492H1142V512H962Z" fill="#d5c3cd"/>
+        <path d="M1122 252H1142V272H1122Z M1062 272H1142V292H1062Z M1002 292H1142V312H1002Z M1022 312H1142V332H1022Z M1042 332H1142V352H1042Z M1062 352H1142V372H1062Z M1082 372H1142V392H1082Z M1102 392H1142V412H1102Z M1122 412H1142V432H1122Z" fill="#d9b795"/>
+        <rect x="1042" y="392" width="60" height="60" fill="#d86443" opacity="0.10"/>
+        <rect x="1062" y="412" width="20" height="20" fill="#efc66c"/>
       </g>
 
-      <g fill="#efc66c">
-        <rect x="796" y="230" width="44" height="44"/>
-        <rect x="1016" y="406" width="44" height="44"/>
-      </g>
-
-      <rect x="708" y="142" width="440" height="352" fill="url(#cell-grid)"/>
-      <rect x="708" y="142" width="440" height="352" fill="none" stroke="#172729" stroke-width="6"/>
-      <path d="M928 142V494M708 318H1148" fill="none" stroke="#172729" stroke-width="8"/>
-
-      <g fill="none" stroke="#d86443">
-        <rect x="972" y="362" width="44" height="44" stroke-width="3" opacity="0.5"/>
-        <rect x="1016" y="362" width="44" height="44" stroke-width="3" opacity="0.5"/>
-        <rect x="1060" y="362" width="44" height="44" stroke-width="3" opacity="0.5"/>
-        <rect x="972" y="406" width="44" height="44" stroke-width="3" opacity="0.5"/>
-        <rect x="1016" y="406" width="44" height="44" stroke-width="6"/>
-        <rect x="1060" y="406" width="44" height="44" stroke-width="3" opacity="0.5"/>
-        <rect x="972" y="450" width="44" height="44" stroke-width="3" opacity="0.5"/>
-        <rect x="1016" y="450" width="44" height="44" stroke-width="3" opacity="0.5"/>
-        <rect x="1060" y="450" width="44" height="44" stroke-width="3" opacity="0.5"/>
-      </g>
-
-      <g font-family="Georgia, Times New Roman, serif" font-size="19" font-weight="700" text-anchor="middle" fill="#172729">
-        <text x="774" y="171">3</text><text x="818" y="171">4</text><text x="862" y="171">1</text><text x="906" y="171">0</text>
-        <text x="730" y="215">2</text><text x="818" y="215">6</text><text x="906" y="215" fill="#f2ecdf">1</text>
-        <text x="730" y="259">1</text><text x="818" y="259">4</text><text x="862" y="259">7</text>
-        <text x="774" y="303">0</text><text x="862" y="303">9</text>
-
-        <text x="950" y="171">0</text><text x="1038" y="171">2</text><text x="1082" y="171">4</text>
-        <text x="950" y="215" fill="#f2ecdf">1</text><text x="994" y="215">3</text><text x="1126" y="215">9</text>
-        <text x="994" y="259">0</text><text x="1082" y="259">5</text><text x="1126" y="259" fill="#f2ecdf">8</text>
-        <text x="950" y="303">2</text><text x="1038" y="303">7</text>
-
-        <text x="730" y="347">0</text><text x="818" y="347">2</text><text x="906" y="347">5</text>
-        <text x="774" y="391">3</text><text x="862" y="391">8</text>
-        <text x="730" y="435">1</text><text x="818" y="435">6</text><text x="906" y="435">9</text>
-        <text x="774" y="479">4</text><text x="862" y="479">0</text>
-
-        <text x="950" y="347">4</text><text x="1038" y="347">6</text><text x="1126" y="347">2</text>
-        <text x="994" y="391">7</text><text x="1082" y="391">3</text>
-        <text x="950" y="435">0</text><text x="1038" y="435">4</text><text x="1126" y="435">8</text>
-        <text x="994" y="479">2</text><text x="1082" y="479" fill="#f2ecdf">1</text><text x="1126" y="479">5</text>
-      </g>
+      <path d="M762 112V512 M782 112V512 M802 112V512 M822 112V512 M842 112V512 M862 112V512 M882 112V512 M902 112V512 M922 112V512 M942 112V512 M962 112V512 M982 112V512 M1002 112V512 M1022 112V512 M1042 112V512 M1062 112V512 M1082 112V512 M1102 112V512 M1122 112V512 M742 132H1142 M742 152H1142 M742 172H1142 M742 192H1142 M742 212H1142 M742 232H1142 M742 252H1142 M742 272H1142 M742 292H1142 M742 312H1142 M742 332H1142 M742 352H1142 M742 372H1142 M742 392H1142 M742 412H1142 M742 432H1142 M742 452H1142 M742 472H1142 M742 492H1142" fill="none" stroke="#172729" stroke-width="1"/>
+      <path d="M842 292V332 M862 332V392 M882 112V252 M882 272V292 M882 392V472 M902 252V272 M902 472V512 M962 472V512 M982 252V292 M982 412V472 M1002 192V252 M1002 292V312 M1002 332V412 M1022 112V192 M1022 312V332 M1042 332V352 M1062 272V292 M1062 352V372 M1082 372V392 M1102 392V412 M1122 252V272 M1122 412V432 M1002 192H1022 M882 252H902 M982 252H1002 M1122 252H1142 M882 272H982 M1062 272H1122 M842 292H882 M982 292H1062 M742 312H842 M1002 312H1022 M842 332H862 M1002 332H1042 M1042 352H1062 M1062 372H1082 M862 392H882 M1082 392H1102 M982 412H1002 M1102 412H1122 M1122 432H1142 M882 472H902 M962 472H982" fill="none" stroke="#172729" stroke-width="4" stroke-linecap="square" stroke-linejoin="round"/>
+      <rect x="742" y="112" width="400" height="400" fill="none" stroke="#172729" stroke-width="4"/>
+      <rect x="1042" y="392" width="60" height="60" fill="none" stroke="#d86443" stroke-width="2" opacity="0.55"/>
+      <rect x="1062" y="412" width="20" height="20" fill="none" stroke="#d86443" stroke-width="3"/>
     </g>
 
-    <text x="708" y="534" fill="#766d60" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="1.4">BORDERS CLIP EVERY CLUE</text>
-    <text x="1148" y="534" fill="#d86443" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" text-anchor="end">NO GUESS</text>
+    <g fill="#172729" font-family="Georgia, Times New Roman, serif" font-size="10.5" font-weight="700" text-anchor="middle" dominant-baseline="middle">
+      <text x="752" y="122">3</text>
+      <text x="772" y="122">4</text>
+      <text x="812" y="122">1</text>
+      <text x="832" y="122">0</text>
+      <text x="852" y="122">0</text>
+      <text x="892" y="122">0</text>
+      <text x="992" y="122">0</text>
+      <text x="1032" y="122">4</text>
+      <text x="1052" y="122">6</text>
+      <text x="812" y="142">2</text>
+      <text x="932" y="142">1</text>
+      <text x="1052" y="142">9</text>
+      <text x="1112" y="142">9</text>
+      <text x="772" y="162">1</text>
+      <text x="792" y="162">3</text>
+      <text x="812" y="162">3</text>
+      <text x="872" y="162">1</text>
+      <text x="912" y="162">2</text>
+      <text x="932" y="162">3</text>
+      <text x="1032" y="162">5</text>
+      <text x="1052" y="162">8</text>
+      <text x="1132" y="162">6</text>
+      <text x="792" y="182">4</text>
+      <text x="812" y="182">6</text>
+      <text x="832" y="182">7</text>
+      <text x="852" y="182">5</text>
+      <text x="912" y="182">4</text>
+      <text x="932" y="182">5</text>
+      <text x="992" y="182">0</text>
+      <text x="1032" y="182">3</text>
+      <text x="1052" y="182">5</text>
+      <text x="1072" y="182">7</text>
+      <text x="752" y="202">0</text>
+      <text x="812" y="202">8</text>
+      <text x="832" y="202">9</text>
+      <text x="872" y="202">4</text>
+      <text x="912" y="202">6</text>
+      <text x="932" y="202">6</text>
+      <text x="972" y="202">0</text>
+      <text x="1012" y="202">0</text>
+      <text x="1032" y="202">1</text>
+      <text x="1052" y="202">3</text>
+      <text x="832" y="222">9</text>
+      <text x="892" y="222">2</text>
+      <text x="952" y="222">2</text>
+      <text x="1052" y="222">2</text>
+      <text x="1132" y="222">6</text>
+      <text x="772" y="242">7</text>
+      <text x="832" y="242">6</text>
+      <text x="872" y="242">4</text>
+      <text x="1112" y="242">8</text>
+      <text x="932" y="262">2</text>
+      <text x="972" y="262">0</text>
+      <text x="992" y="262">0</text>
+      <text x="1052" y="262">4</text>
+      <text x="1092" y="262">6</text>
+      <text x="1132" y="262">3</text>
+      <text x="752" y="282">6</text>
+      <text x="792" y="282">4</text>
+      <text x="852" y="282">3</text>
+      <text x="872" y="282">4</text>
+      <text x="892" y="282">5</text>
+      <text x="912" y="282">6</text>
+      <text x="932" y="282">4</text>
+      <text x="952" y="282">2</text>
+      <text x="972" y="282">0</text>
+      <text x="1012" y="282">0</text>
+      <text x="1072" y="282">5</text>
+      <text x="1092" y="282">6</text>
+      <text x="1112" y="282">7</text>
+      <text x="872" y="302">7</text>
+      <text x="892" y="302">8</text>
+      <text x="912" y="302">8</text>
+      <text x="972" y="302">3</text>
+      <text x="1012" y="302">1</text>
+      <text x="1032" y="302">2</text>
+      <text x="1052" y="302">4</text>
+      <text x="752" y="322">0</text>
+      <text x="792" y="322">2</text>
+      <text x="812" y="322">4</text>
+      <text x="832" y="322">5</text>
+      <text x="892" y="322">9</text>
+      <text x="992" y="322">5</text>
+      <text x="832" y="342">7</text>
+      <text x="1012" y="342">2</text>
+      <text x="1032" y="342">2</text>
+      <text x="1052" y="342">1</text>
+      <text x="1072" y="342">0</text>
+      <text x="1132" y="342">0</text>
+      <text x="772" y="362">0</text>
+      <text x="792" y="362">1</text>
+      <text x="812" y="362">3</text>
+      <text x="832" y="362">6</text>
+      <text x="952" y="362">4</text>
+      <text x="1032" y="362">3</text>
+      <text x="1132" y="362">2</text>
+      <text x="892" y="382">6</text>
+      <text x="952" y="382">1</text>
+      <text x="972" y="382">0</text>
+      <text x="1012" y="382">0</text>
+      <text x="1072" y="382">4</text>
+      <text x="1112" y="382">4</text>
+      <text x="912" y="402">5</text>
+      <text x="1012" y="402">1</text>
+      <text x="1052" y="402">6</text>
+      <text x="1072" y="402">7</text>
+      <text x="1092" y="402">5</text>
+      <text x="772" y="422">0</text>
+      <text x="812" y="422">0</text>
+      <text x="852" y="422">5</text>
+      <text x="892" y="422">4</text>
+      <text x="972" y="422">0</text>
+      <text x="1032" y="422">5</text>
+      <text x="1052" y="422">8</text>
+      <text x="1072" y="422">9</text>
+      <text x="1132" y="422">3</text>
+      <text x="832" y="442">3</text>
+      <text x="892" y="442">6</text>
+      <text x="952" y="442">3</text>
+      <text x="992" y="442">1</text>
+      <text x="1032" y="442">7</text>
+      <text x="812" y="462">3</text>
+      <text x="852" y="462">8</text>
+      <text x="872" y="462">7</text>
+      <text x="912" y="462">8</text>
+      <text x="992" y="462">3</text>
+      <text x="1012" y="462">6</text>
+      <text x="1112" y="462">8</text>
+      <text x="752" y="482">0</text>
+      <text x="832" y="482">8</text>
+      <text x="872" y="482">6</text>
+      <text x="952" y="482">2</text>
+      <text x="972" y="482">3</text>
+      <text x="1052" y="482">7</text>
+      <text x="1132" y="482">6</text>
+      <text x="812" y="502">4</text>
+      <text x="912" y="502">2</text>
+      <text x="1032" y="502">6</text>
+      <text x="1092" y="502">2</text>
+    </g>
+
+    <g font-family="Segoe UI, Arial, sans-serif">
+      <text x="712" y="553" fill="#766d60" font-size="13" font-weight="700" letter-spacing="1.1">7 REALMS / 20 × 20</text>
+      <line x1="895" y1="549" x2="935" y2="549" stroke="#d86443" stroke-width="2"/>
+      <text x="948" y="553" fill="#766d60" font-size="13">highlighted direct clue + 3×3 scope</text>
+    </g>
   </g>
 </svg>
