@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">King Varo's Table repository preview</title>
+  <desc id="desc">An ink-and-paper cover with the project title beside a four-region numbered logic map.</desc>
+
+  <defs>
+    <pattern id="paper-lines" width="8" height="8" patternUnits="userSpaceOnUse">
+      <rect width="8" height="8" fill="#172729"/>
+      <rect y="7" width="8" height="1" fill="#f2ecdf" opacity="0.025"/>
+    </pattern>
+    <pattern id="cell-grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0V44" fill="none" stroke="#172729" stroke-width="2"/>
+    </pattern>
+    <filter id="paper-shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#071214" flood-opacity="0.38"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#paper-lines)"/>
+  <circle cx="1000" cy="320" r="258" fill="#294043" stroke="#e8e0d0" stroke-width="4" opacity="0.9"/>
+  <circle cx="1000" cy="320" r="222" fill="none" stroke="#b9aa91" stroke-width="2" opacity="0.55"/>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="72" y="86" fill="#d86443" font-size="18" font-weight="700" letter-spacing="3.4">A NO-GUESS LOGIC ATLAS</text>
+
+    <text x="68" y="184" fill="#f2ecdf" font-family="Georgia, Times New Roman, serif" font-size="78" font-weight="600" letter-spacing="-3">King Varo's</text>
+    <text x="68" y="266" fill="#f2ecdf" font-family="Georgia, Times New Roman, serif" font-size="92" font-weight="600" letter-spacing="-4">Table</text>
+
+    <text x="72" y="338" fill="#e8e0d0" font-size="29" font-weight="500">Read the borders.</text>
+    <text x="72" y="377" fill="#e8e0d0" font-size="29" font-weight="500">Let every number speak.</text>
+    <text x="72" y="438" fill="#b9aa91" font-family="Microsoft YaHei, Segoe UI, sans-serif" font-size="24" letter-spacing="2">瓦罗王的餐桌</text>
+
+    <g font-size="17" font-weight="700" letter-spacing="1.2">
+      <rect x="72" y="504" width="12" height="12" fill="#bf9847"/>
+      <text x="94" y="516" fill="#f2ecdf">20×20 BOARD</text>
+
+      <rect x="236" y="504" width="12" height="12" fill="#537b8b"/>
+      <text x="258" y="516" fill="#f2ecdf">0–9 CLUES</text>
+
+      <rect x="385" y="504" width="12" height="12" fill="#d86443"/>
+      <text x="407" y="516" fill="#f2ecdf">UNIQUE BY MINIZINC</text>
+    </g>
+  </g>
+
+  <g transform="rotate(-1.5 938 320)" filter="url(#paper-shadow)">
+    <rect x="678" y="76" width="520" height="488" rx="4" fill="#e8e0d0" stroke="#f2ecdf" stroke-width="2"/>
+    <text x="708" y="116" fill="#d86443" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="2.8">MAP 01 / FOUR REGIONS</text>
+    <text x="1164" y="116" fill="#766d60" font-family="Georgia, Times New Roman, serif" font-size="17" text-anchor="end">3×3</text>
+
+    <g>
+      <rect x="708" y="142" width="220" height="176" fill="#e6d5a7"/>
+      <rect x="928" y="142" width="220" height="176" fill="#c4d3d2"/>
+      <rect x="708" y="318" width="220" height="176" fill="#c4d3ca"/>
+      <rect x="928" y="318" width="220" height="176" fill="#dfc2b4"/>
+
+      <g fill="#294043">
+        <rect x="708" y="142" width="44" height="44"/>
+        <rect x="840" y="186" width="44" height="44"/>
+        <rect x="884" y="274" width="44" height="44"/>
+        <rect x="972" y="142" width="44" height="44"/>
+        <rect x="1104" y="230" width="44" height="44"/>
+        <rect x="752" y="318" width="44" height="44"/>
+        <rect x="840" y="406" width="44" height="44"/>
+        <rect x="928" y="362" width="44" height="44"/>
+        <rect x="1060" y="450" width="44" height="44"/>
+      </g>
+
+      <g fill="#efc66c">
+        <rect x="796" y="230" width="44" height="44"/>
+        <rect x="1016" y="406" width="44" height="44"/>
+      </g>
+
+      <rect x="708" y="142" width="440" height="352" fill="url(#cell-grid)"/>
+      <rect x="708" y="142" width="440" height="352" fill="none" stroke="#172729" stroke-width="6"/>
+      <path d="M928 142V494M708 318H1148" fill="none" stroke="#172729" stroke-width="8"/>
+
+      <g fill="none" stroke="#d86443">
+        <rect x="972" y="362" width="44" height="44" stroke-width="3" opacity="0.5"/>
+        <rect x="1016" y="362" width="44" height="44" stroke-width="3" opacity="0.5"/>
+        <rect x="1060" y="362" width="44" height="44" stroke-width="3" opacity="0.5"/>
+        <rect x="972" y="406" width="44" height="44" stroke-width="3" opacity="0.5"/>
+        <rect x="1016" y="406" width="44" height="44" stroke-width="6"/>
+        <rect x="1060" y="406" width="44" height="44" stroke-width="3" opacity="0.5"/>
+        <rect x="972" y="450" width="44" height="44" stroke-width="3" opacity="0.5"/>
+        <rect x="1016" y="450" width="44" height="44" stroke-width="3" opacity="0.5"/>
+        <rect x="1060" y="450" width="44" height="44" stroke-width="3" opacity="0.5"/>
+      </g>
+
+      <g font-family="Georgia, Times New Roman, serif" font-size="19" font-weight="700" text-anchor="middle" fill="#172729">
+        <text x="774" y="171">3</text><text x="818" y="171">4</text><text x="862" y="171">1</text><text x="906" y="171">0</text>
+        <text x="730" y="215">2</text><text x="818" y="215">6</text><text x="906" y="215" fill="#f2ecdf">1</text>
+        <text x="730" y="259">1</text><text x="818" y="259">4</text><text x="862" y="259">7</text>
+        <text x="774" y="303">0</text><text x="862" y="303">9</text>
+
+        <text x="950" y="171">0</text><text x="1038" y="171">2</text><text x="1082" y="171">4</text>
+        <text x="950" y="215" fill="#f2ecdf">1</text><text x="994" y="215">3</text><text x="1126" y="215">9</text>
+        <text x="994" y="259">0</text><text x="1082" y="259">5</text><text x="1126" y="259" fill="#f2ecdf">8</text>
+        <text x="950" y="303">2</text><text x="1038" y="303">7</text>
+
+        <text x="730" y="347">0</text><text x="818" y="347">2</text><text x="906" y="347">5</text>
+        <text x="774" y="391">3</text><text x="862" y="391">8</text>
+        <text x="730" y="435">1</text><text x="818" y="435">6</text><text x="906" y="435">9</text>
+        <text x="774" y="479">4</text><text x="862" y="479">0</text>
+
+        <text x="950" y="347">4</text><text x="1038" y="347">6</text><text x="1126" y="347">2</text>
+        <text x="994" y="391">7</text><text x="1082" y="391">3</text>
+        <text x="950" y="435">0</text><text x="1038" y="435">4</text><text x="1126" y="435">8</text>
+        <text x="994" y="479">2</text><text x="1082" y="479" fill="#f2ecdf">1</text><text x="1126" y="479">5</text>
+      </g>
+    </g>
+
+    <text x="708" y="534" fill="#766d60" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="1.4">BORDERS CLIP EVERY CLUE</text>
+    <text x="1148" y="534" fill="#d86443" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="800" text-anchor="end">NO GUESS</text>
+  </g>
+</svg>

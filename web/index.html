@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#18282a" />
+    <title>瓦罗王的餐桌 · 逻辑原型</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">KING VARO'S TABLE / LOGIC ATLAS</p>
+          <h1>瓦罗王的餐桌</h1>
+          <p class="subtitle" id="levelSubtitle">正在展开一张尚未完成的版图……</p>
+        </div>
+        <div class="folio-mark" aria-label="当前页码">
+          <span>MAP</span>
+          <strong>01</strong>
+        </div>
+      </header>
+
+      <main class="workbench">
+        <aside class="panel rules-panel" aria-labelledby="rulesHeading">
+          <p class="section-kicker">THE RULE</p>
+          <h2 id="rulesHeading">让数字自己开口。</h2>
+          <p class="lede">
+            每个数字表示：以自己为中心、包含数字格自身、且只限同一色块的最多 3×3 范围内，亮格的总数。
+            亮格与暗格只用底色区分；数字范围为 0—9，粗边界另一侧的格子不计入。
+          </p>
+
+          <div class="rule-card" aria-label="操作说明">
+            <div class="rule-row">
+              <span class="rule-glyph">1</span>
+              <span>左键 / Enter：标记亮格</span>
+            </div>
+            <div class="rule-row">
+              <span class="rule-glyph rule-glyph-dark">×</span>
+              <span>右键 / Shift+点击：标记暗格</span>
+            </div>
+            <div class="rule-row">
+              <span class="rule-glyph rule-glyph-hint">◎</span>
+              <span>提示：强高亮数字，弱高亮其有效范围</span>
+            </div>
+          </div>
+
+          <div class="action-stack">
+            <button class="button button-primary" id="hintButton" type="button">给我一个必然步骤</button>
+            <div class="button-row">
+              <button class="button button-quiet" id="checkButton" type="button">检查当前推理</button>
+              <button class="button button-quiet" id="clearErrorsButton" type="button">清除错误答案</button>
+            </div>
+            <button class="button button-quiet" id="resetButton" type="button">重新开局</button>
+          </div>
+
+          <div class="stats-grid" aria-label="关卡统计">
+            <div class="stat">
+              <span class="stat-label">区域</span>
+              <strong id="regionCount">—</strong>
+            </div>
+            <div class="stat">
+              <span class="stat-label">格数</span>
+              <strong id="cellCount">—</strong>
+            </div>
+            <div class="stat">
+              <span class="stat-label">可见线索</span>
+              <strong id="clueCount">—</strong>
+            </div>
+            <div class="stat stat-proof">
+              <span class="stat-label">证明</span>
+              <strong id="proofStatus">—</strong>
+            </div>
+          </div>
+
+          <p class="status-note" id="statusNote" role="status" aria-live="polite">
+            数字已经准备好。你不需要猜，只需要找出下一条必然关系。
+          </p>
+
+        </aside>
+
+        <section class="panel puzzle-panel" aria-labelledby="puzzleHeading">
+          <div class="puzzle-header">
+            <div>
+              <p class="section-kicker">THE UNFINISHED MAP</p>
+              <h2 id="puzzleHeading">尚未完成的版图</h2>
+              <p class="puzzle-description">20×20 棋盘 · 同色区域内计数 · 每页保证唯一解</p>
+            </div>
+            <div class="puzzle-meta">
+              <div class="reasoning-badge" id="reasoningBadge" data-level="waiting" aria-live="polite">等待标记</div>
+              <div class="progress-stamp" aria-live="polite">
+                <span>已落笔</span>
+                <strong id="progressLabel">0 / 400</strong>
+              </div>
+            </div>
+          </div>
+
+          <nav class="region-tabs" id="regionTabs" aria-label="区域筛选" role="tablist"></nav>
+
+          <div class="board-frame">
+            <div
+              class="board"
+              id="board"
+              role="grid"
+              aria-label="瓦罗王的餐桌逻辑棋盘"
+              aria-rowcount="20"
+              aria-colcount="20"
+            ></div>
+          </div>
+
+          <div class="puzzle-footer">
+            <div class="board-key" aria-label="棋盘图例">
+              <span><i class="key-swatch key-clue"></i>数字线索</span>
+              <span><i class="key-swatch key-region"></i>区域边界</span>
+              <span><i class="key-swatch key-hint"></i>提示数字（强）</span>
+              <span><i class="key-swatch key-hint-scope"></i>有效范围（弱）</span>
+            </div>
+            <p class="board-message" id="boardMessage" role="status" aria-live="polite">
+              先选择一个数字，看看它的 3×3 范围。
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer-line">
+        <span>LOCAL PROTOTYPE · NO GUESS / UNIQUE BY MINIZINC</span>
+        <span id="seedLabel">SEED —</span>
+      </footer>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
