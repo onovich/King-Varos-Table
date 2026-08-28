@@ -25,6 +25,7 @@ Claim boundaries:
 
 - The current repository is a browser-playable prototype, not a finished game.
 - The no-guess guarantee applies to the committed demo and the direct-clue rule set tested by the generator and browser logic.
+- The `v3` cover board is a forward-looking seven-region composition rather than the committed four-region JSON. Its 139 visible clues were recomputed from the repository's deterministic target with the production region-clipped neighborhood function; every candidate region was solved by direct clues and independently returned no second MiniZinc solution.
 - The banquet narrative and country-fall story cards are documented but not implemented in the runtime.
 - No public hosted demo or open-source license is currently included.
 
@@ -32,7 +33,7 @@ Claim boundaries:
 
 - Promise: solve a regional 3×3 counting puzzle without guessing and reconstruct King Varo's map.
 - Proof:
-  - a recognizable four-region numbered board;
+  - a recognizable multi-country numbered board bounded by one rectangular folio;
   - clue values from 0 through 9;
   - uniqueness checked by MiniZinc.
 - Exclude:
@@ -46,22 +47,22 @@ Claim boundaries:
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | Local runtime board | complete artifact | 3 | 2 | 1 | 2 | 1 |
 | `web/styles.css` palette and paper texture | brand/material | 3 | 3 | 3 | 0 | 0 |
-| Four-region board geometry | subject/glyph | 3 | 2 | 3 | 0 | 0 |
+| Region-clipped board geometry | subject/glyph | 3 | 2 | 3 | 0 | 0 |
 | Narrative map-and-table specification | weak reference | 2 | 1 | 1 | 0 | 2 |
 
-- Keep: the ink-and-paper palette, dense numbered grid, four colored regions, thick national boundaries and orange hint accent.
+- Keep: the ink-and-paper palette, dense numbered grid, colored regions, thick national boundaries and orange hint accent.
 - Remove: browser layout, control panels, long Chinese instructions, counters and incidental UI chrome.
 - Repair: enlarge the board into a single legible product artifact and reserve a clean title field.
 - Supplement: a plate-shaped field behind the map, grounded in the selected title and narrative specification.
 - Interpretation level: 3, bounded reconstruction.
 - Continuity model: isolated complete artifact.
-- Aspect fit: the tall runtime page is not embedded. Its board, palette and topology are extracted and recomposed into a self-contained 500×450 map artifact, leaving no inert screenshot gutters.
+- Aspect fit: the tall runtime page is not embedded. Its board, palette and topology are extracted and recomposed into a self-contained square map artifact, leaving no inert screenshot gutters.
 
 Fragment ledger:
 
 | Source region | Semantic unit | Boundary | Adjacency | Thumbnail verdict |
 | --- | --- | --- | --- | --- |
-| Runtime puzzle board | four-region clue grid | complete paper panel | isolated over a plate field | pass |
+| Runtime puzzle board | region-clipped clue grid | complete paper panel | isolated over a plate field | pass |
 | Runtime title/palette | brand typography and colors | independent left copy field | separated from proof by space | pass |
 
 ## Composition
@@ -75,28 +76,30 @@ Line ledger:
 
 | Element | Role | Bounds or endpoints | Evidence |
 | --- | --- | --- | --- |
-| Cell grid | board boundaries | clipped to the map board | current 20×20 board language |
-| Heavy cross-boundaries | national/logic region boundaries | span the board at the four-region divisions | region-clipped clue mechanic |
+| Cell grid | 20 columns × 20 rows, each exactly 20×20 px | `x=742..1142`, `y=112..512`; explicit lines every 20 px | committed 20×20 demo geometry |
+| Irregular internal boundaries | national/logic region boundaries | stepped paths on cell edges, clipped by the outer 400×400 rectangle | narrative countries and region-clipped clue mechanic |
 | Plate rings | physical object boundary | closed circles behind the map | project title and narrative premise |
-| Hint outlines | target and effective-scope boundaries | closed cells inside one 3×3 neighborhood | implemented direct-clue hint UI |
+| Hint outlines | target and effective-scope boundaries | exact 60×60 scope around one exact 20×20 cell | implemented direct-clue hint UI |
 
 The subtle horizontal background marks are material texture inherited from `web/styles.css`, not connectors or data lines.
 
 ## Version and output
 
-- Baseline: none.
-- Candidate: `v1`.
-- Identity anchors: product name, ink/paper palette, four-region board, clue digits and orange hint.
-- Forbidden changes: invented artwork, unsupported release claims, a generic purple gradient, or replacing the board with decorative code imagery.
-- Promotion verdict: promote. The corrected hint scope remains inside the board, and the title and product artifact remain legible in both light- and dark-surround 320×160 reviews.
+- Baseline: `v2`; it fixed the false 10×8 proof by using an unrotated, exact 20×20 board, but its four rectangular quadrants still read as a dashboard layout rather than a historical map.
+- Candidate: `v3`; preserve the exact grid and rectangular folio while repartitioning its interior into seven connected, irregular realms generated on cell boundaries.
+- Identity anchors: product name, ink/paper palette, multi-country board, clue digits and orange hint.
+- Protected strengths: exact 20×20 geometry, large rectangular crop, readable title, plate-and-paper material, restrained palette and mechanically valid direct-clue highlight.
+- Allowed changes: internal region count, region silhouettes, region colors, visible clue placement and the selected hint cell.
+- Forbidden changes: rotating or warping the board; moving any internal boundary off the 20 px lattice; allowing a region fill outside the outer rectangle; showing clue values that were not recomputed for the new borders; invented artwork or unsupported release claims; generic restyling that replaces the board with decoration.
+- Promotion verdict: promote. Compared with `v2`, the candidate adds a readable kingdom-map silhouette without changing the exact outer frame or any cell dimensions. All seven regions are connected, the irregular borders remain on cell edges, and the candidate passes the full-size and both thumbnail reviews without weakening title or product-proof legibility.
 
 Output targets:
 
 - Editable source: `docs/social-preview.svg`
 - Raster: `docs/social-preview.png`
 - Review sheet: temporary validation artifact, not committed
-- Raster result: 1280×640 PNG, 60,299 bytes
-- Mechanical validation: pass
+- Raster result: 1280×640 PNG, 37,150 bytes
+- Mechanical validation: pass (400×400 clip; 20×20 exact grid; seven connected regions containing 69, 50, 56, 67, 70, 55 and 33 cells; 139 recomputed visible clues; direct-solved and MiniZinc-unique per region; UTF-8 clean; no rotation)
 - Full-size visual review: pass
 - 320×160 light-surround review: pass
 - 320×160 dark-surround review: pass
