@@ -7,16 +7,19 @@ import {
   deriveDirectSolution,
 } from "./puzzle-logic.mjs";
 import {
+  archiveEpilogue,
   archiveStory,
   createCampaignProgress,
   createSavePayload,
   isCampaignCompatibleWithBoard,
+  isEpilogueReady,
   nextPendingStory,
   reconcileCampaignProgress,
   restoreSavePayload,
   saveKeyForLevel,
 } from "./campaign-state.mjs";
 import {
+  populateEpilogueDialog,
   populateFallDialog,
   renderArchiveList,
   renderBanquetPanel,
@@ -58,6 +61,13 @@ const refs = {
   fallPlace: document.querySelector("#fallPlace"),
   fallCardBody: document.querySelector("#fallCardBody"),
   fallSurvivingTrace: document.querySelector("#fallSurvivingTrace"),
+  epilogueDialog: document.querySelector("#epilogueDialog"),
+  epilogueDialogClose: document.querySelector("#epilogueDialogClose"),
+  epilogueDialogConfirm: document.querySelector("#epilogueDialogConfirm"),
+  epilogueEyebrow: document.querySelector("#epilogueEyebrow"),
+  epilogueTitle: document.querySelector("#epilogueTitle"),
+  epilogueBody: document.querySelector("#epilogueBody"),
+  epilogueTrace: document.querySelector("#epilogueTrace"),
 };
 
 const state = {
@@ -74,6 +84,8 @@ const state = {
   storyReturnFocus: null,
   activeStoryRegionId: null,
   archiveStoryOnClose: false,
+  epilogueReturnFocus: null,
+  archiveEpilogueOnClose: false,
 };
 
 function stateName(value) {
@@ -91,6 +103,21 @@ function valueLabel(value) {
 function setMessage(element, text, tone = "neutral") {
   element.textContent = text;
   element.dataset.tone = tone;
+}
+
+function showNarrativeDialog(dialog, initialFocus) {
+  if (refs.archiveDialog.open) refs.archiveDialog.close();
+  dialog.showModal();
+  queueMicrotask(() => initialFocus.focus());
+}
+
+function wireDialogDismissControls(dialog, controls) {
+  for (const control of controls) {
+    control.addEventListener("click", () => dialog.close());
+  }
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
 }
 
 function readStoredProgress(key) {
@@ -143,6 +170,7 @@ function renderCampaign() {
       list: refs.archiveList,
     },
     openArchivedStory,
+    openArchivedEpilogue,
   );
 }
 
@@ -179,13 +207,11 @@ function openStoryDialog(
     return;
   }
 
-  if (refs.archiveDialog.open) refs.archiveDialog.close();
   state.storyReturnFocus = returnFocus;
   state.activeStoryRegionId = regionId;
   state.archiveStoryOnClose = archiveOnClose;
   refs.fallDialog.dataset.regionId = String(regionId);
-  refs.fallDialog.showModal();
-  queueMicrotask(() => refs.fallDialogClose.focus());
+  showNarrativeDialog(refs.fallDialog, refs.fallDialogClose);
 }
 
 function showNextPendingStory(returnFocus = refs.archiveButton) {
@@ -197,6 +223,42 @@ function showNextPendingStory(returnFocus = refs.archiveButton) {
 
 function openArchivedStory(regionId) {
   openStoryDialog(regionId, refs.archiveButton, false);
+}
+
+function openEpilogueDialog(
+  returnFocus = refs.archiveButton,
+  archiveOnClose = false,
+) {
+  if (
+    !populateEpilogueDialog(state.level, {
+      eyebrow: refs.epilogueEyebrow,
+      title: refs.epilogueTitle,
+      body: refs.epilogueBody,
+      trace: refs.epilogueTrace,
+    })
+  ) {
+    return false;
+  }
+
+  state.epilogueReturnFocus = returnFocus;
+  state.archiveEpilogueOnClose = archiveOnClose;
+  showNarrativeDialog(refs.epilogueDialog, refs.epilogueDialogClose);
+  return true;
+}
+
+function showEpilogueIfReady(returnFocus = refs.archiveButton) {
+  if (
+    refs.fallDialog.open ||
+    refs.epilogueDialog.open ||
+    !isEpilogueReady(state.level, state.campaign)
+  ) {
+    return false;
+  }
+  return openEpilogueDialog(returnFocus, true);
+}
+
+function openArchivedEpilogue() {
+  openEpilogueDialog(refs.archiveButton, false);
 }
 
 function openArchive() {
@@ -598,10 +660,13 @@ function resetBoard() {
   state.activeStoryRegionId = null;
   state.archiveStoryOnClose = false;
   state.storyReturnFocus = null;
+  state.epilogueReturnFocus = null;
+  state.archiveEpilogueOnClose = false;
   clearHint();
   state.conflictIndices = new Set();
   if (refs.fallDialog.open) refs.fallDialog.close();
   if (refs.archiveDialog.open) refs.archiveDialog.close();
+  if (refs.epilogueDialog.open) refs.epilogueDialog.close();
   removeStoredProgress();
   renderAll();
   setMessage(refs.statusNote, "棋盘已清空。你不需要猜，只需要找出下一条必然关系。", "neutral");
@@ -646,6 +711,8 @@ function prepareLevel(level) {
   persistProgress();
   if (state.campaign.pendingStoryRegionIds.length > 0) {
     queueMicrotask(() => showNextPendingStory(refs.archiveButton));
+  } else if (isEpilogueReady(state.level, state.campaign)) {
+    queueMicrotask(() => showEpilogueIfReady(refs.archiveButton));
   }
 }
 
@@ -670,11 +737,10 @@ refs.archiveDialogClose.addEventListener("click", () => refs.archiveDialog.close
 refs.archiveDialog.addEventListener("click", (event) => {
   if (event.target === refs.archiveDialog) refs.archiveDialog.close();
 });
-refs.fallDialogClose.addEventListener("click", () => refs.fallDialog.close());
-refs.fallDialogConfirm.addEventListener("click", () => refs.fallDialog.close());
-refs.fallDialog.addEventListener("click", (event) => {
-  if (event.target === refs.fallDialog) refs.fallDialog.close();
-});
+wireDialogDismissControls(
+  refs.fallDialog,
+  [refs.fallDialogClose, refs.fallDialogConfirm],
+);
 refs.fallDialog.addEventListener("close", () => {
   if (state.archiveStoryOnClose && state.activeStoryRegionId !== null) {
     state.campaign = archiveStory(state.campaign, state.activeStoryRegionId);
@@ -683,12 +749,31 @@ refs.fallDialog.addEventListener("close", () => {
   }
   state.activeStoryRegionId = null;
   state.archiveStoryOnClose = false;
-  if (state.campaign.pendingStoryRegionIds.length > 0) {
-    queueMicrotask(() => showNextPendingStory(state.storyReturnFocus));
-    return;
-  }
   const returnFocus = state.storyReturnFocus;
   state.storyReturnFocus = null;
+  if (state.campaign.pendingStoryRegionIds.length > 0) {
+    queueMicrotask(() => showNextPendingStory(returnFocus));
+    return;
+  }
+  if (isEpilogueReady(state.level, state.campaign)) {
+    queueMicrotask(() => showEpilogueIfReady(returnFocus));
+    return;
+  }
+  if (returnFocus && !returnFocus.disabled) returnFocus.focus();
+});
+wireDialogDismissControls(
+  refs.epilogueDialog,
+  [refs.epilogueDialogClose, refs.epilogueDialogConfirm],
+);
+refs.epilogueDialog.addEventListener("close", () => {
+  if (state.archiveEpilogueOnClose) {
+    state.campaign = archiveEpilogue(state.level, state.campaign);
+    renderCampaign();
+    persistProgress();
+  }
+  state.archiveEpilogueOnClose = false;
+  const returnFocus = state.epilogueReturnFocus;
+  state.epilogueReturnFocus = null;
   if (returnFocus && !returnFocus.disabled) returnFocus.focus();
 });
 

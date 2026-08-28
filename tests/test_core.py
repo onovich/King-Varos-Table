@@ -131,6 +131,20 @@ class LevelGenerationTests(unittest.TestCase):
             [beat["completedCountries"] for beat in public_payload["campaign"]["banquetTimeline"]],
             list(range(8)),
         )
+        epilogue = public_payload["campaign"]["epilogue"]
+        self.assertEqual(
+            {
+                "eyebrow",
+                "title",
+                "body",
+                "survivingTrace",
+                "archiveLabel",
+                "archiveSummary",
+            },
+            set(epilogue),
+        )
+        self.assertIn("推翻", epilogue["body"])
+        self.assertIn("地图", epilogue["survivingTrace"])
         self.assertTrue(
             all(
                 {

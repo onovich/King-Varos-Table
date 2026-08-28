@@ -1,6 +1,6 @@
 import { BRIGHT, DARK, UNKNOWN } from "./puzzle-logic.mjs";
 
-export const SAVE_SCHEMA_VERSION = 2;
+export const SAVE_SCHEMA_VERSION = 3;
 const SAVE_NAMESPACE = "king-varos-table:save";
 
 function canonicalize(value) {
@@ -48,6 +48,7 @@ function normalizedProgress(progress = {}) {
     completedRegionIds: uniqueRegionIds(progress.completedRegionIds ?? []),
     revealedRegionIds: uniqueRegionIds(progress.revealedRegionIds ?? []),
     pendingStoryRegionIds: [...new Set(progress.pendingStoryRegionIds ?? [])],
+    epilogueRevealed: progress.epilogueRevealed === true,
   };
 }
 
@@ -78,6 +79,7 @@ export function reconcileCampaignProgress(progress, completedRegionIds) {
       completedRegionIds: completed,
       revealedRegionIds: [...revealed],
       pendingStoryRegionIds: [...pending],
+      epilogueRevealed: previous.epilogueRevealed,
     },
   };
 }
@@ -105,7 +107,33 @@ export function archiveStory(progress, regionId) {
     pendingStoryRegionIds: normalized.pendingStoryRegionIds.filter(
       (pendingRegionId) => pendingRegionId !== regionId,
     ),
+    epilogueRevealed: normalized.epilogueRevealed,
   };
+}
+
+export function isEpilogueReady(level, progress) {
+  const normalized = normalizedProgress(progress);
+  const regionIds = (level.regions ?? []).map((region) => region.id);
+  if (
+    !level.campaign?.epilogue ||
+    regionIds.length === 0 ||
+    normalized.epilogueRevealed ||
+    normalized.pendingStoryRegionIds.length > 0
+  ) {
+    return false;
+  }
+
+  const completed = new Set(normalized.completedRegionIds);
+  const revealed = new Set(normalized.revealedRegionIds);
+  return regionIds.every(
+    (regionId) => completed.has(regionId) && revealed.has(regionId),
+  );
+}
+
+export function archiveEpilogue(level, progress) {
+  const normalized = normalizedProgress(progress);
+  if (!isEpilogueReady(level, normalized)) return normalized;
+  return { ...normalized, epilogueRevealed: true };
 }
 
 export function currentBanquetBeat(level, completedCountryCount) {
@@ -200,17 +228,35 @@ export function restoreSavePayload(level, serialized) {
     if (
       !isValidIdArray(campaign.completedRegionIds, validIds) ||
       !isValidIdArray(campaign.revealedRegionIds, validIds) ||
-      !isValidIdArray(campaign.pendingStoryRegionIds, validIds)
+      !isValidIdArray(campaign.pendingStoryRegionIds, validIds) ||
+      typeof campaign.epilogueRevealed !== "boolean"
     ) {
       return null;
     }
 
     const completed = new Set(campaign.completedRegionIds);
     const revealed = new Set(campaign.revealedRegionIds);
+    const pending = new Set(campaign.pendingStoryRegionIds);
     if (
       campaign.revealedRegionIds.some((regionId) => !completed.has(regionId)) ||
       campaign.pendingStoryRegionIds.some(
         (regionId) => !completed.has(regionId) || revealed.has(regionId),
+      ) ||
+      campaign.completedRegionIds.some(
+        (regionId) => !revealed.has(regionId) && !pending.has(regionId),
+      )
+    ) {
+      return null;
+    }
+
+    if (
+      campaign.epilogueRevealed &&
+      (
+        !level.campaign?.epilogue ||
+        campaign.pendingStoryRegionIds.length > 0 ||
+        level.regions.some(
+          (region) => !completed.has(region.id) || !revealed.has(region.id),
+        )
       )
     ) {
       return null;

@@ -169,6 +169,23 @@ BANQUET_TIMELINE = (
     },
 )
 
+CHAPTER_EPILOGUE = {
+    "eyebrow": "后世档案 · 内海七国",
+    "title": "地图比帝国活得更久",
+    "body": (
+        "完整地图在天明前被送出宴厅。瓦罗王让人给七国换上同一种颜色，仿佛边界从此只剩装饰。"
+        "宫门外，运粮车仍沿着被改名的旧路驶来，车夫却继续使用那些已经从官册上消失的地名。\n\n"
+        "这个看似无边的政权没有维持多久。加税、征役和争位使各地接连起兵，宫廷卫队在瓦罗王死后第三年撤下王旗；"
+        "七国的边界再度改变，流亡者却没有因此立刻归乡。帝国被推翻得很快，它留下的迁徙、空城与失传手艺却延续了几代人。"
+    ),
+    "survivingTrace": (
+        "这张地图后来被拆成七卷，分别保存于港务所、修道院和旧税库。后世修复者保留了彼此矛盾的地名与边线："
+        "它既是瓦罗王权势顶点的自夸，也是各国曾经存在、抵抗并留下痕迹的证物。"
+    ),
+    "archiveLabel": "后世尾声",
+    "archiveSummary": "地图比帝国活得更久",
+}
+
 
 @dataclass(frozen=True)
 class RegionMetrics:
@@ -226,6 +243,7 @@ class GeneratedLevel:
                 "chapterId": "inner-sea",
                 "chapterName": "内海七国",
                 "banquetTimeline": [dict(beat) for beat in BANQUET_TIMELINE],
+                "epilogue": dict(CHAPTER_EPILOGUE),
             },
             "regionMap": list(self.region_map),
             "regions": [

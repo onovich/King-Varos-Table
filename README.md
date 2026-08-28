@@ -12,7 +12,7 @@ Every clue counts the bright cells in a centered area of up to 3×3 cells, inclu
 
 The committed demo is a 20×20 board divided into seven irregular, self-contained countries, with clue values from 0 through 9 and a solution path that can be completed using visible single-clue deductions. MiniZinc independently checks that each country has no second solution.
 
-The first narrative vertical slice is playable: completing a country advances one royal banquet, opens a separate card about that country's fall, permanently changes the map, and adds the record to a rereadable archive. Board and story progress are restored from a versioned local save. The wider direction is specified in the [narrative packaging document](docs/design/narrative-packaging.md).
+The first chapter's narrative loop is playable: completing a country advances one royal banquet, opens a separate card about that country's fall, permanently changes the map, and adds the record to a rereadable archive. After all seven fall records have been read, a one-time epilogue reveals how quickly Varo's empire disappeared while the map survived as evidence. Board and story progress are restored from a versioned local save. The wider direction is specified in the [narrative packaging document](docs/design/narrative-packaging.md).
 
 ## How to play
 
@@ -25,7 +25,7 @@ The first narrative vertical slice is playable: completing a country advances on
 | Check the current board | Select **检查当前推理** |
 | Remove every incorrect mark | Select **清除错误答案** |
 | Clear the board | Select **重新开局** |
-| Reread completed-country stories | Select **查看亡国档案** |
+| Reread country stories and the unlocked epilogue | Select **查看亡国档案** or **查看完整地图档案** |
 
 The hint button works from the player's current board. It strongly outlines one actionable clue and weakly outlines that clue's region-clipped neighborhood; it does not silently switch to a more advanced two-clue deduction.
 
@@ -38,7 +38,7 @@ The current interface is in Simplified Chinese. Touch-specific controls have not
 - A direct-clue solver shared by level acceptance and browser hint behavior.
 - A stricter MiniZinc check that blocks the generated target and searches for a second solution.
 - Player-state contradiction checks, focused hints, region filtering, reset and wrong-answer cleanup.
-- Country completion, banquet milestones, one-time fall cards, a rereadable archive and versioned local progress.
+- Country completion, banquet milestones, one-time fall cards, a post–seventh-country epilogue, a rereadable archive and versioned local progress.
 - Public level data that contains regions and clues but omits the target solution.
 - Internal subset-difference analysis retained for research without being presented as a basic hint.
 
@@ -90,7 +90,7 @@ See the complete [repository layout](docs/development/repository-layout.md), the
 
 ## Status
 
-The puzzle engine, fixed seven-country demo, deterministic basic hint path, wrong-answer cleanup, MiniZinc uniqueness verification and first-fall narrative loop are implemented and covered by 22 local tests. Finished art, production story content and a full campaign remain to be built.
+The puzzle engine, fixed seven-country demo, deterministic basic hint path, wrong-answer cleanup, MiniZinc uniqueness verification and complete first-chapter narrative loop are implemented and covered by 26 local tests. Finished art, production story content and a multi-chapter campaign remain to be built.
 
 This is a local prototype, not a finished release, and there is currently no hosted public demo.
 
