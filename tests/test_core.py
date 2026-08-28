@@ -2,9 +2,9 @@ import shutil
 import unittest
 from pathlib import Path
 
-from proverbs.level import _region_constraints, build_level, build_region_map, calculate_clues
-from proverbs.minizinc_check import verify_unique
-from proverbs.solver import Constraint, DirectClueSolver, NoGuessSolver
+from varos_table.level import _region_constraints, build_level, build_region_map, calculate_clues
+from varos_table.minizinc_check import verify_unique
+from varos_table.solver import Constraint, DirectClueSolver, NoGuessSolver
 
 
 class RegionModelTests(unittest.TestCase):

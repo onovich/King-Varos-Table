@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate and export a Proverbs-inspired demo level."""
+"""Generate and export a King Varo's Table demo level."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from proverbs.level import build_level, write_public_level
+from varos_table.level import build_level, write_public_level
 
 
 def main() -> int:

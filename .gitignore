@@ -7,3 +7,7 @@ venv/
 node_modules/
 .DS_Store
 web/data/*.debug.json
+
+# Local Codex workflow and historical handoff notes are not public project files.
+.codex/
+PROVERBS_HANDOFF.md

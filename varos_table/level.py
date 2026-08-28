@@ -54,8 +54,8 @@ class GeneratedLevel:
     def public_dict(self, include_solution: bool = False) -> dict:
         payload = {
             "schemaVersion": 1,
-            "title": "箴言残卷 · 第一页",
-            "subtitle": "先把边界读懂，再让每一个数字说话。",
+            "title": "瓦罗王的餐桌 · 地图一",
+            "subtitle": "先读懂国界，再让每一个数字说话。",
             "width": self.width,
             "height": self.height,
             "seed": self.seed,

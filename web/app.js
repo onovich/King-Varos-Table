@@ -374,7 +374,7 @@ function checkBoard() {
     clearHint();
     renderAll(null, analysis);
     setMessage(refs.statusNote, "完成。每个区域都被纯逻辑解开，且题面只有这一组答案。", "success");
-    setMessage(refs.boardMessage, "箴言残卷的这一页，落印。", "success");
+    setMessage(refs.boardMessage, "瓦罗王的第一张版图，已经复原。", "success");
     return;
   }
   const remaining = state.values.filter((value) => value === UNKNOWN).length;

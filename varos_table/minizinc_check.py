@@ -84,7 +84,7 @@ def verify_unique(
         ]
     )
 
-    with tempfile.TemporaryDirectory(prefix="learnproverbs-mzn-") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix="varos-table-mzn-") as temp_dir:
         data_file = Path(temp_dir) / "instance.dzn"
         data_file.write_text(dzn, encoding="utf-8")
         completed = subprocess.run(
