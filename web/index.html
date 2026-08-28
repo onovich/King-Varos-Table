@@ -53,6 +53,10 @@
               <button class="button button-quiet" id="clearErrorsButton" type="button">清除错误答案</button>
             </div>
             <button class="button button-quiet" id="resetButton" type="button">重新开局</button>
+            <button class="button button-archive" id="archiveButton" type="button" aria-haspopup="dialog" disabled>
+              <span id="archiveButtonLabel">地图档案尚未整理</span>
+              <span class="button-count" id="archiveCount" aria-label="已归档国家数" hidden>0</span>
+            </button>
           </div>
 
           <div class="stats-grid" aria-label="关卡统计">
@@ -77,6 +81,16 @@
           <p class="status-note" id="statusNote" role="status" aria-live="polite">
             数字已经准备好。你不需要猜，只需要找出下一条必然关系。
           </p>
+
+          <section class="banquet-panel" id="banquetPanel" aria-labelledby="banquetHeading">
+            <div class="banquet-label">
+              <p class="section-kicker">THE BANQUET</p>
+              <span id="banquetProgress">0 / 7 国</span>
+            </div>
+            <h3 id="banquetHeading">宾客入席</h3>
+            <p id="banquetBody">长桌已经铺好，盘盏仍空。第一份地图记录正在等待复原。</p>
+            <p class="banquet-insert" id="banquetInsert" hidden></p>
+          </section>
 
         </aside>
 
@@ -128,6 +142,44 @@
         <span id="seedLabel">SEED —</span>
       </footer>
     </div>
+
+    <dialog class="story-dialog" id="fallDialog" aria-labelledby="fallCardTitle">
+      <article class="story-card">
+        <header class="story-card-header">
+          <div>
+            <p class="section-kicker">THE FALL RECORD</p>
+            <p class="story-country" id="fallCountry"></p>
+            <h2 id="fallCardTitle">亡国记录</h2>
+          </div>
+          <button class="dialog-close" id="fallDialogClose" type="button" aria-label="关闭亡国故事卡">×</button>
+        </header>
+        <p class="story-place" id="fallPlace"></p>
+        <p class="story-body" id="fallCardBody"></p>
+        <section class="surviving-trace" aria-labelledby="survivingTraceHeading">
+          <p class="section-kicker" id="survivingTraceHeading">SURVIVING TRACE</p>
+          <p id="fallSurvivingTrace"></p>
+        </section>
+        <footer class="story-card-footer">
+          <span>关闭后收入亡国档案</span>
+          <button class="button button-primary" id="fallDialogConfirm" type="button">收起故事卡</button>
+        </footer>
+      </article>
+    </dialog>
+
+    <dialog class="archive-dialog" id="archiveDialog" aria-labelledby="archiveHeading">
+      <section class="archive-sheet">
+        <header class="archive-header">
+          <div>
+            <p class="section-kicker">THE ARCHIVE</p>
+            <h2 id="archiveHeading">亡国档案</h2>
+          </div>
+          <button class="dialog-close" id="archiveDialogClose" type="button" aria-label="关闭亡国档案">×</button>
+        </header>
+        <p class="archive-intro">已经复原的国家会留在这里。重读档案不会改变晚宴进度。</p>
+        <p class="archive-empty" id="archiveEmpty">尚无国家完成。第一份档案仍未打开。</p>
+        <div class="archive-list" id="archiveList" role="list"></div>
+      </section>
+    </dialog>
 
     <script type="module" src="./app.js"></script>
   </body>

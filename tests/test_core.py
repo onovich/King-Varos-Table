@@ -22,11 +22,36 @@ class RegionModelTests(unittest.TestCase):
         self.assertEqual(clues[4], 3)
         self.assertEqual(clues[8], 2)
 
-    def test_demo_region_map_has_four_non_empty_regions(self):
-        region_map = build_region_map(15, 15)
+    def test_chapter_one_map_has_seven_connected_irregular_countries(self):
+        width = height = 20
+        region_map = build_region_map(width, height)
 
-        self.assertEqual(set(region_map), {0, 1, 2, 3})
-        self.assertTrue(all(region_map.count(region_id) > 20 for region_id in range(4)))
+        self.assertEqual(set(region_map), set(range(7)))
+        self.assertEqual(
+            [region_map.count(region_id) for region_id in range(7)],
+            [69, 50, 56, 67, 70, 55, 33],
+        )
+
+        for region_id in range(7):
+            cells = {index for index, value in enumerate(region_map) if value == region_id}
+            visited = {next(iter(cells))}
+            frontier = list(visited)
+            while frontier:
+                index = frontier.pop()
+                x, y = index % width, index // width
+                for neighbour_x, neighbour_y in (
+                    (x - 1, y),
+                    (x + 1, y),
+                    (x, y - 1),
+                    (x, y + 1),
+                ):
+                    if not (0 <= neighbour_x < width and 0 <= neighbour_y < height):
+                        continue
+                    neighbour = neighbour_y * width + neighbour_x
+                    if neighbour in cells and neighbour not in visited:
+                        visited.add(neighbour)
+                        frontier.append(neighbour)
+            self.assertEqual(visited, cells, f"region {region_id} must be connected")
 
 
 class NoGuessSolverTests(unittest.TestCase):
@@ -100,12 +125,37 @@ class LevelGenerationTests(unittest.TestCase):
         self.assertLessEqual(sum(level.target), 0.55 * len(level.target))
         self.assertEqual(public_payload["clueRange"], [0, 9])
         self.assertEqual(public_payload["reasoningLevel"], "basic")
-        self.assertEqual(len(public_payload["regions"]), 4)
+        self.assertEqual(len(public_payload["regions"]), 7)
+        self.assertEqual(public_payload["campaign"]["chapterId"], "inner-sea")
+        self.assertEqual(
+            [beat["completedCountries"] for beat in public_payload["campaign"]["banquetTimeline"]],
+            list(range(8)),
+        )
+        self.assertTrue(
+            all(
+                {
+                    "countryId",
+                    "countryNameZh",
+                    "countryNameEn",
+                    "chapter",
+                    "capitalOrFocusCity",
+                    "geography",
+                    "foodAndMaterialCulture",
+                    "banquetInsert",
+                    "fallCardTitle",
+                    "fallCardBody",
+                    "survivingTrace",
+                    "mapRevealConcept",
+                }
+                <= set(region["country"])
+                for region in public_payload["regions"]
+            )
+        )
         self.assertTrue(all(region["metrics"]["uniqueVerified"] for region in public_payload["regions"]))
         self.assertTrue(all(region["metrics"]["visibleClueCount"] < region["metrics"]["fullClueCount"] for region in public_payload["regions"]))
         self.assertTrue(
             all(
-                region["metrics"]["brightCount"] == region["metrics"]["darkCount"]
+                abs(region["metrics"]["brightCount"] - region["metrics"]["darkCount"]) <= 1
                 and region["metrics"]["reasoningLevel"] == "basic"
                 and region["metrics"]["advancedSteps"] == 0
                 for region in public_payload["regions"]

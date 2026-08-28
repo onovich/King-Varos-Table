@@ -6,6 +6,21 @@ import {
   clearIncorrectValues,
   deriveDirectSolution,
 } from "./puzzle-logic.mjs";
+import {
+  archiveStory,
+  createCampaignProgress,
+  createSavePayload,
+  isCampaignCompatibleWithBoard,
+  nextPendingStory,
+  reconcileCampaignProgress,
+  restoreSavePayload,
+  saveKeyForLevel,
+} from "./campaign-state.mjs";
+import {
+  populateFallDialog,
+  renderArchiveList,
+  renderBanquetPanel,
+} from "./campaign-ui.mjs";
 
 const refs = {
   subtitle: document.querySelector("#levelSubtitle"),
@@ -24,6 +39,25 @@ const refs = {
   reasoningBadge: document.querySelector("#reasoningBadge"),
   progressLabel: document.querySelector("#progressLabel"),
   seedLabel: document.querySelector("#seedLabel"),
+  banquetHeading: document.querySelector("#banquetHeading"),
+  banquetBody: document.querySelector("#banquetBody"),
+  banquetProgress: document.querySelector("#banquetProgress"),
+  banquetInsert: document.querySelector("#banquetInsert"),
+  archiveButton: document.querySelector("#archiveButton"),
+  archiveButtonLabel: document.querySelector("#archiveButtonLabel"),
+  archiveCount: document.querySelector("#archiveCount"),
+  archiveDialog: document.querySelector("#archiveDialog"),
+  archiveDialogClose: document.querySelector("#archiveDialogClose"),
+  archiveEmpty: document.querySelector("#archiveEmpty"),
+  archiveList: document.querySelector("#archiveList"),
+  fallDialog: document.querySelector("#fallDialog"),
+  fallDialogClose: document.querySelector("#fallDialogClose"),
+  fallDialogConfirm: document.querySelector("#fallDialogConfirm"),
+  fallCountry: document.querySelector("#fallCountry"),
+  fallCardTitle: document.querySelector("#fallCardTitle"),
+  fallPlace: document.querySelector("#fallPlace"),
+  fallCardBody: document.querySelector("#fallCardBody"),
+  fallSurvivingTrace: document.querySelector("#fallSurvivingTrace"),
 };
 
 const state = {
@@ -35,6 +69,11 @@ const state = {
   hintIndex: null,
   hintScopeIndices: new Set(),
   conflictIndices: new Set(),
+  campaign: createCampaignProgress(),
+  saveKey: null,
+  storyReturnFocus: null,
+  activeStoryRegionId: null,
+  archiveStoryOnClose: false,
 };
 
 function stateName(value) {
@@ -52,6 +91,118 @@ function valueLabel(value) {
 function setMessage(element, text, tone = "neutral") {
   element.textContent = text;
   element.dataset.tone = tone;
+}
+
+function readStoredProgress(key) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function persistProgress() {
+  if (!state.level || !state.saveKey) return;
+  try {
+    const payload = createSavePayload(
+      state.level,
+      state.values,
+      state.campaign,
+    );
+    window.localStorage.setItem(state.saveKey, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("Could not persist chapter progress.", error);
+  }
+}
+
+function removeStoredProgress() {
+  if (!state.saveKey) return;
+  try {
+    window.localStorage.removeItem(state.saveKey);
+  } catch (error) {
+    console.warn("Could not remove chapter progress.", error);
+  }
+}
+
+function renderCampaign() {
+  if (!state.level) return;
+  renderBanquetPanel(state.level, state.campaign, {
+    heading: refs.banquetHeading,
+    body: refs.banquetBody,
+    progress: refs.banquetProgress,
+    insert: refs.banquetInsert,
+  });
+  renderArchiveList(
+    state.level,
+    state.campaign,
+    {
+      button: refs.archiveButton,
+      buttonLabel: refs.archiveButtonLabel,
+      count: refs.archiveCount,
+      empty: refs.archiveEmpty,
+      list: refs.archiveList,
+    },
+    openArchivedStory,
+  );
+}
+
+function completedRegionIdsFromAnalysis(analysis) {
+  return analysis.results
+    .filter(isRegionComplete)
+    .map((item) => item.region.id);
+}
+
+function syncCampaignWithBoard(analysis) {
+  const completedRegionIds = completedRegionIdsFromAnalysis(analysis);
+  const transition = reconcileCampaignProgress(
+    state.campaign,
+    completedRegionIds,
+  );
+  state.campaign = transition.progress;
+  return transition;
+}
+
+function openStoryDialog(
+  regionId,
+  returnFocus = refs.archiveButton,
+  archiveOnClose = false,
+) {
+  if (
+    !populateFallDialog(state.level, regionId, {
+      country: refs.fallCountry,
+      title: refs.fallCardTitle,
+      place: refs.fallPlace,
+      body: refs.fallCardBody,
+      trace: refs.fallSurvivingTrace,
+    })
+  ) {
+    return;
+  }
+
+  if (refs.archiveDialog.open) refs.archiveDialog.close();
+  state.storyReturnFocus = returnFocus;
+  state.activeStoryRegionId = regionId;
+  state.archiveStoryOnClose = archiveOnClose;
+  refs.fallDialog.dataset.regionId = String(regionId);
+  refs.fallDialog.showModal();
+  queueMicrotask(() => refs.fallDialogClose.focus());
+}
+
+function showNextPendingStory(returnFocus = refs.archiveButton) {
+  if (refs.fallDialog.open) return;
+  const regionId = nextPendingStory(state.campaign);
+  if (regionId === null) return;
+  openStoryDialog(regionId, returnFocus, true);
+}
+
+function openArchivedStory(regionId) {
+  openStoryDialog(regionId, refs.archiveButton, false);
+}
+
+function openArchive() {
+  renderCampaign();
+  refs.archiveDialog.showModal();
+  queueMicrotask(() => refs.archiveDialogClose.focus());
 }
 
 function regionFor(index) {
@@ -161,19 +312,23 @@ function renderTabs(analysis = null) {
   for (const region of regions) {
     const button = document.createElement("button");
     const item = analysis?.results.find((candidate) => candidate.region.id === region.id);
+    const completed = state.campaign.completedRegionIds.includes(region.id);
     const advanced = regionHasAdvancedReasoning(region) || nextStepFor(item)?.reasoningLevel === "advanced";
     const suffix = item
-      ? isRegionComplete(item)
+      ? completed
         ? " · 已完成"
         : advanced
           ? " · 高级"
           : ""
       : "";
     button.type = "button";
-    button.className = "region-tab";
+    button.className = completed ? "region-tab is-complete" : "region-tab";
     button.setAttribute("role", "tab");
     button.setAttribute("aria-selected", String(state.selectedRegion === region.id));
-    button.innerHTML = `<span class="tab-dot" aria-hidden="true"></span>${region.name}${suffix}`;
+    const dot = document.createElement("span");
+    dot.className = "tab-dot";
+    dot.setAttribute("aria-hidden", "true");
+    button.append(dot, document.createTextNode(`${region.name}${suffix}`));
     button.style.color = `var(--${region.accent})`;
     button.addEventListener("click", () => {
       state.selectedRegion = region.id;
@@ -196,6 +351,8 @@ function renderBoard(focusIndex = null) {
     const value = state.values[index];
     const region = regionFor(index);
     const clue = state.clues[index];
+    const countryComplete = state.campaign.completedRegionIds.includes(region.id);
+    const countryArchived = state.campaign.revealedRegionIds.includes(region.id);
     const x = index % width;
     const y = Math.floor(index / width);
     const button = document.createElement("button");
@@ -213,6 +370,8 @@ function renderBoard(focusIndex = null) {
     ]
       .filter(Boolean)
       .join(" ");
+    button.classList.toggle("is-country-complete", countryComplete);
+    button.disabled = countryComplete;
     button.dataset.index = String(index);
     button.setAttribute("role", "gridcell");
     button.setAttribute("aria-rowindex", String(y + 1));
@@ -227,6 +386,12 @@ function renderBoard(focusIndex = null) {
             : ""
       }`,
     );
+    if (countryComplete) {
+      button.setAttribute(
+        "aria-label",
+        `${button.getAttribute("aria-label")}，${countryArchived ? "该国已经完成并收入档案" : "该国已经完成，历史记录正在展示"}`,
+      );
+    }
 
     const clueSpan = document.createElement("span");
     clueSpan.className = "clue";
@@ -234,17 +399,19 @@ function renderBoard(focusIndex = null) {
     clueSpan.setAttribute("aria-hidden", "true");
     button.append(clueSpan);
 
-    button.addEventListener("click", (event) => {
-      if (event.shiftKey) {
+    if (!countryComplete) {
+      button.addEventListener("click", (event) => {
+        if (event.shiftKey) {
+          setCell(index, state.values[index] === DARK ? UNKNOWN : DARK);
+        } else {
+          setCell(index, state.values[index] === BRIGHT ? UNKNOWN : BRIGHT);
+        }
+      });
+      button.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
         setCell(index, state.values[index] === DARK ? UNKNOWN : DARK);
-      } else {
-        setCell(index, state.values[index] === BRIGHT ? UNKNOWN : BRIGHT);
-      }
-    });
-    button.addEventListener("contextmenu", (event) => {
-      event.preventDefault();
-      setCell(index, state.values[index] === DARK ? UNKNOWN : DARK);
-    });
+      });
+    }
     refs.board.append(button);
   }
 
@@ -256,7 +423,7 @@ function renderBoard(focusIndex = null) {
 
 function updateStats(analysis) {
   const placed = state.values.filter((value) => value !== UNKNOWN).length;
-  const solved = analysis.results.filter(isRegionComplete).length;
+  const solved = state.campaign.completedRegionIds.length;
   const total = state.level.width * state.level.height;
   const clueCount = state.level.regions.reduce((sum, region) => sum + Object.keys(region.clues).length, 0);
   const nextStep = nextHintCandidate(analysis)?.step ?? null;
@@ -286,6 +453,7 @@ function renderAll(focusIndex = null, analysis = null) {
   renderTabs(currentAnalysis);
   renderBoard(focusIndex);
   updateStats(currentAnalysis);
+  renderCampaign();
 }
 
 function clearHint() {
@@ -294,16 +462,30 @@ function clearHint() {
 }
 
 function setCell(index, value) {
+  const region = regionFor(index);
+  if (state.campaign.completedRegionIds.includes(region.id)) return;
   state.values[index] = value;
   clearHint();
   const analysis = analyseBoard();
+  const transition = syncCampaignWithBoard(analysis);
   renderAll(index, analysis);
+  persistProgress();
   if (analysis.conflicts.size > 0) {
     setMessage(
       refs.boardMessage,
       `${analysis.contradictionMessage ?? "这一步让某个数字超出可能范围。"} 橙色边框标出了受影响区域。`,
       "error",
     );
+  } else if (transition.newlyCompletedRegionIds.length > 0) {
+    const completedRegion = state.level.regions.find(
+      (candidate) => candidate.id === transition.newlyCompletedRegionIds[0],
+    );
+    setMessage(
+      refs.boardMessage,
+      `${completedRegion?.name ?? "这个国家"}的版图已经完整复原。一份新的历史记录正在展开。`,
+      "success",
+    );
+    queueMicrotask(() => showNextPendingStory(refs.archiveButton));
   } else {
     setMessage(refs.boardMessage, "记录已更新。需要时可以让提示器寻找下一条必然关系。", "neutral");
   }
@@ -361,6 +543,7 @@ function requestHint() {
 function checkBoard() {
   const analysis = analyseBoard();
   renderAll(null, analysis);
+  persistProgress();
   if (analysis.conflicts.size > 0) {
     setMessage(
       refs.statusNote,
@@ -394,6 +577,7 @@ function clearErrors() {
   clearHint();
   const analysis = analyseBoard();
   renderAll(null, analysis);
+  persistProgress();
 
   if (cleanup.removedIndices.length > 0) {
     setMessage(
@@ -410,8 +594,15 @@ function clearErrors() {
 
 function resetBoard() {
   state.values = new Array(state.level.width * state.level.height).fill(UNKNOWN);
+  state.campaign = createCampaignProgress();
+  state.activeStoryRegionId = null;
+  state.archiveStoryOnClose = false;
+  state.storyReturnFocus = null;
   clearHint();
   state.conflictIndices = new Set();
+  if (refs.fallDialog.open) refs.fallDialog.close();
+  if (refs.archiveDialog.open) refs.archiveDialog.close();
+  removeStoredProgress();
   renderAll();
   setMessage(refs.statusNote, "棋盘已清空。你不需要猜，只需要找出下一条必然关系。", "neutral");
   setMessage(refs.boardMessage, "先选择一个数字，看看它的 3×3 范围。", "neutral");
@@ -419,7 +610,11 @@ function resetBoard() {
 
 function prepareLevel(level) {
   state.level = level;
-  state.values = new Array(level.width * level.height).fill(UNKNOWN);
+  state.saveKey = saveKeyForLevel(level);
+  const restored = restoreSavePayload(level, readStoredProgress(state.saveKey));
+  const emptyValues = new Array(level.width * level.height).fill(UNKNOWN);
+  state.values = restored?.values ?? emptyValues;
+  state.campaign = restored?.campaign ?? createCampaignProgress();
   state.solution = deriveDirectSolution(level);
   state.clues = new Array(level.width * level.height).fill(null);
   for (const region of level.regions) {
@@ -433,8 +628,25 @@ function prepareLevel(level) {
   refs.clearErrorsButton.disabled = state.solution === null;
   refs.subtitle.textContent = level.subtitle;
   refs.seedLabel.textContent = `SEED ${level.seed}`;
-  const initialAnalysis = analyseBoard();
+  let initialAnalysis = analyseBoard();
+  if (
+    restored &&
+    !isCampaignCompatibleWithBoard(
+      state.campaign,
+      completedRegionIdsFromAnalysis(initialAnalysis),
+    )
+  ) {
+    state.values = emptyValues;
+    state.campaign = createCampaignProgress();
+    removeStoredProgress();
+    initialAnalysis = analyseBoard();
+  }
+  syncCampaignWithBoard(initialAnalysis);
   renderAll(null, initialAnalysis);
+  persistProgress();
+  if (state.campaign.pendingStoryRegionIds.length > 0) {
+    queueMicrotask(() => showNextPendingStory(refs.archiveButton));
+  }
 }
 
 async function loadLevel() {
@@ -453,5 +665,31 @@ refs.hintButton.addEventListener("click", requestHint);
 refs.checkButton.addEventListener("click", checkBoard);
 refs.clearErrorsButton.addEventListener("click", clearErrors);
 refs.resetButton.addEventListener("click", resetBoard);
+refs.archiveButton.addEventListener("click", openArchive);
+refs.archiveDialogClose.addEventListener("click", () => refs.archiveDialog.close());
+refs.archiveDialog.addEventListener("click", (event) => {
+  if (event.target === refs.archiveDialog) refs.archiveDialog.close();
+});
+refs.fallDialogClose.addEventListener("click", () => refs.fallDialog.close());
+refs.fallDialogConfirm.addEventListener("click", () => refs.fallDialog.close());
+refs.fallDialog.addEventListener("click", (event) => {
+  if (event.target === refs.fallDialog) refs.fallDialog.close();
+});
+refs.fallDialog.addEventListener("close", () => {
+  if (state.archiveStoryOnClose && state.activeStoryRegionId !== null) {
+    state.campaign = archiveStory(state.campaign, state.activeStoryRegionId);
+    renderCampaign();
+    persistProgress();
+  }
+  state.activeStoryRegionId = null;
+  state.archiveStoryOnClose = false;
+  if (state.campaign.pendingStoryRegionIds.length > 0) {
+    queueMicrotask(() => showNextPendingStory(state.storyReturnFocus));
+    return;
+  }
+  const returnFocus = state.storyReturnFocus;
+  state.storyReturnFocus = null;
+  if (returnFocus && !returnFocus.disabled) returnFocus.focus();
+});
 
 loadLevel();
