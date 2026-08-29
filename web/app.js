@@ -39,6 +39,16 @@ import {
   resolvePointerTool,
 } from "./input-tools.mjs";
 import {
+  canRedoBoardHistory,
+  canUndoBoardHistory,
+  cloneBoardSnapshot,
+  commitBoardHistory,
+  createBoardHistory,
+  redoBoardHistory,
+  replaceBoardHistoryPresent,
+  undoBoardHistory,
+} from "./board-history.mjs";
+import {
   completeLevel,
   createLevelBookProgress,
   createLevelBookSave,
@@ -75,6 +85,8 @@ const refs = {
   regionTabs: document.querySelector("#regionTabs"),
   markToolbar: document.querySelector("#markToolbar"),
   markTools: [...document.querySelectorAll("[data-tool]")],
+  undoButton: document.querySelector("#undoButton"),
+  redoButton: document.querySelector("#redoButton"),
   board: document.querySelector("#board"),
   boardMessage: document.querySelector("#boardMessage"),
   statusNote: document.querySelector("#statusNote"),
@@ -141,6 +153,7 @@ const state = {
   loading: true,
   level: null,
   values: [],
+  boardHistory: null,
   solution: null,
   clues: [],
   selectedRegion: null,
@@ -269,6 +282,31 @@ function removeStoredProgress() {
   } catch (error) {
     console.warn("Could not remove chapter progress.", error);
   }
+}
+
+function currentBoardSnapshot() {
+  return cloneBoardSnapshot(state);
+}
+
+function applyBoardSnapshot(snapshot) {
+  const restored = cloneBoardSnapshot(snapshot);
+  state.values = restored.values;
+  state.campaign = restored.campaign;
+}
+
+function commitCurrentBoardHistory() {
+  const snapshot = currentBoardSnapshot();
+  state.boardHistory = state.boardHistory
+    ? commitBoardHistory(state.boardHistory, snapshot)
+    : createBoardHistory(snapshot);
+}
+
+function replaceCurrentHistorySnapshot() {
+  if (!state.boardHistory) return;
+  state.boardHistory = replaceBoardHistoryPresent(
+    state.boardHistory,
+    currentBoardSnapshot(),
+  );
 }
 
 function renderCampaign() {
@@ -555,6 +593,14 @@ function renderMarkTools() {
   }
 }
 
+function renderHistoryControls() {
+  const unavailable = state.loading || !state.level || !state.boardHistory;
+  refs.undoButton.disabled = unavailable
+    || !canUndoBoardHistory(state.boardHistory);
+  refs.redoButton.disabled = unavailable
+    || !canRedoBoardHistory(state.boardHistory);
+}
+
 function selectMarkTool(tool) {
   if (!Object.values(INPUT_TOOLS).includes(tool)) return;
   state.activeTool = tool;
@@ -747,6 +793,7 @@ function renderAll(focusIndex = null, analysis = null) {
   state.conflictIndices = currentAnalysis.conflicts;
   renderTabs(currentAnalysis);
   renderMarkTools();
+  renderHistoryControls();
   renderBoard(focusIndex);
   updateStats(currentAnalysis);
   renderCampaign();
@@ -847,16 +894,100 @@ function setLoading(loading) {
   refs.resetButton.disabled = unavailable;
   refs.clearErrorsButton.disabled = unavailable || state.solution === null;
   renderMarkTools();
+  renderHistoryControls();
   if (state.level) renderBoard();
+}
+
+function focusedBoardIndex() {
+  const cell = document.activeElement?.closest?.(".cell");
+  if (!cell) return null;
+  const index = Number(cell.dataset.index);
+  return Number.isInteger(index) ? index : null;
+}
+
+function hasOpenDialog() {
+  return [...document.querySelectorAll("dialog")].some((dialog) => dialog.open);
+}
+
+function restoreBoardHistory(direction) {
+  if (state.loading || !state.level || !state.boardHistory || hasOpenDialog()) {
+    return false;
+  }
+  const canRestore = direction === "undo"
+    ? canUndoBoardHistory(state.boardHistory)
+    : canRedoBoardHistory(state.boardHistory);
+  if (!canRestore) return false;
+
+  const focusIndex = focusedBoardIndex();
+  state.boardHistory = direction === "undo"
+    ? undoBoardHistory(state.boardHistory)
+    : redoBoardHistory(state.boardHistory);
+  applyBoardSnapshot(state.boardHistory.present);
+  clearHint();
+  const analysis = analyseBoard();
+  renderAll(focusIndex, analysis);
+  persistProgress();
+  const messageKey = direction === "undo"
+    ? "message.undoDone"
+    : "message.redoDone";
+  setMessage(refs.statusNote, messageKey, "neutral");
+  setMessage(refs.boardMessage, messageKey, "neutral");
+
+  if (
+    hasNarrativeCampaign(state.level) &&
+    state.campaign.pendingStoryRegionIds.length > 0
+  ) {
+    queueMicrotask(() => showNextPendingStory(refs.archiveButton));
+  } else if (isEpilogueReady(state.level, state.campaign)) {
+    queueMicrotask(() => showEpilogueIfReady(refs.archiveButton));
+  }
+  return true;
+}
+
+function undoBoard() {
+  return restoreBoardHistory("undo");
+}
+
+function redoBoard() {
+  return restoreBoardHistory("redo");
+}
+
+function handleHistoryShortcut(event) {
+  if (
+    event.defaultPrevented ||
+    event.altKey ||
+    (!event.ctrlKey && !event.metaKey) ||
+    hasOpenDialog()
+  ) {
+    return;
+  }
+  const target = event.target;
+  if (
+    target?.isContentEditable ||
+    ["INPUT", "TEXTAREA", "SELECT"].includes(target?.tagName)
+  ) {
+    return;
+  }
+
+  const key = event.key.toLowerCase();
+  const wantsUndo = key === "z" && !event.shiftKey;
+  const wantsRedo = (
+    key === "y" && event.ctrlKey && !event.metaKey && !event.shiftKey
+  ) || (key === "z" && event.shiftKey);
+  if (!wantsUndo && !wantsRedo) return;
+  const changed = wantsUndo ? undoBoard() : redoBoard();
+  if (changed) event.preventDefault();
 }
 
 function setCell(index, value) {
   const region = regionFor(index);
   if (state.campaign.completedRegionIds.includes(region.id)) return;
+  if (state.values[index] === value) return;
   state.values[index] = value;
   clearHint();
   const analysis = analyseBoard();
   const transition = syncCampaignWithBoard(analysis);
+  commitCurrentBoardHistory();
   renderAll(index, analysis);
   persistProgress();
   const completedLevelNow = recordLevelCompletion(analysis);
@@ -1008,6 +1139,7 @@ function clearErrors() {
   state.values = cleanup.values;
   clearHint();
   const analysis = analyseBoard();
+  if (cleanup.removedIndices.length > 0) commitCurrentBoardHistory();
   renderAll(null, analysis);
   persistProgress();
 
@@ -1040,6 +1172,7 @@ function resetBoard() {
   if (refs.archiveDialog.open) refs.archiveDialog.close();
   if (refs.epilogueDialog.open) refs.epilogueDialog.close();
   if (refs.completionDialog.open) refs.completionDialog.close();
+  commitCurrentBoardHistory();
   removeStoredProgress();
   renderAll();
   setMessage(refs.statusNote, "message.reset", "neutral");
@@ -1098,6 +1231,7 @@ function prepareLevel(level, entry) {
     initialAnalysis = analyseBoard();
   }
   syncCampaignWithBoard(initialAnalysis);
+  state.boardHistory = createBoardHistory(currentBoardSnapshot());
   renderAll(null, initialAnalysis);
   persistProgress();
   recordLevelCompletion(initialAnalysis);
@@ -1244,6 +1378,9 @@ refs.hintButton.addEventListener("click", requestHint);
 refs.checkButton.addEventListener("click", checkBoard);
 refs.clearErrorsButton.addEventListener("click", clearErrors);
 refs.resetButton.addEventListener("click", resetBoard);
+refs.undoButton.addEventListener("click", undoBoard);
+refs.redoButton.addEventListener("click", redoBoard);
+document.addEventListener("keydown", handleHistoryShortcut);
 refs.archiveButton.addEventListener("click", openArchive);
 refs.levelBookButton.addEventListener("click", openLevelBook);
 refs.levelBookDialogClose.addEventListener("click", () => refs.levelBookDialog.close());
@@ -1280,6 +1417,7 @@ wireDialogDismissControls(
 refs.fallDialog.addEventListener("close", () => {
   if (state.archiveStoryOnClose && state.activeStoryRegionId !== null) {
     state.campaign = archiveStory(state.campaign, state.activeStoryRegionId);
+    replaceCurrentHistorySnapshot();
     renderCampaign();
     persistProgress();
   }
@@ -1304,6 +1442,7 @@ wireDialogDismissControls(
 refs.epilogueDialog.addEventListener("close", () => {
   if (state.archiveEpilogueOnClose) {
     state.campaign = archiveEpilogue(state.level, state.campaign);
+    replaceCurrentHistorySnapshot();
     renderCampaign();
     persistProgress();
   }

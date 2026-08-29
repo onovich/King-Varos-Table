@@ -147,10 +147,10 @@
             class="mark-toolbar"
             id="markToolbar"
             role="group"
-            aria-label="Cell marking tools"
+            aria-label="Board tools"
             data-i18n-aria-label="tools.label"
           >
-            <span class="mark-toolbar-label" data-i18n="tools.label">Marking tools</span>
+            <span class="mark-toolbar-label" data-i18n="tools.label">Board tools</span>
             <div class="mark-tool-list">
               <button class="mark-tool" type="button" data-tool="bright" aria-pressed="true" aria-keyshortcuts="1" disabled>
                 <i class="mark-tool-swatch mark-tool-swatch-bright" aria-hidden="true"></i>
@@ -166,6 +166,21 @@
                 <i class="mark-tool-swatch mark-tool-swatch-erase" aria-hidden="true"></i>
                 <span data-i18n="tools.erase">Erase</span>
                 <kbd>3</kbd>
+              </button>
+            </div>
+            <div
+              class="history-tool-list"
+              role="group"
+              aria-label="Edit history"
+              data-i18n-aria-label="history.label"
+            >
+              <button class="history-tool" id="undoButton" type="button" aria-keyshortcuts="Control+Z Meta+Z" disabled>
+                <span data-i18n="actions.undo">Undo</span>
+                <kbd>Ctrl/⌘ Z</kbd>
+              </button>
+              <button class="history-tool" id="redoButton" type="button" aria-keyshortcuts="Control+Y Control+Shift+Z Meta+Shift+Z" disabled>
+                <span data-i18n="actions.redo">Redo</span>
+                <kbd>Ctrl Y · ⇧⌘ Z</kbd>
               </button>
             </div>
           </div>

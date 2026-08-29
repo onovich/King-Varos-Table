@@ -28,6 +28,7 @@ King-Varos-Table/
 │  │  ├─ first-fall-vertical-slice.md
 │  │  ├─ prologue-and-level-book.md
 │  │  ├─ touch-and-keyboard-controls.md
+│  │  ├─ undo-redo-history.md
 │  │  └─ repository-layout.md
 │  ├─ ideas/
 │  │  └─ layered-land-puzzle.md
@@ -42,6 +43,7 @@ King-Varos-Table/
 ├─ tests/
 │  ├─ test_core.py
 │  ├─ test_campaign_state.py
+│  ├─ test_board_history.py
 │  ├─ test_i18n.py
 │  ├─ test_input_tools.py
 │  ├─ test_level_book.py
@@ -65,6 +67,7 @@ King-Varos-Table/
 │  │     ├─ three-small-realms.json
 │  │     └─ within-the-border.json
 │  ├─ app.js
+│  ├─ board-history.mjs
 │  ├─ campaign-state.mjs
 │  ├─ campaign-ui.mjs
 │  ├─ hint-proof.mjs
@@ -84,7 +87,7 @@ King-Varos-Table/
 ## Directory responsibilities
 
 - `varos_table/` owns formal-map and tutorial generation, localized chapter content, deterministic solving and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
-- `web/` is the browser-playable campaign slice. Its i18n module owns English and Simplified Chinese interface text; `input-tools.mjs` owns pointer and keyboard input semantics; `level-book.mjs` owns unlock/save rules; `level-book-ui.mjs` only renders the catalog. Public level JSON contains bilingual content, regions and clues but not target solutions.
+- `web/` is the browser-playable campaign slice. Its i18n module owns English and Simplified Chinese interface text; `input-tools.mjs` owns pointer and keyboard input semantics; `board-history.mjs` owns immutable board-and-story snapshots; `level-book.mjs` owns unlock/save rules; `level-book-ui.mjs` only renders the catalog. Public level JSON contains bilingual content, regions and clues but not target solutions.
 - `web/data/campaign.json` is the small level-book manifest. Each file under `web/data/levels/` remains independently loadable and independently saved.
 - `models/` contains exact constraint models used by the generator.
 - `tests/` covers Python domain logic plus JavaScript hint, input, campaign-state, level-book and localization behavior through Node subprocesses.
