@@ -39,7 +39,8 @@
 
 ## 暂不包含
 
-- 拖动连续涂色、长按手势与触觉反馈；
+- 触摸拖动涂色、长按手势与触觉反馈；
 - 用户自定义快捷键。
 
 撤销／重做已在后续里程碑实现，契约见 [undo-redo-history.md](undo-redo-history.md)。
+鼠标／笔连续拖涂也已实现；触摸仍保留轻触落笔和棋盘滚动，契约见 [drag-painting.md](drag-painting.md)。

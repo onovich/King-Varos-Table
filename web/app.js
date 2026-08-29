@@ -49,6 +49,11 @@ import {
   undoBoardHistory,
 } from "./board-history.mjs";
 import {
+  createPaintStroke,
+  extendPaintStroke,
+  gridLineIndices,
+} from "./paint-stroke.mjs";
+import {
   completeLevel,
   createLevelBookProgress,
   createLevelBookSave,
@@ -154,6 +159,8 @@ const state = {
   level: null,
   values: [],
   boardHistory: null,
+  paintStroke: null,
+  lastPaintStrokeEndedAt: Number.NEGATIVE_INFINITY,
   solution: null,
   clues: [],
   selectedRegion: null,
@@ -645,6 +652,18 @@ function handleBoardKeydown(event) {
   setCell(index, markValueForTool(state.values[index], tool));
 }
 
+const CELL_STATE_CLASSES = ["state-light", "state-dark", "state-unknown"];
+
+function renderCellValue(cell, value) {
+  cell.classList.remove(...CELL_STATE_CLASSES);
+  cell.classList.add(`state-${stateName(value)}`);
+}
+
+function updateProgressLabel() {
+  const placed = state.values.filter((value) => value !== UNKNOWN).length;
+  refs.progressLabel.textContent = `${placed} / ${state.values.length}`;
+}
+
 function renderBoard(focusIndex = null) {
   const { width, height, regionMap } = state.level;
   const shouldRestoreFocus = focusIndex !== null
@@ -682,7 +701,6 @@ function renderBoard(focusIndex = null) {
     button.className = [
       "cell",
       `region-${region.accent}`,
-      `state-${stateName(value)}`,
       clue === null ? "no-clue" : "has-clue",
       state.selectedRegion !== null && state.selectedRegion !== region.id ? "is-muted" : "",
       state.hintIndex === index ? "is-hint" : "",
@@ -692,6 +710,7 @@ function renderBoard(focusIndex = null) {
     ]
       .filter(Boolean)
       .join(" ");
+    renderCellValue(button, value);
     button.classList.toggle("is-country-complete", countryComplete);
     button.disabled = state.loading;
     button.dataset.index = String(index);
@@ -742,13 +761,18 @@ function renderBoard(focusIndex = null) {
 
     if (!state.loading && !countryComplete) {
       button.addEventListener("click", (event) => {
+        const followedPaintStroke = (
+          event.pointerType !== "touch" &&
+          performance.now() - state.lastPaintStrokeEndedAt < 500
+        );
+        if (["mouse", "pen"].includes(event.pointerType) || followedPaintStroke) {
+          return;
+        }
         const tool = resolvePointerTool(state.activeTool, event);
         setCell(index, markValueForTool(state.values[index], tool));
       });
       button.addEventListener("contextmenu", (event) => {
         event.preventDefault();
-        const tool = resolvePointerTool(state.activeTool, event);
-        setCell(index, markValueForTool(state.values[index], tool));
       });
     }
     refs.board.append(button);
@@ -761,7 +785,6 @@ function renderBoard(focusIndex = null) {
 }
 
 function updateStats(analysis) {
-  const placed = state.values.filter((value) => value !== UNKNOWN).length;
   const solved = state.campaign.completedRegionIds.length;
   const total = state.level.width * state.level.height;
   const clueCount = state.level.regions.reduce((sum, region) => sum + Object.keys(region.clues).length, 0);
@@ -769,7 +792,7 @@ function updateStats(analysis) {
   refs.regionCount.textContent = String(state.level.regions.length);
   refs.cellCount.textContent = String(total);
   refs.clueCount.textContent = String(clueCount);
-  refs.progressLabel.textContent = `${placed} / ${total}`;
+  updateProgressLabel();
   refs.proofStatus.textContent = i18n.t(
     solved === state.level.regions.length ? "proof.complete" : "proof.unique",
   );
@@ -910,7 +933,13 @@ function hasOpenDialog() {
 }
 
 function restoreBoardHistory(direction) {
-  if (state.loading || !state.level || !state.boardHistory || hasOpenDialog()) {
+  if (
+    state.loading ||
+    !state.level ||
+    !state.boardHistory ||
+    state.paintStroke ||
+    hasOpenDialog()
+  ) {
     return false;
   }
   const canRestore = direction === "undo"
@@ -979,16 +1008,125 @@ function handleHistoryShortcut(event) {
   if (changed) event.preventDefault();
 }
 
-function setCell(index, value) {
+function renderPaintStrokeCell(index) {
+  const cell = refs.board.querySelector(`[data-index="${index}"]`);
+  if (!cell) return;
+  cell.classList.remove(
+    "is-hint",
+    "is-hint-scope",
+    "is-conflict",
+  );
+  renderCellValue(cell, state.values[index]);
+  updateProgressLabel();
+}
+
+function paintStrokeIndices(indices) {
+  if (!state.paintStroke) return;
+  for (const index of indices) {
+    const region = regionFor(index);
+    const editable = !state.campaign.completedRegionIds.includes(region.id);
+    const previousValues = state.values;
+    const extension = extendPaintStroke(
+      state.paintStroke.transaction,
+      previousValues,
+      index,
+      { editable },
+    );
+    state.paintStroke.transaction = extension.stroke;
+    state.values = extension.values;
+    if (extension.values !== previousValues) renderPaintStrokeCell(index);
+  }
+}
+
+function pointerCellIndex(event) {
+  const element = document.elementFromPoint(event.clientX, event.clientY);
+  const cell = element?.closest?.(".cell");
+  if (!cell || !refs.board.contains(cell)) return null;
+  const index = Number(cell.dataset.index);
+  return Number.isInteger(index) ? index : null;
+}
+
+function beginPaintStroke(event) {
+  if (event.pointerType === "touch") return;
+  if (
+    state.paintStroke ||
+    state.loading ||
+    !state.level ||
+    hasOpenDialog() ||
+    ![0, 2].includes(event.button)
+  ) {
+    return;
+  }
+  const cell = event.target.closest?.(".cell");
+  if (!cell || !refs.board.contains(cell)) return;
+  const index = Number(cell.dataset.index);
   const region = regionFor(index);
   if (state.campaign.completedRegionIds.includes(region.id)) return;
-  if (state.values[index] === value) return;
-  state.values[index] = value;
+
+  event.preventDefault();
+  focusBoardCell(index);
+  clearHint();
+  state.conflictIndices = new Set();
+  for (const markedCell of refs.board.querySelectorAll(
+    ".is-hint, .is-hint-scope, .is-conflict",
+  )) {
+    markedCell.classList.remove("is-hint", "is-hint-scope", "is-conflict");
+  }
+  const tool = resolvePointerTool(state.activeTool, event);
+  state.paintStroke = {
+    pointerId: event.pointerId,
+    focusIndex: index,
+    lastIndex: index,
+    transaction: createPaintStroke(state.values[index], tool),
+  };
+  refs.board.classList.add("is-painting");
+  refs.board.setPointerCapture?.(event.pointerId);
+  paintStrokeIndices([index]);
+}
+
+function continuePaintStroke(event) {
+  if (!state.paintStroke || event.pointerId !== state.paintStroke.pointerId) return;
+  event.preventDefault();
+  const index = pointerCellIndex(event);
+  if (index === null) {
+    state.paintStroke.lastIndex = null;
+    return;
+  }
+  const indices = state.paintStroke.lastIndex === null
+    ? [index]
+    : gridLineIndices(
+        state.paintStroke.lastIndex,
+        index,
+        state.level.width,
+      );
+  paintStrokeIndices(indices);
+  state.paintStroke.lastIndex = index;
+}
+
+function finishPaintStroke(event) {
+  if (!state.paintStroke || event.pointerId !== state.paintStroke.pointerId) {
+    return false;
+  }
+  event.preventDefault();
+  if (event.type === "pointerup") continuePaintStroke(event);
+  const completedStroke = state.paintStroke;
+  state.paintStroke = null;
+  state.lastPaintStrokeEndedAt = performance.now();
+  refs.board.classList.remove("is-painting");
+  if (refs.board.hasPointerCapture?.(event.pointerId)) {
+    refs.board.releasePointerCapture(event.pointerId);
+  }
+  if (completedStroke.transaction.changedIndices.length === 0) return false;
+  finishBoardEdit(completedStroke.lastIndex ?? completedStroke.focusIndex);
+  return true;
+}
+
+function finishBoardEdit(focusIndex) {
   clearHint();
   const analysis = analyseBoard();
   const transition = syncCampaignWithBoard(analysis);
   commitCurrentBoardHistory();
-  renderAll(index, analysis);
+  renderAll(focusIndex, analysis);
   persistProgress();
   const completedLevelNow = recordLevelCompletion(analysis);
   if (analysis.conflicts.size > 0) {
@@ -1027,6 +1165,14 @@ function setCell(index, value) {
   } else {
     setMessage(refs.boardMessage, "message.recordUpdated", "neutral");
   }
+}
+
+function setCell(index, value) {
+  const region = regionFor(index);
+  if (state.campaign.completedRegionIds.includes(region.id)) return;
+  if (state.values[index] === value) return;
+  state.values[index] = value;
+  finishBoardEdit(index);
 }
 
 function requestHint() {
@@ -1186,6 +1332,8 @@ function prepareLevel(level, entry) {
   state.level = level;
   state.currentEntry = entry;
   state.nextLevelId = null;
+  state.paintStroke = null;
+  refs.board.classList.remove("is-painting");
   state.activeCellIndex = 0;
   state.saveKey = saveKeyForLevel(level);
   const restored = restoreSavePayload(level, readStoredProgress(state.saveKey));
@@ -1369,6 +1517,11 @@ function chooseLocale(locale) {
 for (const button of refs.markTools) {
   button.addEventListener("click", () => selectMarkTool(button.dataset.tool));
 }
+refs.board.addEventListener("pointerdown", beginPaintStroke);
+refs.board.addEventListener("pointermove", continuePaintStroke);
+refs.board.addEventListener("pointerup", finishPaintStroke);
+refs.board.addEventListener("pointercancel", finishPaintStroke);
+refs.board.addEventListener("lostpointercapture", finishPaintStroke);
 refs.board.addEventListener("keydown", handleBoardKeydown);
 refs.board.addEventListener("focusin", (event) => {
   const cell = event.target.closest?.(".cell");

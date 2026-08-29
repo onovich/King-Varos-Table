@@ -835,6 +835,11 @@ h2 {
   transition: opacity 140ms ease, background-color 140ms ease, transform 140ms ease;
 }
 
+.board.is-painting .cell {
+  cursor: crosshair;
+  transition: none;
+}
+
 .cell:hover {
   z-index: 2;
   transform: translateY(-1px);
