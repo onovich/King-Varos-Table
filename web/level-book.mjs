@@ -1,5 +1,6 @@
 export const LEVEL_BOOK_SCHEMA_VERSION = 1;
 const STORAGE_NAMESPACE = "king-varos-table:level-book";
+const DIFFICULTY_LABELS = new Set(["tutorial", "standard", "advanced"]);
 
 export function levelEntries(manifest) {
   return (manifest?.chapters ?? []).flatMap((chapter) =>
@@ -26,6 +27,9 @@ export function validateManifest(manifest) {
   for (const entry of entries) {
     if (typeof entry.source !== "string" || entry.source.length === 0) {
       throw new TypeError(`campaign level ${entry.id} needs a source`);
+    }
+    if (!DIFFICULTY_LABELS.has(entry.difficulty)) {
+      throw new TypeError(`campaign level ${entry.id} has an unsupported difficulty`);
     }
     if (entry.unlockAfter !== null && entry.unlockAfter !== undefined && !knownIds.has(entry.unlockAfter)) {
       throw new TypeError(`campaign level ${entry.id} has an unknown prerequisite`);

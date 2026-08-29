@@ -15,6 +15,11 @@ from .content import (
     LEVEL_SUBTITLE,
     LEVEL_TITLE,
 )
+from .difficulty import (
+    RegionDifficulty,
+    analyse_region_difficulty,
+    summarise_level_difficulty,
+)
 from .minizinc_check import verify_unique
 from .solver import Constraint, DirectClueSolver, SolveResult
 
@@ -23,16 +28,32 @@ from .solver import Constraint, DirectClueSolver, SolveResult
 class RegionMetrics:
     full_clue_count: int
     visible_clue_count: int
-    solver_steps: int
-    first_forced_cells: int
     unique_verified: bool
-    basic_steps: int
-    advanced_steps: int
-    reasoning_level: str
     bright_count: int
     dark_count: int
     clue_min: int
     clue_max: int
+    difficulty: RegionDifficulty
+
+    @property
+    def solver_steps(self) -> int:
+        return self.difficulty.assignment_steps
+
+    @property
+    def first_forced_cells(self) -> int:
+        return self.difficulty.first_forced_cells
+
+    @property
+    def basic_steps(self) -> int:
+        return self.difficulty.basic_assignment_steps
+
+    @property
+    def advanced_steps(self) -> int:
+        return self.difficulty.advanced_assignment_steps
+
+    @property
+    def reasoning_level(self) -> str:
+        return self.difficulty.reasoning_level
 
 
 @dataclass(frozen=True)
@@ -57,6 +78,10 @@ class GeneratedLevel:
     regions: tuple[RegionLevel, ...]
 
     def public_dict(self, include_solution: bool = False) -> dict:
+        difficulty = summarise_level_difficulty(
+            kind="campaign",
+            regions=tuple(region.metrics.difficulty for region in self.regions),
+        )
         payload = {
             "schemaVersion": 2,
             "levelId": "inner-sea",
@@ -70,9 +95,8 @@ class GeneratedLevel:
                 min(clue for region in self.regions for clue in region.clues.values()),
                 max(clue for region in self.regions for clue in region.clues.values()),
             ],
-            "reasoningLevel": "advanced"
-            if any(region.metrics.reasoning_level == "advanced" for region in self.regions)
-            else "basic",
+            "reasoningLevel": difficulty.reasoning_level,
+            "difficulty": difficulty.public_dict(),
             "campaign": {
                 "chapterId": "inner-sea",
                 "chapterName": dict(CHAPTER_NAME),
@@ -91,12 +115,8 @@ class GeneratedLevel:
                     "metrics": {
                         "fullClueCount": region.metrics.full_clue_count,
                         "visibleClueCount": region.metrics.visible_clue_count,
-                        "solverSteps": region.metrics.solver_steps,
-                        "firstForcedCells": region.metrics.first_forced_cells,
                         "uniqueVerified": region.metrics.unique_verified,
-                        "basicSteps": region.metrics.basic_steps,
-                        "advancedSteps": region.metrics.advanced_steps,
-                        "reasoningLevel": region.metrics.reasoning_level,
+                        **region.metrics.difficulty.public_metrics_dict(),
                         "brightCount": region.metrics.bright_count,
                         "darkCount": region.metrics.dark_count,
                         "clueMin": region.metrics.clue_min,
@@ -324,8 +344,11 @@ def build_level(
                 failed = True
                 break
 
-            basic_steps = sum(1 for step in result.steps if step.reasoning_level == "basic")
-            advanced_steps = sum(1 for step in result.steps if step.reasoning_level == "advanced")
+            difficulty = analyse_region_difficulty(
+                cell_count=len(cells),
+                visible_clue_count=len(visible_clues),
+                result=result,
+            )
             generated_regions.append(
                 RegionLevel(
                     region_id,
@@ -334,18 +357,14 @@ def build_level(
                     cells,
                     visible_clues,
                     RegionMetrics(
-                        len(clues),
-                        len(visible_clues),
-                        len(result.steps),
-                        basic_steps,
-                        unique_verified,
-                        basic_steps,
-                        advanced_steps,
-                        result.reasoning_level,
-                        sum(target[index] for index in cells),
-                        len(cells) - sum(target[index] for index in cells),
-                        min(visible_clues.values()),
-                        max(visible_clues.values()),
+                        full_clue_count=len(clues),
+                        visible_clue_count=len(visible_clues),
+                        unique_verified=unique_verified,
+                        bright_count=sum(target[index] for index in cells),
+                        dark_count=len(cells) - sum(target[index] for index in cells),
+                        clue_min=min(visible_clues.values()),
+                        clue_max=max(visible_clues.values()),
+                        difficulty=difficulty,
                     ),
                     {
                         key: dict(value) if isinstance(value, dict) else value

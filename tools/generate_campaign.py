@@ -28,12 +28,12 @@ def _tutorial_entry(spec, level: dict, index: int, unlock_after: str | None) -> 
         "width": level["width"],
         "height": level["height"],
         "regionCount": len(level["regions"]),
-        "difficulty": "tutorial",
+        "difficulty": level["difficulty"]["label"],
         "unlockAfter": unlock_after,
     }
 
 
-def build_manifest(tutorial_levels: tuple[dict, ...]) -> dict:
+def build_manifest(tutorial_levels: tuple[dict, ...], campaign_level: dict) -> dict:
     tutorial_entries = []
     previous_id = None
     for index, (spec, level) in enumerate(zip(TUTORIAL_SPECS, tutorial_levels, strict=True)):
@@ -73,10 +73,10 @@ def build_manifest(tutorial_levels: tuple[dict, ...]) -> dict:
                             "20×20 正式版图；完成每个国家后解锁一份历史故事卡。",
                             "A 20×20 formal map; completing each country reveals one historical story card.",
                         ),
-                        "width": 20,
-                        "height": 20,
-                        "regionCount": 7,
-                        "difficulty": "standard",
+                        "width": campaign_level["width"],
+                        "height": campaign_level["height"],
+                        "regionCount": len(campaign_level["regions"]),
+                        "difficulty": campaign_level["difficulty"]["label"],
                         "unlockAfter": TUTORIAL_SPECS[-1].level_id,
                     }
                 ],
@@ -111,10 +111,15 @@ def main() -> int:
 
     main_level = build_level(seed=args.seed, verify_with_minizinc=verify)
     write_public_level(main_level, args.output_directory / "inner-sea.json")
+    campaign_payload = main_level.public_dict()
 
     args.manifest.parent.mkdir(parents=True, exist_ok=True)
     args.manifest.write_text(
-        json.dumps(build_manifest(tutorial_levels), ensure_ascii=False, indent=2) + "\n",
+        json.dumps(
+            build_manifest(tutorial_levels, campaign_payload),
+            ensure_ascii=False,
+            indent=2,
+        ) + "\n",
         encoding="utf-8",
     )
 

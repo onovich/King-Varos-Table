@@ -37,6 +37,7 @@ King Varo's Table 是一款在浏览器中运行、无需猜测的逻辑谜题�
 - 四张随仓库提交的棋盘：三张循序教学页和一张七国正式版图；
 - 受国界裁剪、覆盖 0—9 的数字线索，每个区域都能只靠可见数字直接推到底；
 - 由 MiniZinc 验证所有已提交区域都不存在第二解；
+- 基于求解轨迹的难度档案，分别记录基础／高级推理和短／中／长工作量；
 - 基于玩家当前盘面的提示、矛盾报告、区域筛选和错误答案清理；
 - 适合触屏的亮格、暗格、擦除工具，以及二维键盘导航；
 - 不漏格的鼠标／笔连续拖涂，并把整笔合并为一项历史；
@@ -74,11 +75,18 @@ npm run generate
 
 该命令会重写 `web/data/campaign.json` 与 `web/data/levels/*.json`；只要 MiniZinc 无法证明任一区域唯一，生成就会失败。若只需重建“内海七国”正式地图，可运行 `npm run generate:map`。
 
+查看自动生成的整关与分区难度指标：
+
+```powershell
+npm run report:difficulty
+```
+
 ## 项目文档
 
 - [叙事包装规范](docs/design/narrative-packaging.md)
 - [提示系统防回归规范](docs/design/hint-system.md)
 - [序章与关卡册架构](docs/development/prologue-and-level-book.md)
+- [关卡难度分级契约](docs/development/difficulty-grading.md)
 - [触屏与键盘操作](docs/development/touch-and-keyboard-controls.md)
 - [连续拖涂契约](docs/development/drag-painting.md)
 - [撤销／重做历史契约](docs/development/undo-redo-history.md)
@@ -87,7 +95,7 @@ npm run generate
 
 ## 状态
 
-版本 `0.7.0` 已形成支持鼠标、触屏、键盘、100 步会话历史和鼠标／笔连续拖涂的本地战役切片。拖涂已经实测填色、擦除、稀疏事件补线、单笔单次撤销和跨完成节点恢复；浏览器控制台无报错，46 项自动化测试全部通过。
+版本 `0.8.0` 在可玩战役切片上增加了自动难度档案和全关卡质量报告。难度现在统计玩家可见的线索结算，而不再把每个已确定格子误算成独立推理步骤；需要重叠线索差集的轨迹也不会被误标成教学或标准。54 项自动化测试全部通过。
 
 项目目前没有公开托管的在线试玩地址。更多章节、最终美术、正式平衡与专用触摸拖涂手势仍待制作。
 

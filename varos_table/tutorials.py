@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Callable, Final
 
 from .content import localized
+from .difficulty import analyse_region_difficulty, summarise_level_difficulty
 from .level import (
     _prune_region,
     _region_cells,
@@ -200,6 +201,7 @@ def build_tutorial_level(
     full_clues = calculate_clues(spec.width, spec.height, region_map, target)
     rng = random.Random(1000)
     regions = []
+    region_difficulties = []
 
     for region_id in region_ids:
         cells = _region_cells(region_map, region_id)
@@ -234,6 +236,12 @@ def build_tutorial_level(
             raise ValueError(f"MiniZinc found a second solution for {spec.level_id} region {region_id}")
 
         bright_count = sum(target[index] for index in cells)
+        difficulty = analyse_region_difficulty(
+            cell_count=len(cells),
+            visible_clue_count=len(visible_clues),
+            result=result,
+        )
+        region_difficulties.append(difficulty)
         regions.append(
             {
                 "id": region_id,
@@ -247,12 +255,8 @@ def build_tutorial_level(
                 "metrics": {
                     "fullClueCount": len(clues),
                     "visibleClueCount": len(visible_clues),
-                    "solverSteps": len(result.steps),
-                    "firstForcedCells": len(result.steps),
                     "uniqueVerified": unique_verified,
-                    "basicSteps": len(result.steps),
-                    "advancedSteps": 0,
-                    "reasoningLevel": "basic",
+                    **difficulty.public_metrics_dict(),
                     "brightCount": bright_count,
                     "darkCount": len(cells) - bright_count,
                     "clueMin": min(visible_clues.values()),
@@ -262,6 +266,10 @@ def build_tutorial_level(
         )
 
     visible_values = [clue for region in regions for clue in region["clues"].values()]
+    level_difficulty = summarise_level_difficulty(
+        kind="tutorial",
+        regions=tuple(region_difficulties),
+    )
     return {
         "schemaVersion": 2,
         "levelId": spec.level_id,
@@ -272,7 +280,8 @@ def build_tutorial_level(
         "height": spec.height,
         "seed": spec.seed,
         "clueRange": [min(visible_values), max(visible_values)],
-        "reasoningLevel": "basic",
+        "reasoningLevel": level_difficulty.reasoning_level,
+        "difficulty": level_difficulty.public_dict(),
         "campaign": {"chapterId": "prologue"},
         "tutorial": {
             "lessonTitle": dict(spec.lesson_title),

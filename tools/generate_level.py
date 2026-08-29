@@ -54,12 +54,19 @@ def main() -> int:
 
     print(f"Generated {args.width}x{args.height} level: {args.output}")
     print(f"Seed: {args.seed} (attempt {level.attempt})")
+    level_difficulty = level.public_dict()["difficulty"]
+    print(
+        f"Difficulty: {level_difficulty['label']} "
+        f"({level_difficulty['reasoningLevel']}, {level_difficulty['effort']}, "
+        f"{level_difficulty['deductionSteps']} deductions)"
+    )
     for region in level.regions:
         metrics = region.metrics
         print(
             f"  region {region.region_id}: {len(region.cells)} cells, "
             f"{metrics.visible_clue_count}/{metrics.full_clue_count} clues, "
-            f"{metrics.solver_steps} direct-clue steps, "
+            f"{metrics.difficulty.deduction_steps} deductions, "
+            f"first={metrics.first_forced_cells}, "
             f"unique={metrics.unique_verified}"
         )
     return 0

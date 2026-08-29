@@ -25,6 +25,7 @@ King-Varos-Table/
 │  │  ├─ naming-history.md
 │  │  └─ narrative-packaging.md
 │  ├─ development/
+│  │  ├─ difficulty-grading.md
 │  │  ├─ first-fall-vertical-slice.md
 │  │  ├─ drag-painting.md
 │  │  ├─ prologue-and-level-book.md
@@ -43,6 +44,7 @@ King-Varos-Table/
 │  └─ proverbs/
 ├─ tests/
 │  ├─ test_core.py
+│  ├─ test_difficulty.py
 │  ├─ test_campaign_state.py
 │  ├─ test_board_history.py
 │  ├─ test_i18n.py
@@ -52,10 +54,12 @@ King-Varos-Table/
 │  └─ test_web_hint.py
 ├─ tools/
 │  ├─ generate_campaign.py
-│  └─ generate_level.py
+│  ├─ generate_level.py
+│  └─ report_difficulty.py
 ├─ varos_table/
 │  ├─ __init__.py
 │  ├─ content.py
+│  ├─ difficulty.py
 │  ├─ level.py
 │  ├─ minizinc_check.py
 │  ├─ solver.py
@@ -89,7 +93,7 @@ King-Varos-Table/
 
 ## Directory responsibilities
 
-- `varos_table/` owns formal-map and tutorial generation, localized chapter content, deterministic solving and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
+- `varos_table/` owns formal-map and tutorial generation, localized chapter content, deterministic solving, trace-based difficulty grading and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
 - `web/` is the browser-playable campaign slice. Its i18n module owns English and Simplified Chinese interface text; `input-tools.mjs` owns pointer and keyboard input semantics; `paint-stroke.mjs` owns DOM-free stroke transactions and grid interpolation; `board-history.mjs` owns immutable board-and-story snapshots; `level-book.mjs` owns unlock/save rules; `level-book-ui.mjs` only renders the catalog. Public level JSON contains bilingual content, regions and clues but not target solutions.
 - `web/data/campaign.json` is the small level-book manifest. Each file under `web/data/levels/` remains independently loadable and independently saved.
 - `models/` contains exact constraint models used by the generator.
@@ -113,6 +117,7 @@ npm start
 npm test
 npm run generate
 npm run generate:map
+npm run report:difficulty
 ```
 
-`npm run generate` rebuilds the manifest and all four boards; `npm run generate:map` rebuilds only the formal Inner Sea map. Both generation commands require MiniZinc with the Gecode solver. `npm test` can run without MiniZinc, but it skips the MiniZinc integration check; full verification uses MiniZinc. Normal gameplay does not require installing the Python package.
+`npm run generate` rebuilds the manifest and all four boards; `npm run generate:map` rebuilds only the formal Inner Sea map. Both generation commands require MiniZinc with the Gecode solver. `npm run report:difficulty` prints the generated catalog and per-region quality metrics, and fails if a catalog label drifts from its level profile. `npm test` can run without MiniZinc, but it skips the MiniZinc integration check; full verification uses MiniZinc. Normal gameplay does not require installing the Python package.

@@ -97,6 +97,29 @@ for (const entry of levelEntries(manifest)) {
 '''
         )
 
+    def test_manifest_requires_a_generated_difficulty_label(self):
+        self.run_node(
+            r'''
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { levelEntries, validateManifest } from "./web/level-book.mjs";
+
+const manifest = JSON.parse(fs.readFileSync("./web/data/campaign.json", "utf8"));
+assert.deepEqual(
+  levelEntries(validateManifest(manifest)).map((entry) => entry.difficulty),
+  ["tutorial", "tutorial", "tutorial", "standard"],
+);
+
+const invalid = structuredClone(manifest);
+invalid.chapters[1].levels[0].difficulty = "legendary";
+assert.throws(() => validateManifest(invalid), /difficulty/);
+
+const missing = structuredClone(manifest);
+delete missing.chapters[0].levels[0].difficulty;
+assert.throws(() => validateManifest(missing), /difficulty/);
+'''
+        )
+
 
 class LevelBookDataContractTests(unittest.TestCase):
     def test_manifest_sources_are_local_bilingual_public_levels(self):
@@ -121,6 +144,10 @@ class LevelBookDataContractTests(unittest.TestCase):
             self.assertEqual(payload["width"], entry["width"])
             self.assertEqual(payload["height"], entry["height"])
             self.assertEqual(len(payload["regions"]), entry["regionCount"])
+            self.assertEqual(payload["difficulty"]["label"], entry["difficulty"])
+            self.assertIn(payload["difficulty"]["reasoningLevel"], {"basic", "advanced"})
+            self.assertIn(payload["difficulty"]["effort"], {"short", "medium", "long"})
+            self.assertGreater(payload["difficulty"]["deductionSteps"], 0)
             self.assertNotIn("solution", payload)
             self.assertTrue(all(region["metrics"]["uniqueVerified"] for region in payload["regions"]))
 

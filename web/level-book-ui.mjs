@@ -1,7 +1,7 @@
 import { isLevelUnlocked, levelEntries } from "./level-book.mjs";
 
 function difficultyLabel(entry, i18n) {
-  return i18n.t(`levelBook.difficulty.${entry.difficulty ?? "standard"}`);
+  return i18n.t(`levelBook.difficulty.${entry.difficulty}`);
 }
 
 function statusLabel(entry, progress, unlocked, currentLevelId, i18n) {

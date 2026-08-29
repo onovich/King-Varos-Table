@@ -37,6 +37,7 @@ The interface, dynamic hints, accessibility labels, tutorials, banquet, country 
 - Four committed boards: three progressive tutorials and one seven-country formal map.
 - Region-clipped clue values from 0 to 9, with every region directly solvable from visible clues.
 - MiniZinc verification that no committed region admits a second solution.
+- Trace-based difficulty profiles that separate basic versus advanced reasoning from short, medium, or long workload.
 - Hints derived from the player's current board, contradiction reporting, region filtering, and wrong-mark cleanup.
 - Touch-ready bright, dark, and erase tools plus two-dimensional keyboard navigation.
 - Gap-free mouse and pen drag painting, with one history entry per stroke.
@@ -74,11 +75,18 @@ npm run generate
 
 This rewrites `web/data/campaign.json` and `web/data/levels/*.json`. Generation fails if MiniZinc cannot prove every region unique. Use `npm run generate:map` to rebuild only the formal Inner Sea map.
 
+Inspect generated level and region difficulty metrics:
+
+```powershell
+npm run report:difficulty
+```
+
 ## Documentation
 
 - [Narrative packaging](docs/design/narrative-packaging.md)
 - [Hint-system guardrails](docs/design/hint-system.md)
 - [Prologue and level-book architecture](docs/development/prologue-and-level-book.md)
+- [Difficulty-grading contract](docs/development/difficulty-grading.md)
 - [Touch and keyboard controls](docs/development/touch-and-keyboard-controls.md)
 - [Drag-painting contract](docs/development/drag-painting.md)
 - [Undo/redo history contract](docs/development/undo-redo-history.md)
@@ -87,7 +95,7 @@ This rewrites `web/data/campaign.json` and `web/data/levels/*.json`. Generation 
 
 ## Status
 
-Version `0.7.0` is a locally playable campaign slice with mouse, touch, keyboard, 100-step session history, and continuous mouse/pen painting. Drag strokes were runtime-tested for filling, erasing, sparse-event interpolation, one-step undo, and completion-boundary restoration. The browser console stayed clear, and all 46 automated tests pass.
+Version `0.8.0` adds generated difficulty profiles and a catalog-wide quality report to the playable campaign slice. Difficulty now counts player-visible clue deductions rather than treating every resolved cell as a separate reasoning step; advanced subset-difference traces cannot be mislabeled as tutorial or standard. All 54 automated tests pass.
 
 There is no hosted public demo. Additional chapters, final art, production balancing, and a dedicated touch-drag gesture remain to be built.
 
