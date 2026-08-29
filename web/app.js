@@ -32,6 +32,13 @@ import {
   preferredLocale,
 } from "./i18n.mjs";
 import {
+  INPUT_TOOLS,
+  gridTargetForKey,
+  markValueForTool,
+  resolveKeyboardTool,
+  resolvePointerTool,
+} from "./input-tools.mjs";
+import {
   completeLevel,
   createLevelBookProgress,
   createLevelBookSave,
@@ -66,6 +73,8 @@ const refs = {
   lessonTitle: document.querySelector("#lessonTitle"),
   lessonBody: document.querySelector("#lessonBody"),
   regionTabs: document.querySelector("#regionTabs"),
+  markToolbar: document.querySelector("#markToolbar"),
+  markTools: [...document.querySelectorAll("[data-tool]")],
   board: document.querySelector("#board"),
   boardMessage: document.querySelector("#boardMessage"),
   statusNote: document.querySelector("#statusNote"),
@@ -135,6 +144,8 @@ const state = {
   solution: null,
   clues: [],
   selectedRegion: null,
+  activeTool: INPUT_TOOLS.BRIGHT,
+  activeCellIndex: 0,
   hintIndex: null,
   hintScopeIndices: new Set(),
   conflictIndices: new Set(),
@@ -533,9 +544,74 @@ function renderTabs(analysis = null) {
   }
 }
 
+function renderMarkTools() {
+  const unavailable = state.loading || state.level === null;
+  for (const button of refs.markTools) {
+    button.disabled = unavailable;
+    button.setAttribute(
+      "aria-pressed",
+      String(button.dataset.tool === state.activeTool),
+    );
+  }
+}
+
+function selectMarkTool(tool) {
+  if (!Object.values(INPUT_TOOLS).includes(tool)) return;
+  state.activeTool = tool;
+  renderMarkTools();
+}
+
+function focusBoardCell(index, { focus = true } = {}) {
+  const target = refs.board.querySelector(`[data-index="${index}"]`);
+  if (!target) return false;
+  state.activeCellIndex = index;
+  for (const cell of refs.board.querySelectorAll(".cell")) {
+    cell.tabIndex = cell === target ? 0 : -1;
+  }
+  if (focus) target.focus();
+  return true;
+}
+
+function handleBoardKeydown(event) {
+  const cell = event.target.closest?.(".cell");
+  if (!cell || !state.level) return;
+  const index = Number(cell.dataset.index);
+  const targetIndex = gridTargetForKey(
+    index,
+    event.key,
+    state.level.width,
+    state.level.height,
+    event,
+  );
+  if (targetIndex !== null) {
+    event.preventDefault();
+    focusBoardCell(targetIndex);
+    return;
+  }
+
+  const tool = resolveKeyboardTool(state.activeTool, event.key);
+  if (tool === null) return;
+  event.preventDefault();
+  if (event.repeat || state.loading) return;
+  const region = regionFor(index);
+  if (state.campaign.completedRegionIds.includes(region.id)) return;
+  if (["1", "2", "3"].includes(event.key)) selectMarkTool(tool);
+  setCell(index, markValueForTool(state.values[index], tool));
+}
+
 function renderBoard(focusIndex = null) {
   const { width, height, regionMap } = state.level;
-  const activeIndex = focusIndex ?? document.activeElement?.dataset?.index;
+  const shouldRestoreFocus = focusIndex !== null
+    || document.activeElement?.classList?.contains("cell");
+  const requestedIndex = Number(
+    focusIndex ?? document.activeElement?.dataset?.index ?? state.activeCellIndex,
+  );
+  const activeIndex = Number.isInteger(requestedIndex)
+    && requestedIndex >= 0
+    && requestedIndex < width * height
+    ? requestedIndex
+    : 0;
+  state.activeCellIndex = activeIndex;
   refs.board.style.setProperty("--columns", width);
   refs.board.style.setProperty("--board-min-width", `${Math.max(288, width * 34)}px`);
   refs.board.style.setProperty(
@@ -571,8 +647,9 @@ function renderBoard(focusIndex = null) {
       .filter(Boolean)
       .join(" ");
     button.classList.toggle("is-country-complete", countryComplete);
-    button.disabled = state.loading || countryComplete;
+    button.disabled = state.loading;
     button.dataset.index = String(index);
+    button.tabIndex = index === activeIndex ? 0 : -1;
     button.setAttribute("role", "gridcell");
     button.setAttribute("aria-rowindex", String(y + 1));
     button.setAttribute("aria-colindex", String(x + 1));
@@ -596,6 +673,7 @@ function renderBoard(focusIndex = null) {
       }),
     );
     if (countryComplete) {
+      button.setAttribute("aria-disabled", "true");
       const completionStatus = state.level.kind === "tutorial"
         ? i18n.t("cell.practiceCompleted")
         : i18n.t(
@@ -618,21 +696,19 @@ function renderBoard(focusIndex = null) {
 
     if (!state.loading && !countryComplete) {
       button.addEventListener("click", (event) => {
-        if (event.shiftKey) {
-          setCell(index, state.values[index] === DARK ? UNKNOWN : DARK);
-        } else {
-          setCell(index, state.values[index] === BRIGHT ? UNKNOWN : BRIGHT);
-        }
+        const tool = resolvePointerTool(state.activeTool, event);
+        setCell(index, markValueForTool(state.values[index], tool));
       });
       button.addEventListener("contextmenu", (event) => {
         event.preventDefault();
-        setCell(index, state.values[index] === DARK ? UNKNOWN : DARK);
+        const tool = resolvePointerTool(state.activeTool, event);
+        setCell(index, markValueForTool(state.values[index], tool));
       });
     }
     refs.board.append(button);
   }
 
-  if (activeIndex !== undefined && activeIndex !== null) {
+  if (shouldRestoreFocus) {
     const focusTarget = refs.board.querySelector(`[data-index="${activeIndex}"]`);
     focusTarget?.focus({ preventScroll: true });
   }
@@ -670,6 +746,7 @@ function renderAll(focusIndex = null, analysis = null) {
   const currentAnalysis = analysis ?? analyseBoard();
   state.conflictIndices = currentAnalysis.conflicts;
   renderTabs(currentAnalysis);
+  renderMarkTools();
   renderBoard(focusIndex);
   updateStats(currentAnalysis);
   renderCampaign();
@@ -769,6 +846,7 @@ function setLoading(loading) {
   refs.checkButton.disabled = unavailable;
   refs.resetButton.disabled = unavailable;
   refs.clearErrorsButton.disabled = unavailable || state.solution === null;
+  renderMarkTools();
   if (state.level) renderBoard();
 }
 
@@ -975,6 +1053,7 @@ function prepareLevel(level, entry) {
   state.level = level;
   state.currentEntry = entry;
   state.nextLevelId = null;
+  state.activeCellIndex = 0;
   state.saveKey = saveKeyForLevel(level);
   const restored = restoreSavePayload(level, readStoredProgress(state.saveKey));
   const emptyValues = new Array(level.width * level.height).fill(UNKNOWN);
@@ -1153,6 +1232,14 @@ function chooseLocale(locale) {
   applyLocale();
 }
 
+for (const button of refs.markTools) {
+  button.addEventListener("click", () => selectMarkTool(button.dataset.tool));
+}
+refs.board.addEventListener("keydown", handleBoardKeydown);
+refs.board.addEventListener("focusin", (event) => {
+  const cell = event.target.closest?.(".cell");
+  if (cell) focusBoardCell(Number(cell.dataset.index), { focus: false });
+});
 refs.hintButton.addEventListener("click", requestHint);
 refs.checkButton.addEventListener("click", checkBoard);
 refs.clearErrorsButton.addEventListener("click", clearErrors);

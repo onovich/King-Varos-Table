@@ -27,6 +27,7 @@ King-Varos-Table/
 │  ├─ development/
 │  │  ├─ first-fall-vertical-slice.md
 │  │  ├─ prologue-and-level-book.md
+│  │  ├─ touch-and-keyboard-controls.md
 │  │  └─ repository-layout.md
 │  ├─ ideas/
 │  │  └─ layered-land-puzzle.md
@@ -42,6 +43,7 @@ King-Varos-Table/
 │  ├─ test_core.py
 │  ├─ test_campaign_state.py
 │  ├─ test_i18n.py
+│  ├─ test_input_tools.py
 │  ├─ test_level_book.py
 │  └─ test_web_hint.py
 ├─ tools/
@@ -67,6 +69,7 @@ King-Varos-Table/
 │  ├─ campaign-ui.mjs
 │  ├─ hint-proof.mjs
 │  ├─ i18n.mjs
+│  ├─ input-tools.mjs
 │  ├─ index.html
 │  ├─ level-book-ui.mjs
 │  ├─ level-book.mjs
@@ -81,10 +84,10 @@ King-Varos-Table/
 ## Directory responsibilities
 
 - `varos_table/` owns formal-map and tutorial generation, localized chapter content, deterministic solving and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
-- `web/` is the browser-playable campaign slice. Its i18n module owns English and Simplified Chinese interface text; `level-book.mjs` owns unlock/save rules; `level-book-ui.mjs` only renders the catalog. Public level JSON contains bilingual content, regions and clues but not target solutions.
+- `web/` is the browser-playable campaign slice. Its i18n module owns English and Simplified Chinese interface text; `input-tools.mjs` owns pointer and keyboard input semantics; `level-book.mjs` owns unlock/save rules; `level-book-ui.mjs` only renders the catalog. Public level JSON contains bilingual content, regions and clues but not target solutions.
 - `web/data/campaign.json` is the small level-book manifest. Each file under `web/data/levels/` remains independently loadable and independently saved.
 - `models/` contains exact constraint models used by the generator.
-- `tests/` covers Python domain logic plus JavaScript hint, campaign-state, level-book and localization behavior through Node subprocesses.
+- `tests/` covers Python domain logic plus JavaScript hint, input, campaign-state, level-book and localization behavior through Node subprocesses.
 - `docs/design/` contains current product decisions and guardrails. These documents override older naming or theme hypotheses in `research/`.
 - `docs/development/` records executable milestones and repository operations; `docs/ideas/` parks deliberately out-of-scope concepts without adding them to the current product contract.
 - `research/` keeps source-based investigation and historical comparisons separate from current specifications.

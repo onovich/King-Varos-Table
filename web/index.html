@@ -61,11 +61,15 @@
           <div class="rule-card" aria-label="Controls" data-i18n-aria-label="rules.controlsLabel">
             <div class="rule-row">
               <span class="rule-glyph">1</span>
-              <span data-i18n="rules.bright">Left click / Enter: mark bright</span>
+              <span data-i18n="rules.bright">Bright tool: click, tap, Enter, or 1</span>
             </div>
             <div class="rule-row">
               <span class="rule-glyph rule-glyph-dark">×</span>
-              <span data-i18n="rules.dark">Right click / Shift+click: mark dark</span>
+              <span data-i18n="rules.dark">Dark tool: click, tap, right-click, Shift+click, or 2</span>
+            </div>
+            <div class="rule-row">
+              <span class="rule-glyph rule-glyph-erase"></span>
+              <span data-i18n="rules.erase">Erase tool: click, tap, Delete, or 3</span>
             </div>
             <div class="rule-row">
               <span class="rule-glyph rule-glyph-hint">◎</span>
@@ -138,6 +142,33 @@
           </div>
 
           <nav class="region-tabs" id="regionTabs" aria-label="Country filter" data-i18n-aria-label="puzzle.regionTabsLabel" role="tablist"></nav>
+
+          <div
+            class="mark-toolbar"
+            id="markToolbar"
+            role="group"
+            aria-label="Cell marking tools"
+            data-i18n-aria-label="tools.label"
+          >
+            <span class="mark-toolbar-label" data-i18n="tools.label">Marking tools</span>
+            <div class="mark-tool-list">
+              <button class="mark-tool" type="button" data-tool="bright" aria-pressed="true" aria-keyshortcuts="1" disabled>
+                <i class="mark-tool-swatch mark-tool-swatch-bright" aria-hidden="true"></i>
+                <span data-i18n="tools.bright">Bright</span>
+                <kbd>1</kbd>
+              </button>
+              <button class="mark-tool" type="button" data-tool="dark" aria-pressed="false" aria-keyshortcuts="2" disabled>
+                <i class="mark-tool-swatch mark-tool-swatch-dark" aria-hidden="true"></i>
+                <span data-i18n="tools.dark">Dark</span>
+                <kbd>2</kbd>
+              </button>
+              <button class="mark-tool" type="button" data-tool="erase" aria-pressed="false" aria-keyshortcuts="3" disabled>
+                <i class="mark-tool-swatch mark-tool-swatch-erase" aria-hidden="true"></i>
+                <span data-i18n="tools.erase">Erase</span>
+                <kbd>3</kbd>
+              </button>
+            </div>
+          </div>
 
           <div class="board-frame">
             <div

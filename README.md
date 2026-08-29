@@ -16,9 +16,11 @@ The built-in level book starts with three short tutorial leaves, then unlocks th
 
 | Action | Control |
 | --- | --- |
-| Mark a cell bright | Left click, or focus the cell and press Enter |
-| Mark a cell dark | Right click or Shift+click |
-| Return a cell to unknown | Repeat its current bright or dark action |
+| Choose and apply a marking tool | Select `Bright`, `Dark`, or `Erase`; on a focused cell, 1, 2, or 3 selects and applies it |
+| Apply the current tool | Click, tap, Enter, or Space |
+| Mark dark directly | Right-click or Shift+click |
+| Return a cell to unknown | Select `Erase`, press Delete/Backspace/0, or repeat its current bright/dark action |
+| Move around the board | Arrow keys; Home/End for a row, Ctrl/Command+Home/End for the whole board |
 | Request a necessary step | Select `Show a certain step` |
 | Check or clean the board | Select `Check my reasoning` or `Remove wrong marks` |
 | Change levels | Open `Level Book` |
@@ -34,6 +36,7 @@ The interface, dynamic hints, accessibility labels, tutorials, banquet, country 
 - Region-clipped clue values from 0 to 9, with every region directly solvable from visible clues.
 - MiniZinc verification that no committed region admits a second solution.
 - Hints derived from the player's current board, contradiction reporting, region filtering, and wrong-mark cleanup.
+- Touch-ready bright, dark, and erase tools plus two-dimensional keyboard navigation.
 - Per-level local saves, sequential unlocks, banquet milestones, one-time fall records, a chapter epilogue, and a rereadable archive.
 - Public level JSON contains bilingual content, map geometry, and clues, but omits target solutions.
 
@@ -72,14 +75,15 @@ This rewrites `web/data/campaign.json` and `web/data/levels/*.json`. Generation 
 - [Narrative packaging](docs/design/narrative-packaging.md)
 - [Hint-system guardrails](docs/design/hint-system.md)
 - [Prologue and level-book architecture](docs/development/prologue-and-level-book.md)
+- [Touch and keyboard controls](docs/development/touch-and-keyboard-controls.md)
 - [Gameplay lineage research](research/proverbs/gameplay-lineage-2026-08-28.md)
 - [Repository layout](docs/development/repository-layout.md)
 
 ## Status
 
-Version `0.4.0` is a locally playable campaign slice. This update was runtime-tested in English and Simplified Chinese at desktop, 768px, and 320px widths; the complete tutorial-to-formal-map unlock flow produced no browser console errors. All 36 automated tests pass.
+Version `0.5.0` is a locally playable campaign slice with mouse, touch, and keyboard input. The input toolbar, two-dimensional keyboard navigation, and 320px sticky mobile controls were runtime-tested without browser console errors. All 39 automated tests pass.
 
-There is no hosted public demo. Additional chapters, final art, production balancing, and complete keyboard-only and touch controls remain to be built.
+There is no hosted public demo. Additional chapters, final art, production balancing, undo/redo, and drag painting remain to be built.
 
 ## License
 

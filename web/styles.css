@@ -332,6 +332,11 @@ h2 {
   background: var(--signal);
 }
 
+.rule-glyph-erase {
+  background: transparent;
+  border: 1px dashed rgba(242, 236, 223, 0.68);
+}
+
 .rule-glyph-hint {
   color: var(--paper-light);
   background: var(--cobalt);
@@ -664,6 +669,99 @@ h2 {
   border-radius: 50%;
 }
 
+.mark-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 9px;
+  padding: 8px 9px;
+  background: rgba(23, 39, 41, 0.055);
+  border: 1px solid rgba(23, 39, 41, 0.16);
+}
+
+.mark-toolbar-label {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.mark-tool-list {
+  display: flex;
+  gap: 6px;
+}
+
+.mark-tool {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 9px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.26);
+  border: 1px solid rgba(23, 39, 41, 0.22);
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 0.7rem;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+
+.mark-tool:hover:not(:disabled),
+.mark-tool[aria-pressed="true"] {
+  color: var(--paper-light);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.mark-tool:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.mark-tool-swatch {
+  width: 14px;
+  height: 14px;
+  background: var(--paper-light);
+  border: 1px solid rgba(23, 39, 41, 0.48);
+}
+
+.mark-tool-swatch-bright {
+  background: var(--focus);
+}
+
+.mark-tool-swatch-dark {
+  background: var(--ink-soft);
+}
+
+.mark-tool-swatch-erase {
+  background: transparent;
+  border-style: dashed;
+}
+
+.mark-tool[aria-pressed="true"] .mark-tool-swatch-erase {
+  border-color: rgba(242, 236, 223, 0.75);
+}
+
+.mark-tool kbd {
+  min-width: 18px;
+  padding: 1px 4px;
+  color: inherit;
+  background: rgba(23, 39, 41, 0.08);
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 0.58rem;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.mark-tool[aria-pressed="true"] kbd {
+  background: rgba(242, 236, 223, 0.08);
+}
+
 .board-frame {
   overflow: auto;
   padding: 10px;
@@ -696,6 +794,8 @@ h2 {
   border-radius: 1px;
   cursor: pointer;
   isolation: isolate;
+  touch-action: manipulation;
+  user-select: none;
   transition: opacity 140ms ease, background-color 140ms ease, transform 140ms ease;
 }
 
@@ -758,7 +858,8 @@ h2 {
   background: #ddc5b6;
 }
 
-.cell:disabled {
+.cell:disabled,
+.cell[aria-disabled="true"] {
   cursor: default;
 }
 
@@ -1354,6 +1455,32 @@ h2 {
   .puzzle-header {
     gap: 12px;
     margin-bottom: 16px;
+  }
+
+  .mark-toolbar {
+    position: sticky;
+    z-index: 12;
+    top: 8px;
+    display: block;
+    padding: 8px;
+    background: var(--paper-light);
+    box-shadow: 0 5px 14px rgba(23, 39, 41, 0.16);
+  }
+
+  .mark-toolbar-label {
+    display: block;
+    margin: 0 0 6px 2px;
+  }
+
+  .mark-tool-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mark-tool {
+    justify-content: center;
+    min-width: 0;
+    padding-inline: 5px;
   }
 
   .progress-stamp {
