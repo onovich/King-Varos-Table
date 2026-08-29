@@ -35,6 +35,7 @@ King Varo's Table 是一款在浏览器中运行、无需猜测的逻辑谜题�
 ## 已实现
 
 - 四张随仓库提交的棋盘：三张循序教学页和一张七国正式版图；
+- 七种手工设计的国别图案，让正式版图的答案对应当地地貌、建筑或档案物件，不再是随机纹理；
 - 受国界裁剪、覆盖 0—9 的数字线索，每个区域都能只靠可见数字直接推到底；
 - 由 MiniZinc 验证所有已提交区域都不存在第二解；
 - 基于求解轨迹的难度档案，分别记录基础／高级推理和短／中／长工作量；
@@ -87,6 +88,7 @@ npm run report:difficulty
 - [提示系统防回归规范](docs/design/hint-system.md)
 - [序章与关卡册架构](docs/development/prologue-and-level-book.md)
 - [关卡难度分级契约](docs/development/difficulty-grading.md)
+- [第一章内容化与国别图案契约](docs/development/chapter-one-content.md)
 - [触屏与键盘操作](docs/development/touch-and-keyboard-controls.md)
 - [连续拖涂契约](docs/development/drag-painting.md)
 - [撤销／重做历史契约](docs/development/undo-redo-history.md)
@@ -95,7 +97,7 @@ npm run report:difficulty
 
 ## 状态
 
-版本 `0.8.0` 在可玩战役切片上增加了自动难度档案和全关卡质量报告。难度现在统计玩家可见的线索结算，而不再把每个已确定格子误算成独立推理步骤；需要重叠线索差集的轨迹也不会被误标成教学或标准。54 项自动化测试全部通过。
+版本 `0.9.0` 把“内海七国”的随机答案纹理替换成七种手工设计的地图图案。每张亡国记录现在会说明刚刚复原的图像及其在征服史中的固定年代，同时关卡生成仍严格保证亮暗均衡、无需猜测的直接推理和 MiniZinc 唯一解。
 
 项目目前没有公开托管的在线试玩地址。更多章节、最终美术、正式平衡与专用触摸拖涂手势仍待制作。
 

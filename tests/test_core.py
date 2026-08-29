@@ -166,9 +166,12 @@ class LevelGenerationTests(unittest.TestCase):
             all(
                 {
                     "countryId",
+                    "mapMotifId",
+                    "mapMotif",
                     "chapter",
                     "capitalOrFocusCity",
                     "geography",
+                    "fallChronology",
                     "foodAndMaterialCulture",
                     "banquetInsert",
                     "fallCardTitle",
@@ -182,8 +185,10 @@ class LevelGenerationTests(unittest.TestCase):
         )
         localized_country_fields = {
             "chapter",
+            "mapMotif",
             "capitalOrFocusCity",
             "geography",
+            "fallChronology",
             "foodAndMaterialCulture",
             "banquetInsert",
             "fallCardTitle",

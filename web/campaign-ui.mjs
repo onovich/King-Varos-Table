@@ -131,6 +131,9 @@ export function populateFallDialog(level, regionId, elements, i18n) {
   elements.country.textContent = i18n.localize(region.name);
   elements.title.textContent = i18n.localize(region.country.fallCardTitle);
   elements.place.textContent = `${i18n.localize(region.country.capitalOrFocusCity)} · ${i18n.localize(region.country.geography)}`;
+  elements.chronology.textContent = i18n.localize(region.country.fallChronology);
+  elements.motif.textContent = i18n.localize(region.country.mapMotif);
+  elements.reveal.textContent = i18n.localize(region.country.mapRevealConcept);
   elements.body.textContent = i18n.localize(region.country.fallCardBody);
   elements.trace.textContent = i18n.localize(region.country.survivingTrace);
   return true;

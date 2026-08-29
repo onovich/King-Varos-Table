@@ -24,13 +24,13 @@
     "effort": "long",
     "regionCount": 7,
     "cellCount": 400,
-    "visibleClueCount": 137,
-    "clueDensity": 0.3425,
+    "visibleClueCount": 158,
+    "clueDensity": 0.395,
     "assignmentSteps": 400,
-    "deductionSteps": 119,
-    "maxRegionDeductionSteps": 21,
-    "averageForcedCells": 3.36,
-    "singleCellDeductions": 32,
+    "deductionSteps": 139,
+    "maxRegionDeductionSteps": 27,
+    "averageForcedCells": 2.88,
+    "singleCellDeductions": 47,
     "advancedDeductions": 0
   },
   "campaign": {
@@ -638,35 +638,42 @@
         184
       ],
       "clues": {
-        "0": 3,
-        "1": 4,
+        "0": 2,
         "2": 3,
-        "3": 1,
-        "4": 0,
+        "5": 1,
         "6": 0,
-        "23": 2,
-        "41": 1,
-        "43": 3,
-        "45": 3,
-        "63": 6,
-        "64": 7,
+        "21": 4,
+        "22": 6,
+        "23": 5,
+        "26": 0,
+        "40": 3,
+        "42": 7,
+        "43": 5,
+        "44": 3,
+        "45": 1,
+        "46": 1,
+        "60": 1,
+        "63": 7,
         "80": 0,
         "82": 5,
-        "83": 8,
-        "84": 9,
-        "85": 9,
-        "100": 2,
-        "105": 9,
-        "123": 7,
-        "125": 6,
-        "145": 4,
-        "147": 2,
-        "161": 7,
-        "163": 1,
-        "164": 0
+        "84": 7,
+        "104": 9,
+        "106": 6,
+        "123": 6,
+        "124": 8,
+        "126": 6,
+        "140": 0,
+        "147": 4,
+        "164": 7,
+        "181": 0
       },
       "country": {
         "countryId": "loven-lowlands",
+        "mapMotifId": "sluice-key",
+        "mapMotif": {
+          "zh-CN": "沉钥水门",
+          "en": "The Sunken-Key Sluice"
+        },
         "chapter": {
           "zh-CN": "内海七国",
           "en": "Seven Kingdoms of the Inner Sea"
@@ -678,6 +685,10 @@
         "geography": {
           "zh-CN": "低地河网与季节性湿原",
           "en": "Lowland waterways and seasonal marshes"
+        },
+        "fallChronology": {
+          "zh-CN": "瓦罗王征战第十年 · 融雪月",
+          "en": "Campaign Year Ten · Thaw Month"
         },
         "foodAndMaterialCulture": {
           "zh-CN": "榆烟熏鱼、酸草、河闸铜器与芦苇编席。",
@@ -692,8 +703,8 @@
           "en": "Before the Sluice Gates Closed"
         },
         "fallCardBody": {
-          "zh-CN": "洛汶议会原以为拆去东堤就能拖慢帝国骑兵，却先让三座村镇失去了归路。榆堤城在第六日开门，守闸人把铜钥匙沉进河心，没有参加受降仪式。",
-          "en": "The Loven council believed that dismantling the eastern dike would slow the imperial cavalry. Instead, three villages lost their way home. Elm Dike opened its gates on the sixth day; the keeper sank the bronze key in midstream and did not attend the surrender."
+          "zh-CN": "洛汶议会原以为拆去东堤就能拖慢帝国骑兵，却先让三座村镇失去了归路。榆堤城在第六日开门，守闸人把铜钥匙沉进河心，没有参加受降仪式。\n\n春水退去后，帝国测绘官把那三座村镇涂成一片无人湿地；幸存者仍按旧钟声渡河，仿佛纸上的空白从未发生。",
+          "en": "The Loven council believed that dismantling the eastern dike would slow the imperial cavalry. Instead, three villages lost their way home. Elm Dike opened its gates on the sixth day; the keeper sank the bronze key in midstream and did not attend the surrender.\n\nWhen the spring water withdrew, imperial surveyors painted the three villages as empty marsh. Those who survived still crossed at the old bell, as though the blank place on the map had never happened."
         },
         "survivingTrace": {
           "zh-CN": "后世修闸时捞出一枚没有齿纹的铜钥匙，现藏于榆堤档案室。",
@@ -706,21 +717,21 @@
       },
       "metrics": {
         "fullClueCount": 69,
-        "visibleClueCount": 26,
+        "visibleClueCount": 28,
         "uniqueVerified": true,
         "solverSteps": 69,
-        "firstForcedCells": 6,
+        "firstForcedCells": 4,
         "basicSteps": 69,
         "advancedSteps": 0,
         "reasoningLevel": "basic",
-        "deductionSteps": 21,
-        "basicDeductions": 21,
+        "deductionSteps": 25,
+        "basicDeductions": 25,
         "advancedDeductions": 0,
         "smallestForcedCells": 1,
         "largestForcedCells": 9,
-        "averageForcedCells": 3.29,
-        "singleCellDeductions": 5,
-        "clueDensity": 0.3768,
+        "averageForcedCells": 2.76,
+        "singleCellDeductions": 9,
+        "clueDensity": 0.4058,
         "brightCount": 34,
         "darkCount": 35,
         "clueMin": 0,
@@ -787,29 +798,34 @@
         151
       ],
       "clues": {
-        "7": 3,
-        "9": 1,
-        "12": 1,
-        "13": 0,
-        "27": 5,
-        "28": 6,
-        "29": 4,
-        "47": 6,
-        "48": 8,
-        "49": 7,
-        "50": 7,
-        "51": 6,
-        "68": 9,
-        "69": 9,
-        "73": 1,
-        "91": 3,
-        "108": 8,
-        "127": 5,
-        "149": 2,
+        "7": 0,
+        "10": 2,
+        "11": 4,
+        "12": 5,
+        "13": 3,
+        "27": 0,
+        "29": 0,
+        "31": 6,
+        "32": 8,
+        "49": 1,
+        "51": 7,
+        "52": 8,
+        "88": 4,
+        "91": 8,
+        "92": 5,
+        "109": 8,
+        "130": 5,
+        "132": 1,
+        "148": 5,
         "151": 0
       },
       "country": {
         "countryId": "aspa",
+        "mapMotifId": "salt-stair",
+        "mapMotif": {
+          "zh-CN": "无旗白阶",
+          "en": "The Flagless White Stair"
+        },
         "chapter": {
           "zh-CN": "内海七国",
           "en": "Seven Kingdoms of the Inner Sea"
@@ -821,6 +837,10 @@
         "geography": {
           "zh-CN": "北部石坡与盐路驿站",
           "en": "Northern stone slopes and salt-road stations"
+        },
+        "fallChronology": {
+          "zh-CN": "瓦罗王征战第七年 · 盐路封冻前",
+          "en": "Campaign Year Seven · before the salt road froze"
         },
         "foodAndMaterialCulture": {
           "zh-CN": "茴香热乳酪、白陶碗、盐路商队与石阶驿站。",
@@ -835,8 +855,8 @@
           "en": "The Empty Flag Above White Stair"
         },
         "fallCardBody": {
-          "zh-CN": "阿斯帕的执政官把军旗留在城墙上，带着卫队从盐路撤往北坡。帝国军抵达时只找到开着的仓库与一份逐户抄写的欠粮名册；留下的人用那份名册证明征粮早已超过约定。",
-          "en": "Aspa's governor left the army flag on the wall and withdrew with the guard along the salt road toward the northern slope. Imperial troops found only open storehouses and a household ledger of grain debts; those who remained used it to prove that the levy had already exceeded its promise."
+          "zh-CN": "阿斯帕的执政官把军旗留在城墙上，带着卫队从盐路撤往北坡。帝国军抵达时只找到开着的仓库与一份逐户抄写的欠粮名册；留下的人用那份名册证明征粮早已超过约定。\n\n证明没有换来归还。抄写员把名册裁成细条，缝进商队的鞍垫，让每一处盐路驿站都保存一小段欠下的粮。",
+          "en": "Aspa's governor left the army flag on the wall and withdrew with the guard along the salt road toward the northern slope. Imperial troops found only open storehouses and a household ledger of grain debts; those who remained used it to prove that the levy had already exceeded its promise.\n\nThe proof won back nothing. Scribes cut the ledger into strips and sewed them into caravan saddles, leaving every salt-road station with a fragment of the grain still owed."
         },
         "survivingTrace": {
           "zh-CN": "白阶城至今仍把空旗日记作一年中不开市的上午。",
@@ -856,18 +876,18 @@
         "basicSteps": 50,
         "advancedSteps": 0,
         "reasoningLevel": "basic",
-        "deductionSteps": 15,
-        "basicDeductions": 15,
+        "deductionSteps": 16,
+        "basicDeductions": 16,
         "advancedDeductions": 0,
         "smallestForcedCells": 1,
         "largestForcedCells": 6,
-        "averageForcedCells": 3.33,
+        "averageForcedCells": 3.12,
         "singleCellDeductions": 4,
         "clueDensity": 0.4,
         "brightCount": 25,
         "darkCount": 25,
         "clueMin": 0,
-        "clueMax": 9
+        "clueMax": 8
       }
     },
     {
@@ -936,27 +956,32 @@
         175
       ],
       "clues": {
-        "14": 4,
-        "15": 6,
-        "35": 9,
-        "38": 9,
-        "54": 5,
-        "55": 7,
-        "57": 6,
-        "74": 3,
-        "78": 6,
-        "93": 1,
+        "14": 0,
+        "16": 1,
+        "17": 3,
+        "18": 5,
+        "19": 4,
+        "35": 2,
+        "38": 6,
+        "56": 7,
+        "75": 6,
+        "76": 9,
+        "77": 8,
+        "99": 4,
         "113": 0,
-        "115": 0,
-        "116": 2,
-        "136": 4,
-        "138": 5,
-        "154": 0,
-        "158": 2,
-        "173": 0
+        "118": 3,
+        "136": 7,
+        "139": 0,
+        "153": 2,
+        "155": 7
       },
       "country": {
         "countryId": "cape-galan",
+        "mapMotifId": "quiet-beacon",
+        "mapMotif": {
+          "zh-CN": "静夜灯塔",
+          "en": "The Quiet-Night Beacon"
+        },
         "chapter": {
           "zh-CN": "内海七国",
           "en": "Seven Kingdoms of the Inner Sea"
@@ -968,6 +993,10 @@
         "geography": {
           "zh-CN": "多风海岬与深水锚地",
           "en": "Wind-scoured capes and deep-water anchorages"
+        },
+        "fallChronology": {
+          "zh-CN": "瓦罗王征战第九年 · 雾季末",
+          "en": "Campaign Year Nine · close of the fog season"
         },
         "foodAndMaterialCulture": {
           "zh-CN": "黑壳贝、海藻酒、铜制贝盆与领港灯塔。",
@@ -982,8 +1011,8 @@
           "en": "The Harbor Bell Did Not Ring"
         },
         "fallCardBody": {
-          "zh-CN": "迦蓝岬依靠海雾掩护船队多年。最后一夜，领港人故意熄掉外湾灯塔，让本国商船先离港；帝国舰队直到天亮才发现港内只剩拆去桅杆的旧船。",
-          "en": "For years Cape Galan hid its fleet in sea fog. On the final night, the pilots darkened the outer beacon so their merchant ships could leave first. At dawn, the imperial fleet discovered that the harbor held only old vessels stripped of their masts."
+          "zh-CN": "迦蓝岬依靠海雾掩护船队多年。最后一夜，领港人故意熄掉外湾灯塔，让本国商船先离港；帝国舰队直到天亮才发现港内只剩拆去桅杆的旧船。\n\n离港者被官册登记为溺亡，留下的人则被登记为无主户。许多年后，异地寄回的海图仍把风井港画作出发点，而不是帝国的新锚地。",
+          "en": "For years Cape Galan hid its fleet in sea fog. On the final night, the pilots darkened the outer beacon so their merchant ships could leave first. At dawn, the imperial fleet discovered that the harbor held only old vessels stripped of their masts.\n\nThe departed were entered in the rolls as drowned; those who stayed were listed as households without owners. Charts sent home years later still marked Windwell as a place of departure, not the empire's new anchorage."
         },
         "survivingTrace": {
           "zh-CN": "外湾灯塔重建后仍保留一段不点灯的石阶，领港人称它为静夜。",
@@ -1003,12 +1032,12 @@
         "basicSteps": 56,
         "advancedSteps": 0,
         "reasoningLevel": "basic",
-        "deductionSteps": 16,
-        "basicDeductions": 16,
+        "deductionSteps": 15,
+        "basicDeductions": 15,
         "advancedDeductions": 0,
         "smallestForcedCells": 1,
         "largestForcedCells": 9,
-        "averageForcedCells": 3.5,
+        "averageForcedCells": 3.73,
         "singleCellDeductions": 3,
         "clueDensity": 0.3214,
         "brightCount": 28,
@@ -1095,29 +1124,44 @@
       ],
       "clues": {
         "200": 0,
-        "201": 1,
-        "202": 3,
-        "203": 5,
-        "222": 4,
-        "223": 7,
-        "224": 8,
-        "241": 0,
-        "242": 2,
-        "245": 6,
-        "280": 0,
-        "282": 0,
-        "303": 2,
-        "306": 6,
-        "324": 5,
-        "341": 0,
-        "345": 9,
-        "362": 3,
-        "365": 9,
-        "366": 8,
-        "380": 0
+        "202": 2,
+        "203": 3,
+        "204": 4,
+        "221": 0,
+        "223": 5,
+        "224": 7,
+        "243": 6,
+        "244": 9,
+        "261": 0,
+        "265": 7,
+        "281": 1,
+        "282": 4,
+        "283": 6,
+        "284": 8,
+        "286": 4,
+        "304": 8,
+        "306": 5,
+        "320": 0,
+        "323": 7,
+        "324": 7,
+        "325": 5,
+        "342": 6,
+        "343": 8,
+        "346": 6,
+        "365": 5,
+        "380": 0,
+        "383": 4,
+        "384": 5,
+        "386": 4,
+        "387": 2
       },
       "country": {
         "countryId": "turan-valley",
+        "mapMotifId": "ninth-ferry",
+        "mapMotif": {
+          "zh-CN": "第九渡船",
+          "en": "The Ninth Ferry"
+        },
         "chapter": {
           "zh-CN": "内海七国",
           "en": "Seven Kingdoms of the Inner Sea"
@@ -1129,6 +1173,10 @@
         "geography": {
           "zh-CN": "河谷麦田与两岸水磨",
           "en": "Valley wheat fields and watermills on both banks"
+        },
+        "fallChronology": {
+          "zh-CN": "瓦罗王征战第八年 · 麦收后",
+          "en": "Campaign Year Eight · after the wheat harvest"
         },
         "foodAndMaterialCulture": {
           "zh-CN": "砂壳麦面包、水磨石、木渡船与沿岸木工。",
@@ -1143,35 +1191,35 @@
           "en": "The Ninth Boat at the Crossing"
         },
         "fallCardBody": {
-          "zh-CN": "图兰河谷答应交出八条渡船，暗中留下第九条接送逃离磨坊渡的人。告密者领帝国军来到河边时，船已被拆成门板、车轴和三十多把木铲，分散在沿岸村落。",
-          "en": "Turan Valley agreed to surrender eight ferries, keeping a ninth to carry people away from Mill Crossing. By the time an informer led imperial troops to the river, the boat had become doors, cart axles, and more than thirty wooden shovels scattered among the riverside villages."
+          "zh-CN": "图兰河谷答应交出八条渡船，暗中留下第九条接送逃离磨坊渡的人。告密者领帝国军来到河边时，船已被拆成门板、车轴和三十多把木铲，分散在沿岸村落。\n\n帝国随后收走了水磨石，河谷人便在夜里轮流使用仅存的一座小磨坊。多年间，谁家门板上出现旧船钉，谁家就先得到一袋新麦。",
+          "en": "Turan Valley agreed to surrender eight ferries, keeping a ninth to carry people away from Mill Crossing. By the time an informer led imperial troops to the river, the boat had become doors, cart axles, and more than thirty wooden shovels scattered among the riverside villages.\n\nThe empire then took the millstones, so the valley shared its last small mill by night. For years, any household whose door showed an old boat nail received the first sack of new wheat."
         },
         "survivingTrace": {
           "zh-CN": "河谷婚礼仍会赠送一把没有上漆的小木铲，据说木料来自那条船。",
           "en": "Valley weddings still include the gift of a small unpainted wooden shovel, said to be cut from that boat."
         },
         "mapRevealConcept": {
-          "zh-CN": "九条渡船的航线重回河面，其中一条在村落间分解为细小木纹。",
-          "en": "Nine ferry routes return to the river; one dissolves among the villages into fine lines of wood grain."
+          "zh-CN": "蜿蜒河道与第九条渡船的尾波重回图上，航迹在村落间分解为细小木纹。",
+          "en": "The winding river and the ninth ferry's wake return to the map, dissolving among the villages into fine lines of wood grain."
         }
       },
       "metrics": {
         "fullClueCount": 67,
-        "visibleClueCount": 21,
+        "visibleClueCount": 31,
         "uniqueVerified": true,
         "solverSteps": 67,
         "firstForcedCells": 4,
         "basicSteps": 67,
         "advancedSteps": 0,
         "reasoningLevel": "basic",
-        "deductionSteps": 17,
-        "basicDeductions": 17,
+        "deductionSteps": 27,
+        "basicDeductions": 27,
         "advancedDeductions": 0,
         "smallestForcedCells": 1,
         "largestForcedCells": 9,
-        "averageForcedCells": 3.94,
-        "singleCellDeductions": 3,
-        "clueDensity": 0.3134,
+        "averageForcedCells": 2.48,
+        "singleCellDeductions": 15,
+        "clueDensity": 0.4627,
         "brightCount": 33,
         "darkCount": 34,
         "clueMin": 0,
@@ -1260,28 +1308,37 @@
       "clues": {
         "167": 5,
         "168": 6,
+        "169": 6,
         "185": 4,
         "186": 7,
         "187": 8,
         "188": 9,
-        "190": 9,
-        "213": 2,
-        "231": 2,
-        "247": 6,
-        "249": 3,
-        "250": 1,
-        "251": 0,
-        "269": 1,
-        "272": 0,
+        "192": 6,
+        "206": 8,
+        "212": 5,
+        "213": 3,
+        "229": 7,
+        "252": 2,
+        "266": 2,
+        "267": 2,
+        "268": 4,
+        "270": 4,
         "287": 0,
-        "289": 0,
-        "328": 6,
-        "331": 0,
-        "347": 5,
-        "369": 3
+        "289": 3,
+        "292": 0,
+        "327": 0,
+        "328": 1,
+        "350": 0,
+        "370": 0,
+        "388": 0
       },
       "country": {
         "countryId": "melosa",
+        "mapMotifId": "seven-bridges",
+        "mapMotif": {
+          "zh-CN": "第七座无名桥",
+          "en": "The Unnamed Seventh Bridge"
+        },
         "chapter": {
           "zh-CN": "内海七国",
           "en": "Seven Kingdoms of the Inner Sea"
@@ -1293,6 +1350,10 @@
         "geography": {
           "zh-CN": "内海丘原与石桥商道",
           "en": "Inner-sea uplands and stone-bridge trade roads"
+        },
+        "fallChronology": {
+          "zh-CN": "瓦罗王征战第十二年 · 围城第四十一日",
+          "en": "Campaign Year Twelve · the forty-first day of the siege"
         },
         "foodAndMaterialCulture": {
           "zh-CN": "七桥香草、烤禽、石拱商道与桥市行会。",
@@ -1307,35 +1368,35 @@
           "en": "The Seventh Bridge"
         },
         "fallCardBody": {
-          "zh-CN": "梅罗萨在六座桥上布防，却把最旧的第七桥留给逃难者。守军投降后，帝国史官把那座桥从军图中抹去，因为它证明围城并不完整，也证明有人在封锁中离开。",
-          "en": "Melosa fortified six bridges and left the oldest, the seventh, to those fleeing the city. After the garrison surrendered, imperial historians erased it from their campaign map, because it proved both that the siege had gaps and that people escaped through them."
+          "zh-CN": "梅罗萨在六座桥上布防，却把最旧的第七桥留给逃难者。守军投降后，帝国史官把那座桥从军图中抹去，因为它证明围城并不完整，也证明有人在封锁中离开。\n\n逃难者在山路上拆掉路牌，不让追兵知道桥通往哪里。后来重修商道的人找回了桥，却只找回彼此矛盾的三个旧名。",
+          "en": "Melosa fortified six bridges and left the oldest, the seventh, to those fleeing the city. After the garrison surrendered, imperial historians erased it from their campaign map, because it proved both that the siege had gaps and that people escaped through them.\n\nThe refugees removed the mountain road signs so no pursuit would know where the bridge led. When the trade road was rebuilt, surveyors found the bridge again—and three old names that contradicted one another."
         },
         "survivingTrace": {
           "zh-CN": "后世地图恢复了第七桥的位置，但桥名一栏至今空白。",
           "en": "Later maps restored the seventh bridge, though the space reserved for its name remains blank."
         },
         "mapRevealConcept": {
-          "zh-CN": "七道桥拱依次显影，最旧的一座仍不显示名称。",
-          "en": "Seven bridge arches surface in sequence; the oldest still bears no name."
+          "zh-CN": "最旧那座桥的桥面与桥墩重新显影，图上仍没有它的名字。",
+          "en": "The deck and piers of the oldest bridge surface again; the map still gives it no name."
         }
       },
       "metrics": {
         "fullClueCount": 70,
-        "visibleClueCount": 21,
+        "visibleClueCount": 25,
         "uniqueVerified": true,
         "solverSteps": 70,
         "firstForcedCells": 5,
         "basicSteps": 70,
         "advancedSteps": 0,
         "reasoningLevel": "basic",
-        "deductionSteps": 20,
-        "basicDeductions": 20,
+        "deductionSteps": 24,
+        "basicDeductions": 24,
         "advancedDeductions": 0,
         "smallestForcedCells": 1,
-        "largestForcedCells": 7,
-        "averageForcedCells": 3.5,
+        "largestForcedCells": 8,
+        "averageForcedCells": 2.92,
         "singleCellDeductions": 6,
-        "clueDensity": 0.3,
+        "clueDensity": 0.3571,
         "brightCount": 35,
         "darkCount": 35,
         "clueMin": 0,
@@ -1407,30 +1468,33 @@
         399
       ],
       "clues": {
-        "233": 2,
-        "234": 3,
-        "254": 4,
-        "273": 0,
-        "293": 0,
-        "295": 3,
-        "297": 3,
-        "314": 1,
-        "315": 1,
-        "332": 1,
-        "335": 3,
-        "337": 4,
-        "338": 6,
-        "339": 5,
-        "354": 6,
-        "356": 2,
-        "373": 8,
-        "374": 9,
-        "377": 3,
-        "391": 2,
-        "399": 4
+        "233": 0,
+        "253": 2,
+        "254": 3,
+        "273": 4,
+        "274": 6,
+        "275": 6,
+        "293": 7,
+        "294": 9,
+        "312": 5,
+        "313": 8,
+        "317": 5,
+        "336": 9,
+        "338": 3,
+        "354": 8,
+        "372": 1,
+        "392": 0,
+        "394": 2,
+        "396": 1,
+        "399": 0
       },
       "country": {
         "countryId": "urshan",
+        "mapMotifId": "broken-seal",
+        "mapMotif": {
+          "zh-CN": "缺角王印",
+          "en": "The Broken Royal Seal"
+        },
         "chapter": {
           "zh-CN": "内海七国",
           "en": "Seven Kingdoms of the Inner Sea"
@@ -1442,6 +1506,10 @@
         "geography": {
           "zh-CN": "盐沼、高堤与染料作坊",
           "en": "Salt marshes, high dikes, and dye works"
+        },
+        "fallChronology": {
+          "zh-CN": "瓦罗王征战第十一年 · 紫盐月",
+          "en": "Campaign Year Eleven · Violet Salt Month"
         },
         "foodAndMaterialCulture": {
           "zh-CN": "紫盐炖梨、盐罐、染缸与高堤作坊。",
@@ -1456,8 +1524,8 @@
           "en": "The Seal in the Dye Vat"
         },
         "fallCardBody": {
-          "zh-CN": "乌尔珊宫廷在政变中更换了三次城门口令。最后一位守将把旧王印投入染缸，向帝国使者声称国家已经没有可以签署降书的人。围城仍继续了十二日。",
-          "en": "During the coup, Urshan's court changed the gate password three times. The final commander threw the old royal seal into a dye vat and told the imperial envoy that no one remained who could sign a surrender. The siege continued for twelve more days."
+          "zh-CN": "乌尔珊宫廷在政变中更换了三次城门口令。最后一位守将把旧王印投入染缸，向帝国使者声称国家已经没有可以签署降书的人。围城仍继续了十二日。\n\n染坊停火后，高堤水渠仍有数月呈淡紫色。帝国把那颜色记作胜利庆典的染料，作坊账册却说，那是被倒掉的冬衣与未交付的布。",
+          "en": "During the coup, Urshan's court changed the gate password three times. The final commander threw the old royal seal into a dye vat and told the imperial envoy that no one remained who could sign a surrender. The siege continued for twelve more days.\n\nAfter the dye works went cold, the high-dike channels remained pale violet for months. The empire recorded the color as dye for a victory festival; workshop ledgers called it winter clothing and cloth that would never be delivered."
         },
         "survivingTrace": {
           "zh-CN": "紫盐堡出土的王印被染料蚀去一角，无法确认最后使用它的是哪一位君主。",
@@ -1470,21 +1538,21 @@
       },
       "metrics": {
         "fullClueCount": 55,
-        "visibleClueCount": 21,
+        "visibleClueCount": 19,
         "uniqueVerified": true,
         "solverSteps": 55,
-        "firstForcedCells": 6,
+        "firstForcedCells": 4,
         "basicSteps": 55,
         "advancedSteps": 0,
         "reasoningLevel": "basic",
-        "deductionSteps": 21,
-        "basicDeductions": 21,
+        "deductionSteps": 18,
+        "basicDeductions": 18,
         "advancedDeductions": 0,
         "smallestForcedCells": 1,
-        "largestForcedCells": 9,
-        "averageForcedCells": 2.62,
-        "singleCellDeductions": 9,
-        "clueDensity": 0.3818,
+        "largestForcedCells": 8,
+        "averageForcedCells": 3.06,
+        "singleCellDeductions": 4,
+        "clueDensity": 0.3455,
         "brightCount": 27,
         "darkCount": 28,
         "clueMin": 0,
@@ -1534,19 +1602,31 @@
         319
       ],
       "clues": {
-        "159": 3,
+        "159": 0,
         "176": 5,
-        "177": 6,
-        "178": 7,
-        "194": 4,
-        "219": 2,
-        "235": 1,
-        "236": 0,
-        "258": 0,
-        "299": 3
+        "177": 5,
+        "178": 3,
+        "179": 1,
+        "193": 2,
+        "196": 7,
+        "198": 4,
+        "199": 1,
+        "215": 6,
+        "216": 8,
+        "217": 8,
+        "235": 3,
+        "238": 4,
+        "278": 1,
+        "298": 1,
+        "299": 0
       },
       "country": {
         "countryId": "pel-island",
+        "mapMotifId": "sail-less-shore",
+        "mapMotif": {
+          "zh-CN": "无帆砾湾",
+          "en": "Shingle Bay Without Sails"
+        },
         "chapter": {
           "zh-CN": "内海七国",
           "en": "Seven Kingdoms of the Inner Sea"
@@ -1558,6 +1638,10 @@
         "geography": {
           "zh-CN": "东部小岛、砾滩与浅湾",
           "en": "Eastern islets, shingle beaches, and shallow bays"
+        },
+        "fallChronology": {
+          "zh-CN": "瓦罗王征战第六年 · 退潮季",
+          "en": "Campaign Year Six · low-tide season"
         },
         "foodAndMaterialCulture": {
           "zh-CN": "浅金小蟹、渔叉、船帆与海蚀洞储粮。",
@@ -1572,8 +1656,8 @@
           "en": "The Island Was Remembered First"
         },
         "fallCardBody": {
-          "zh-CN": "佩尔岛没有城墙。岛民把粮食和船帆藏进海蚀洞，随后在砾湾列队交出渔叉。帝国记录把这写成一次迅速而体面的归顺，却没有记下当年冬天所有船只都被征走。",
-          "en": "Pel Island had no walls. Its people hid grain and sails in sea caves, then lined up at Shingle Bay to surrender their fishing spears. Imperial records called it a swift and dignified submission, but did not record that every boat was requisitioned that winter."
+          "zh-CN": "佩尔岛没有城墙。岛民把粮食和船帆藏进海蚀洞，随后在砾湾列队交出渔叉。帝国记录把这写成一次迅速而体面的归顺，却没有记下当年冬天所有船只都被征走。\n\n失去船的人沿着退潮线步行去相邻村落，用晒干的小蟹换粮。老人把海蚀洞的位置编进一首没有文字的数潮歌，只在孩子第一次独自赶海时教给他们。",
+          "en": "Pel Island had no walls. Its people hid grain and sails in sea caves, then lined up at Shingle Bay to surrender their fishing spears. Imperial records called it a swift and dignified submission, but did not record that every boat was requisitioned that winter.\n\nWithout boats, people walked the low-tide line to neighboring villages and traded dried shore crabs for grain. Elders set the sea caves into an unwritten tide-counting song, taught only when a child first went to the shore alone."
         },
         "survivingTrace": {
           "zh-CN": "岛上的旧历法把那一年称作无帆之冬，而不是瓦罗王纪年的第一年。",
@@ -1586,25 +1670,25 @@
       },
       "metrics": {
         "fullClueCount": 33,
-        "visibleClueCount": 10,
+        "visibleClueCount": 17,
         "uniqueVerified": true,
         "solverSteps": 33,
         "firstForcedCells": 3,
         "basicSteps": 33,
         "advancedSteps": 0,
         "reasoningLevel": "basic",
-        "deductionSteps": 9,
-        "basicDeductions": 9,
+        "deductionSteps": 14,
+        "basicDeductions": 14,
         "advancedDeductions": 0,
         "smallestForcedCells": 1,
-        "largestForcedCells": 8,
-        "averageForcedCells": 3.67,
-        "singleCellDeductions": 2,
-        "clueDensity": 0.303,
+        "largestForcedCells": 5,
+        "averageForcedCells": 2.36,
+        "singleCellDeductions": 6,
+        "clueDensity": 0.5152,
         "brightCount": 16,
         "darkCount": 17,
         "clueMin": 0,
-        "clueMax": 7
+        "clueMax": 8
       }
     }
   ]

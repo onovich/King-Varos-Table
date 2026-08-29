@@ -129,7 +129,7 @@ class LocalizedLevelContractTests(unittest.TestCase):
         for region in payload["regions"]:
             self.assertEqual(set(region["name"]), locales)
             for key, value in region["country"].items():
-                if key == "countryId":
+                if key in {"countryId", "mapMotifId"}:
                     continue
                 self.assertEqual(set(value), locales, f"{region['id']}:{key}")
 

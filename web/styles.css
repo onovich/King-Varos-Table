@@ -1148,12 +1148,43 @@ h2 {
   line-height: 1.6;
 }
 
+.story-chronology {
+  margin: -8px 0 20px;
+  color: var(--signal);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .story-body {
   margin-bottom: 26px;
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
   font-size: clamp(1rem, 2.2vw, 1.18rem);
   line-height: 1.9;
   white-space: pre-line;
+}
+
+.map-reveal {
+  margin: 0 0 24px;
+  padding: 16px 18px;
+  color: var(--ink-soft);
+  background: rgba(23, 39, 41, 0.045);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.map-reveal strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
+  font-size: 1rem;
+}
+
+.map-reveal p:last-child {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.65;
 }
 
 .epilogue-body {

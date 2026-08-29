@@ -138,11 +138,14 @@ country_id
 country_name_zh / country_name_en
 capital_or_focus_city
 geography
+fall_chronology
 food_and_material_culture
 banquet_insert
 fall_card_title
 fall_card_body
 surviving_trace
+map_motif_id
+map_motif_name_zh / map_motif_name_en
 map_reveal_concept
 chapter
 completion_order_constraints（可选）
@@ -167,13 +170,15 @@ arrival → first service → appetite rising → feast at its height
 4. 第一个小国必须足够小，使第一次亡国揭示在合理时间内发生。
 5. 国家完成后必须同时改变地图状态、弹出独立故事卡并进入可重读档案。
 6. 垂直切片使用版本化本地存档保存棋盘、国家和晚宴进度。
+7. 第一章的最终亮暗答案采用七种独立国别图案；图案必须来自当地地貌、器物或历史记录，并继续满足逐国亮暗均衡、直推和唯一解。
+8. 亡国故事卡显示固定史年与地图显影说明，把终局图案和历史记录明确接在一起。
 
 完整验收范围见 [第一国陷落垂直切片](../development/first-fall-vertical-slice.md)。
 
 ### 仍待原型验证
 
 1. 统一叙述者在世界内的身份：无名档案编者、宫廷记录的后世整理者，或只保留无人格的全知叙述。
-2. 地图完成后最终使用纹章、历史颜色还是复原插画表达国家状态；垂直切片先使用克制的临时完成态。
+2. 七国图案的最终美术层级：继续保留纯亮暗像素图，还是在完成后叠加纸张、印色或轻量显影动画。
 3. 文字本地化时，英文与中文是同一文本的自然改写，还是共享事实、分别创作；无论选择哪种，都不能靠生硬直译维持句式机关。
 
 ## 12. 研究参照

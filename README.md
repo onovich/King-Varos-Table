@@ -35,6 +35,7 @@ The interface, dynamic hints, accessibility labels, tutorials, banquet, country 
 ## Features
 
 - Four committed boards: three progressive tutorials and one seven-country formal map.
+- Seven authored country motifs turn each formal-map solution into local geography, architecture, or an archival object rather than random texture.
 - Region-clipped clue values from 0 to 9, with every region directly solvable from visible clues.
 - MiniZinc verification that no committed region admits a second solution.
 - Trace-based difficulty profiles that separate basic versus advanced reasoning from short, medium, or long workload.
@@ -87,6 +88,7 @@ npm run report:difficulty
 - [Hint-system guardrails](docs/design/hint-system.md)
 - [Prologue and level-book architecture](docs/development/prologue-and-level-book.md)
 - [Difficulty-grading contract](docs/development/difficulty-grading.md)
+- [Chapter-one content and motif contract](docs/development/chapter-one-content.md)
 - [Touch and keyboard controls](docs/development/touch-and-keyboard-controls.md)
 - [Drag-painting contract](docs/development/drag-painting.md)
 - [Undo/redo history contract](docs/development/undo-redo-history.md)
@@ -95,7 +97,7 @@ npm run report:difficulty
 
 ## Status
 
-Version `0.8.0` adds generated difficulty profiles and a catalog-wide quality report to the playable campaign slice. Difficulty now counts player-visible clue deductions rather than treating every resolved cell as a separate reasoning step; advanced subset-difference traces cannot be mislabeled as tutorial or standard. All 54 automated tests pass.
+Version `0.9.0` turns the Seven Kingdoms from random solution texture into seven authored map motifs. Each fall record now identifies the restored image and its fixed place in the conquest chronology, while generation still enforces balanced light/dark cells, direct no-guess solving, and MiniZinc uniqueness.
 
 There is no hosted public demo. Additional chapters, final art, production balancing, and a dedicated touch-drag gesture remain to be built.
 

@@ -320,6 +320,43 @@ assert.equal(populateEpilogueDialog({ campaign: {} }, elements, i18n), false);
 '''
         )
 
+    def test_fall_record_connects_the_solved_motif_to_the_country_story(self):
+        self.run_node(
+            r'''
+import assert from "node:assert/strict";
+import { populateFallDialog } from "./web/campaign-ui.mjs";
+import { createI18n } from "./web/i18n.mjs";
+
+const level = {
+  regions: [{
+    id: 0,
+    name: { en: "Loven", "zh-CN": "洛汶" },
+    country: {
+      capitalOrFocusCity: { en: "Elm Dike", "zh-CN": "榆堤城" },
+      geography: { en: "river lowlands", "zh-CN": "河网低地" },
+      fallChronology: { en: "Campaign Year Ten", "zh-CN": "征战第十年" },
+      fallCardTitle: { en: "Before the gates closed", "zh-CN": "河闸闭合之前" },
+      fallCardBody: { en: "The city opened.", "zh-CN": "城门打开了。" },
+      survivingTrace: { en: "The key survived.", "zh-CN": "钥匙留存下来。" },
+      mapMotif: { en: "The Sunken-Key Sluice", "zh-CN": "沉钥水门" },
+      mapRevealConcept: {
+        en: "Waterways and sluice gates emerge.",
+        "zh-CN": "河网与水门逐渐显现。",
+      },
+    },
+  }],
+};
+const elements = Object.fromEntries([
+  "country", "title", "place", "chronology", "body", "trace", "motif", "reveal",
+].map((key) => [key, { textContent: "" }]));
+
+assert.equal(populateFallDialog(level, 0, elements, createI18n("en")), true);
+assert.equal(elements.motif.textContent, "The Sunken-Key Sluice");
+assert.equal(elements.reveal.textContent, "Waterways and sluice gates emerge.");
+assert.equal(elements.chronology.textContent, "Campaign Year Ten");
+'''
+        )
+
     def test_epilogue_joins_the_archive_only_after_it_has_been_revealed(self):
         self.run_node(
             r'''

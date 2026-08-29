@@ -136,6 +136,9 @@ const refs = {
   fallCountry: document.querySelector("#fallCountry"),
   fallCardTitle: document.querySelector("#fallCardTitle"),
   fallPlace: document.querySelector("#fallPlace"),
+  fallChronology: document.querySelector("#fallChronology"),
+  fallMapMotif: document.querySelector("#fallMapMotif"),
+  fallMapReveal: document.querySelector("#fallMapReveal"),
   fallCardBody: document.querySelector("#fallCardBody"),
   fallSurvivingTrace: document.querySelector("#fallSurvivingTrace"),
   epilogueDialog: document.querySelector("#epilogueDialog"),
@@ -147,6 +150,17 @@ const refs = {
   epilogueTrace: document.querySelector("#epilogueTrace"),
   languageOptions: [...document.querySelectorAll("[data-locale]")],
 };
+
+const fallDialogElements = Object.freeze({
+  country: refs.fallCountry,
+  title: refs.fallCardTitle,
+  place: refs.fallPlace,
+  chronology: refs.fallChronology,
+  motif: refs.fallMapMotif,
+  reveal: refs.fallMapReveal,
+  body: refs.fallCardBody,
+  trace: refs.fallSurvivingTrace,
+});
 
 const state = {
   manifest: null,
@@ -367,13 +381,7 @@ function openStoryDialog(
   archiveOnClose = false,
 ) {
   if (
-    !populateFallDialog(state.level, regionId, {
-      country: refs.fallCountry,
-      title: refs.fallCardTitle,
-      place: refs.fallPlace,
-      body: refs.fallCardBody,
-      trace: refs.fallSurvivingTrace,
-    }, i18n)
+    !populateFallDialog(state.level, regionId, fallDialogElements, i18n)
   ) {
     return;
   }
@@ -1477,13 +1485,12 @@ function updateLanguageSwitcher() {
 
 function renderOpenNarrative() {
   if (refs.fallDialog.open && state.activeStoryRegionId !== null) {
-    populateFallDialog(state.level, state.activeStoryRegionId, {
-      country: refs.fallCountry,
-      title: refs.fallCardTitle,
-      place: refs.fallPlace,
-      body: refs.fallCardBody,
-      trace: refs.fallSurvivingTrace,
-    }, i18n);
+    populateFallDialog(
+      state.level,
+      state.activeStoryRegionId,
+      fallDialogElements,
+      i18n,
+    );
   }
   if (refs.epilogueDialog.open) {
     populateEpilogueDialog(state.level, {

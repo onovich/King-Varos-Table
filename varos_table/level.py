@@ -21,6 +21,7 @@ from .difficulty import (
     summarise_level_difficulty,
 )
 from .minizinc_check import verify_unique
+from .motifs import build_motif_target
 from .solver import Constraint, DirectClueSolver, SolveResult
 
 
@@ -222,33 +223,6 @@ def _solve_region(
     ).solve()
 
 
-def _make_balanced_target(width: int, height: int, region_map: list[int], rng: random.Random) -> list[int]:
-    """Make smooth, dense light/dark fields with an even split per region.
-
-    Uniformly scattered bits almost never expose a complete chain of direct
-    zero/full deductions. Blurring a seeded random field first creates the
-    contiguous runs found in hand-authored Fill-a-Pix art while retaining an
-    exact 1:1 light/dark balance inside every demo region.
-    """
-
-    scores = [rng.random() for _ in range(width * height)]
-    for _ in range(2):
-        smoothed_scores: list[float] = []
-        for index in range(width * height):
-            neighbourhood = neighbours_for_cell(width, height, region_map, index)
-            smoothed_scores.append(sum(scores[cell] for cell in neighbourhood) / len(neighbourhood))
-        scores = smoothed_scores
-
-    target = [0] * (width * height)
-    for region_id in sorted(set(region_map)):
-        cells = list(_region_cells(region_map, region_id))
-        cells.sort(key=lambda cell: (scores[cell], cell), reverse=True)
-        bright_count = len(cells) // 2
-        for cell in cells[:bright_count]:
-            target[cell] = 1
-    return target
-
-
 def _prune_region(
     width: int,
     height: int,
@@ -301,9 +275,23 @@ def build_level(
         raise ValueError("chapter-one country metadata contains duplicate region ids")
     if set(region_ids) != set(countries_by_region_id):
         raise ValueError("chapter-one region metadata must match the generated map")
+    motif_by_region = {
+        region_id: str(country["mapMotifId"])
+        for region_id, country in countries_by_region_id.items()
+    }
     for attempt in range(1, max_attempts + 1):
         rng = random.Random(seed + attempt * 1009)
-        target = _make_balanced_target(width, height, base_region_map, rng)
+        target = list(
+            build_motif_target(
+                width,
+                height,
+                base_region_map,
+                motif_by_region,
+                variation_seed=(
+                    None if attempt == 1 else seed + attempt * 1009
+                ),
+            )
+        )
         full_clues = calculate_clues(width, height, base_region_map, target)
         if require_full_clue_range and (min(full_clues) != 0 or max(full_clues) != 9):
             continue

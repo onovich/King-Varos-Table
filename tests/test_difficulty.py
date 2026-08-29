@@ -120,9 +120,9 @@ class GeneratedDifficultyTests(unittest.TestCase):
         self.assertEqual(profile["reasoningLevel"], "basic")
         self.assertEqual(profile["effort"], "long")
         self.assertEqual(profile["cellCount"], 400)
-        self.assertEqual(profile["visibleClueCount"], 137)
-        self.assertEqual(profile["deductionSteps"], 119)
-        self.assertEqual(profile["maxRegionDeductionSteps"], 21)
+        self.assertEqual(profile["visibleClueCount"], 158)
+        self.assertEqual(profile["deductionSteps"], 139)
+        self.assertEqual(profile["maxRegionDeductionSteps"], 27)
         self.assertEqual(profile["advancedDeductions"], 0)
 
     def test_manifest_copies_generated_labels_instead_of_hardcoding_them(self):
@@ -177,7 +177,7 @@ class DifficultyReportTests(unittest.TestCase):
             ["tutorial", "tutorial", "tutorial", "standard"],
         )
         inner_sea = report["levels"][-1]
-        self.assertEqual(inner_sea["deductionSteps"], 119)
+        self.assertEqual(inner_sea["deductionSteps"], 139)
         self.assertEqual(inner_sea["advancedDeductions"], 0)
         self.assertEqual(len(inner_sea["regions"]), 7)
 

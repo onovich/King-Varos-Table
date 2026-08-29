@@ -29,11 +29,14 @@ COUNTRIES: Final = (
     {
         "regionId": 0,
         "countryId": "loven-lowlands",
+        "mapMotifId": "sluice-key",
+        "mapMotif": localized("沉钥水门", "The Sunken-Key Sluice"),
         "accent": "ochre",
         "name": localized("洛汶低地", "Loven Lowlands"),
         "chapter": CHAPTER_NAME,
         "capitalOrFocusCity": localized("榆堤城", "Elm Dike"),
         "geography": localized("低地河网与季节性湿原", "Lowland waterways and seasonal marshes"),
+        "fallChronology": localized("瓦罗王征战第十年 · 融雪月", "Campaign Year Ten · Thaw Month"),
         "foodAndMaterialCulture": localized(
             "榆烟熏鱼、酸草、河闸铜器与芦苇编席。",
             "Elm-smoked fish, sour herbs, bronze sluiceware, and woven reed mats.",
@@ -44,8 +47,8 @@ COUNTRIES: Final = (
         ),
         "fallCardTitle": localized("河闸闭合之前", "Before the Sluice Gates Closed"),
         "fallCardBody": localized(
-            "洛汶议会原以为拆去东堤就能拖慢帝国骑兵，却先让三座村镇失去了归路。榆堤城在第六日开门，守闸人把铜钥匙沉进河心，没有参加受降仪式。",
-            "The Loven council believed that dismantling the eastern dike would slow the imperial cavalry. Instead, three villages lost their way home. Elm Dike opened its gates on the sixth day; the keeper sank the bronze key in midstream and did not attend the surrender.",
+            "洛汶议会原以为拆去东堤就能拖慢帝国骑兵，却先让三座村镇失去了归路。榆堤城在第六日开门，守闸人把铜钥匙沉进河心，没有参加受降仪式。\n\n春水退去后，帝国测绘官把那三座村镇涂成一片无人湿地；幸存者仍按旧钟声渡河，仿佛纸上的空白从未发生。",
+            "The Loven council believed that dismantling the eastern dike would slow the imperial cavalry. Instead, three villages lost their way home. Elm Dike opened its gates on the sixth day; the keeper sank the bronze key in midstream and did not attend the surrender.\n\nWhen the spring water withdrew, imperial surveyors painted the three villages as empty marsh. Those who survived still crossed at the old bell, as though the blank place on the map had never happened.",
         ),
         "survivingTrace": localized(
             "后世修闸时捞出一枚没有齿纹的铜钥匙，现藏于榆堤档案室。",
@@ -59,11 +62,14 @@ COUNTRIES: Final = (
     {
         "regionId": 1,
         "countryId": "aspa",
+        "mapMotifId": "salt-stair",
+        "mapMotif": localized("无旗白阶", "The Flagless White Stair"),
         "accent": "cobalt",
         "name": localized("阿斯帕", "Aspa"),
         "chapter": CHAPTER_NAME,
         "capitalOrFocusCity": localized("白阶城", "White Stair"),
         "geography": localized("北部石坡与盐路驿站", "Northern stone slopes and salt-road stations"),
+        "fallChronology": localized("瓦罗王征战第七年 · 盐路封冻前", "Campaign Year Seven · before the salt road froze"),
         "foodAndMaterialCulture": localized(
             "茴香热乳酪、白陶碗、盐路商队与石阶驿站。",
             "Hot fennel cheese, white pottery, salt-road caravans, and stone-stepped stations.",
@@ -74,8 +80,8 @@ COUNTRIES: Final = (
         ),
         "fallCardTitle": localized("白阶上的空旗", "The Empty Flag Above White Stair"),
         "fallCardBody": localized(
-            "阿斯帕的执政官把军旗留在城墙上，带着卫队从盐路撤往北坡。帝国军抵达时只找到开着的仓库与一份逐户抄写的欠粮名册；留下的人用那份名册证明征粮早已超过约定。",
-            "Aspa's governor left the army flag on the wall and withdrew with the guard along the salt road toward the northern slope. Imperial troops found only open storehouses and a household ledger of grain debts; those who remained used it to prove that the levy had already exceeded its promise.",
+            "阿斯帕的执政官把军旗留在城墙上，带着卫队从盐路撤往北坡。帝国军抵达时只找到开着的仓库与一份逐户抄写的欠粮名册；留下的人用那份名册证明征粮早已超过约定。\n\n证明没有换来归还。抄写员把名册裁成细条，缝进商队的鞍垫，让每一处盐路驿站都保存一小段欠下的粮。",
+            "Aspa's governor left the army flag on the wall and withdrew with the guard along the salt road toward the northern slope. Imperial troops found only open storehouses and a household ledger of grain debts; those who remained used it to prove that the levy had already exceeded its promise.\n\nThe proof won back nothing. Scribes cut the ledger into strips and sewed them into caravan saddles, leaving every salt-road station with a fragment of the grain still owed.",
         ),
         "survivingTrace": localized(
             "白阶城至今仍把空旗日记作一年中不开市的上午。",
@@ -89,11 +95,14 @@ COUNTRIES: Final = (
     {
         "regionId": 2,
         "countryId": "cape-galan",
+        "mapMotifId": "quiet-beacon",
+        "mapMotif": localized("静夜灯塔", "The Quiet-Night Beacon"),
         "accent": "slate",
         "name": localized("迦蓝岬", "Cape Galan"),
         "chapter": CHAPTER_NAME,
         "capitalOrFocusCity": localized("风井港", "Windwell Harbor"),
         "geography": localized("多风海岬与深水锚地", "Wind-scoured capes and deep-water anchorages"),
+        "fallChronology": localized("瓦罗王征战第九年 · 雾季末", "Campaign Year Nine · close of the fog season"),
         "foodAndMaterialCulture": localized(
             "黑壳贝、海藻酒、铜制贝盆与领港灯塔。",
             "Black-shell mussels, seaweed wine, copper shell basins, and pilot beacons.",
@@ -104,8 +113,8 @@ COUNTRIES: Final = (
         ),
         "fallCardTitle": localized("港钟没有敲响", "The Harbor Bell Did Not Ring"),
         "fallCardBody": localized(
-            "迦蓝岬依靠海雾掩护船队多年。最后一夜，领港人故意熄掉外湾灯塔，让本国商船先离港；帝国舰队直到天亮才发现港内只剩拆去桅杆的旧船。",
-            "For years Cape Galan hid its fleet in sea fog. On the final night, the pilots darkened the outer beacon so their merchant ships could leave first. At dawn, the imperial fleet discovered that the harbor held only old vessels stripped of their masts.",
+            "迦蓝岬依靠海雾掩护船队多年。最后一夜，领港人故意熄掉外湾灯塔，让本国商船先离港；帝国舰队直到天亮才发现港内只剩拆去桅杆的旧船。\n\n离港者被官册登记为溺亡，留下的人则被登记为无主户。许多年后，异地寄回的海图仍把风井港画作出发点，而不是帝国的新锚地。",
+            "For years Cape Galan hid its fleet in sea fog. On the final night, the pilots darkened the outer beacon so their merchant ships could leave first. At dawn, the imperial fleet discovered that the harbor held only old vessels stripped of their masts.\n\nThe departed were entered in the rolls as drowned; those who stayed were listed as households without owners. Charts sent home years later still marked Windwell as a place of departure, not the empire's new anchorage.",
         ),
         "survivingTrace": localized(
             "外湾灯塔重建后仍保留一段不点灯的石阶，领港人称它为静夜。",
@@ -119,11 +128,14 @@ COUNTRIES: Final = (
     {
         "regionId": 3,
         "countryId": "turan-valley",
+        "mapMotifId": "ninth-ferry",
+        "mapMotif": localized("第九渡船", "The Ninth Ferry"),
         "accent": "verdigris",
         "name": localized("图兰河谷", "Turan Valley"),
         "chapter": CHAPTER_NAME,
         "capitalOrFocusCity": localized("磨坊渡", "Mill Crossing"),
         "geography": localized("河谷麦田与两岸水磨", "Valley wheat fields and watermills on both banks"),
+        "fallChronology": localized("瓦罗王征战第八年 · 麦收后", "Campaign Year Eight · after the wheat harvest"),
         "foodAndMaterialCulture": localized(
             "砂壳麦面包、水磨石、木渡船与沿岸木工。",
             "Sand-crusted wheat bread, millstones, wooden ferries, and riverside carpentry.",
@@ -134,26 +146,29 @@ COUNTRIES: Final = (
         ),
         "fallCardTitle": localized("渡口的第九条船", "The Ninth Boat at the Crossing"),
         "fallCardBody": localized(
-            "图兰河谷答应交出八条渡船，暗中留下第九条接送逃离磨坊渡的人。告密者领帝国军来到河边时，船已被拆成门板、车轴和三十多把木铲，分散在沿岸村落。",
-            "Turan Valley agreed to surrender eight ferries, keeping a ninth to carry people away from Mill Crossing. By the time an informer led imperial troops to the river, the boat had become doors, cart axles, and more than thirty wooden shovels scattered among the riverside villages.",
+            "图兰河谷答应交出八条渡船，暗中留下第九条接送逃离磨坊渡的人。告密者领帝国军来到河边时，船已被拆成门板、车轴和三十多把木铲，分散在沿岸村落。\n\n帝国随后收走了水磨石，河谷人便在夜里轮流使用仅存的一座小磨坊。多年间，谁家门板上出现旧船钉，谁家就先得到一袋新麦。",
+            "Turan Valley agreed to surrender eight ferries, keeping a ninth to carry people away from Mill Crossing. By the time an informer led imperial troops to the river, the boat had become doors, cart axles, and more than thirty wooden shovels scattered among the riverside villages.\n\nThe empire then took the millstones, so the valley shared its last small mill by night. For years, any household whose door showed an old boat nail received the first sack of new wheat.",
         ),
         "survivingTrace": localized(
             "河谷婚礼仍会赠送一把没有上漆的小木铲，据说木料来自那条船。",
             "Valley weddings still include the gift of a small unpainted wooden shovel, said to be cut from that boat.",
         ),
         "mapRevealConcept": localized(
-            "九条渡船的航线重回河面，其中一条在村落间分解为细小木纹。",
-            "Nine ferry routes return to the river; one dissolves among the villages into fine lines of wood grain.",
+            "蜿蜒河道与第九条渡船的尾波重回图上，航迹在村落间分解为细小木纹。",
+            "The winding river and the ninth ferry's wake return to the map, dissolving among the villages into fine lines of wood grain.",
         ),
     },
     {
         "regionId": 4,
         "countryId": "melosa",
+        "mapMotifId": "seven-bridges",
+        "mapMotif": localized("第七座无名桥", "The Unnamed Seventh Bridge"),
         "accent": "vermilion",
         "name": localized("梅罗萨", "Melosa"),
         "chapter": CHAPTER_NAME,
         "capitalOrFocusCity": localized("七拱城", "Seven Arches"),
         "geography": localized("内海丘原与石桥商道", "Inner-sea uplands and stone-bridge trade roads"),
+        "fallChronology": localized("瓦罗王征战第十二年 · 围城第四十一日", "Campaign Year Twelve · the forty-first day of the siege"),
         "foodAndMaterialCulture": localized(
             "七桥香草、烤禽、石拱商道与桥市行会。",
             "Seven-bridge herbs, roast fowl, stone-arch trade roads, and bridge-market guilds.",
@@ -164,26 +179,29 @@ COUNTRIES: Final = (
         ),
         "fallCardTitle": localized("第七座桥", "The Seventh Bridge"),
         "fallCardBody": localized(
-            "梅罗萨在六座桥上布防，却把最旧的第七桥留给逃难者。守军投降后，帝国史官把那座桥从军图中抹去，因为它证明围城并不完整，也证明有人在封锁中离开。",
-            "Melosa fortified six bridges and left the oldest, the seventh, to those fleeing the city. After the garrison surrendered, imperial historians erased it from their campaign map, because it proved both that the siege had gaps and that people escaped through them.",
+            "梅罗萨在六座桥上布防，却把最旧的第七桥留给逃难者。守军投降后，帝国史官把那座桥从军图中抹去，因为它证明围城并不完整，也证明有人在封锁中离开。\n\n逃难者在山路上拆掉路牌，不让追兵知道桥通往哪里。后来重修商道的人找回了桥，却只找回彼此矛盾的三个旧名。",
+            "Melosa fortified six bridges and left the oldest, the seventh, to those fleeing the city. After the garrison surrendered, imperial historians erased it from their campaign map, because it proved both that the siege had gaps and that people escaped through them.\n\nThe refugees removed the mountain road signs so no pursuit would know where the bridge led. When the trade road was rebuilt, surveyors found the bridge again—and three old names that contradicted one another.",
         ),
         "survivingTrace": localized(
             "后世地图恢复了第七桥的位置，但桥名一栏至今空白。",
             "Later maps restored the seventh bridge, though the space reserved for its name remains blank.",
         ),
         "mapRevealConcept": localized(
-            "七道桥拱依次显影，最旧的一座仍不显示名称。",
-            "Seven bridge arches surface in sequence; the oldest still bears no name.",
+            "最旧那座桥的桥面与桥墩重新显影，图上仍没有它的名字。",
+            "The deck and piers of the oldest bridge surface again; the map still gives it no name.",
         ),
     },
     {
         "regionId": 5,
         "countryId": "urshan",
+        "mapMotifId": "broken-seal",
+        "mapMotif": localized("缺角王印", "The Broken Royal Seal"),
         "accent": "mauve",
         "name": localized("乌尔珊", "Urshan"),
         "chapter": CHAPTER_NAME,
         "capitalOrFocusCity": localized("紫盐堡", "Violet Salt Keep"),
         "geography": localized("盐沼、高堤与染料作坊", "Salt marshes, high dikes, and dye works"),
+        "fallChronology": localized("瓦罗王征战第十一年 · 紫盐月", "Campaign Year Eleven · Violet Salt Month"),
         "foodAndMaterialCulture": localized(
             "紫盐炖梨、盐罐、染缸与高堤作坊。",
             "Pears stewed with violet salt, salt jars, dye vats, and workshops along the high dikes.",
@@ -194,8 +212,8 @@ COUNTRIES: Final = (
         ),
         "fallCardTitle": localized("染缸里的印玺", "The Seal in the Dye Vat"),
         "fallCardBody": localized(
-            "乌尔珊宫廷在政变中更换了三次城门口令。最后一位守将把旧王印投入染缸，向帝国使者声称国家已经没有可以签署降书的人。围城仍继续了十二日。",
-            "During the coup, Urshan's court changed the gate password three times. The final commander threw the old royal seal into a dye vat and told the imperial envoy that no one remained who could sign a surrender. The siege continued for twelve more days.",
+            "乌尔珊宫廷在政变中更换了三次城门口令。最后一位守将把旧王印投入染缸，向帝国使者声称国家已经没有可以签署降书的人。围城仍继续了十二日。\n\n染坊停火后，高堤水渠仍有数月呈淡紫色。帝国把那颜色记作胜利庆典的染料，作坊账册却说，那是被倒掉的冬衣与未交付的布。",
+            "During the coup, Urshan's court changed the gate password three times. The final commander threw the old royal seal into a dye vat and told the imperial envoy that no one remained who could sign a surrender. The siege continued for twelve more days.\n\nAfter the dye works went cold, the high-dike channels remained pale violet for months. The empire recorded the color as dye for a victory festival; workshop ledgers called it winter clothing and cloth that would never be delivered.",
         ),
         "survivingTrace": localized(
             "紫盐堡出土的王印被染料蚀去一角，无法确认最后使用它的是哪一位君主。",
@@ -209,11 +227,14 @@ COUNTRIES: Final = (
     {
         "regionId": 6,
         "countryId": "pel-island",
+        "mapMotifId": "sail-less-shore",
+        "mapMotif": localized("无帆砾湾", "Shingle Bay Without Sails"),
         "accent": "clay",
         "name": localized("佩尔岛", "Pel Island"),
         "chapter": CHAPTER_NAME,
         "capitalOrFocusCity": localized("砾湾", "Shingle Bay"),
         "geography": localized("东部小岛、砾滩与浅湾", "Eastern islets, shingle beaches, and shallow bays"),
+        "fallChronology": localized("瓦罗王征战第六年 · 退潮季", "Campaign Year Six · low-tide season"),
         "foodAndMaterialCulture": localized(
             "浅金小蟹、渔叉、船帆与海蚀洞储粮。",
             "Pale-gold shore crabs, fishing spears, sails, and grain stores in sea caves.",
@@ -224,8 +245,8 @@ COUNTRIES: Final = (
         ),
         "fallCardTitle": localized("小岛先被记住", "The Island Was Remembered First"),
         "fallCardBody": localized(
-            "佩尔岛没有城墙。岛民把粮食和船帆藏进海蚀洞，随后在砾湾列队交出渔叉。帝国记录把这写成一次迅速而体面的归顺，却没有记下当年冬天所有船只都被征走。",
-            "Pel Island had no walls. Its people hid grain and sails in sea caves, then lined up at Shingle Bay to surrender their fishing spears. Imperial records called it a swift and dignified submission, but did not record that every boat was requisitioned that winter.",
+            "佩尔岛没有城墙。岛民把粮食和船帆藏进海蚀洞，随后在砾湾列队交出渔叉。帝国记录把这写成一次迅速而体面的归顺，却没有记下当年冬天所有船只都被征走。\n\n失去船的人沿着退潮线步行去相邻村落，用晒干的小蟹换粮。老人把海蚀洞的位置编进一首没有文字的数潮歌，只在孩子第一次独自赶海时教给他们。",
+            "Pel Island had no walls. Its people hid grain and sails in sea caves, then lined up at Shingle Bay to surrender their fishing spears. Imperial records called it a swift and dignified submission, but did not record that every boat was requisitioned that winter.\n\nWithout boats, people walked the low-tide line to neighboring villages and traded dried shore crabs for grain. Elders set the sea caves into an unwritten tide-counting song, taught only when a child first went to the shore alone.",
         ),
         "survivingTrace": localized(
             "岛上的旧历法把那一年称作无帆之冬，而不是瓦罗王纪年的第一年。",
