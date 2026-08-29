@@ -7,184 +7,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Mapping
 
+from .content import (
+    BANQUET_TIMELINE,
+    CHAPTER_EPILOGUE,
+    CHAPTER_NAME,
+    COUNTRIES,
+    LEVEL_SUBTITLE,
+    LEVEL_TITLE,
+)
 from .minizinc_check import verify_unique
 from .solver import Constraint, DirectClueSolver, SolveResult
-
-
-COUNTRIES = (
-    {
-        "regionId": 0,
-        "countryId": "loven-lowlands",
-        "countryNameZh": "洛汶低地",
-        "countryNameEn": "Loven Lowlands",
-        "accent": "ochre",
-        "chapter": "内海七国",
-        "capitalOrFocusCity": "榆堤城",
-        "geography": "低地河网与季节性湿原",
-        "foodAndMaterialCulture": "榆烟熏鱼、酸草、河闸铜器与芦苇编席。",
-        "banquetInsert": "第一只银盘盛着榆烟熏过的白鱼，鱼腹填了酸草与粗盐。侍者说，低地人用同样的烟保存冬粮。",
-        "fallCardTitle": "河闸闭合之前",
-        "fallCardBody": "洛汶议会原以为拆去东堤就能拖慢帝国骑兵，却先让三座村镇失去了归路。榆堤城在第六日开门，守闸人把铜钥匙沉进河心，没有参加受降仪式。",
-        "survivingTrace": "后世修闸时捞出一枚没有齿纹的铜钥匙，现藏于榆堤档案室。",
-        "mapRevealConcept": "河网与闸门从褪色底图中显现，沉入河心的铜钥匙留作完成印记。",
-    },
-    {
-        "regionId": 1,
-        "countryId": "aspa",
-        "countryNameZh": "阿斯帕",
-        "countryNameEn": "Aspa",
-        "accent": "cobalt",
-        "chapter": "内海七国",
-        "capitalOrFocusCity": "白阶城",
-        "geography": "北部石坡与盐路驿站",
-        "foodAndMaterialCulture": "茴香热乳酪、白陶碗、盐路商队与石阶驿站。",
-        "banquetInsert": "白陶碗里是加了茴香的热乳酪。送菜人把碗沿擦了三遍，因为阿斯帕商队认为溢出的乳脂会招来坏天气。",
-        "fallCardTitle": "白阶上的空旗",
-        "fallCardBody": "阿斯帕的执政官把军旗留在城墙上，带着卫队从盐路撤往北坡。帝国军抵达时只找到开着的仓库与一份逐户抄写的欠粮名册；留下的人用那份名册证明征粮早已超过约定。",
-        "survivingTrace": "白阶城至今仍把空旗日记作一年中不开市的上午。",
-        "mapRevealConcept": "盐路沿白色石阶延伸，城墙上只留下没有旗面的旗杆。",
-    },
-    {
-        "regionId": 2,
-        "countryId": "cape-galan",
-        "countryNameZh": "迦蓝岬",
-        "countryNameEn": "Cape Galan",
-        "accent": "slate",
-        "chapter": "内海七国",
-        "capitalOrFocusCity": "风井港",
-        "geography": "多风海岬与深水锚地",
-        "foodAndMaterialCulture": "黑壳贝、海藻酒、铜制贝盆与领港灯塔。",
-        "banquetInsert": "第三道菜是风井港的黑壳贝，配一小杯极干的海藻酒。贝壳被整齐收进铜盆，像是还有别的用途。",
-        "fallCardTitle": "港钟没有敲响",
-        "fallCardBody": "迦蓝岬依靠海雾掩护船队多年。最后一夜，领港人故意熄掉外湾灯塔，让本国商船先离港；帝国舰队直到天亮才发现港内只剩拆去桅杆的旧船。",
-        "survivingTrace": "外湾灯塔重建后仍保留一段不点灯的石阶，领港人称它为静夜。",
-        "mapRevealConcept": "海岬、雾带与空锚地恢复轮廓，灯塔保留一段永不着色的石阶。",
-    },
-    {
-        "regionId": 3,
-        "countryId": "turan-valley",
-        "countryNameZh": "图兰河谷",
-        "countryNameEn": "Turan Valley",
-        "accent": "verdigris",
-        "chapter": "内海七国",
-        "capitalOrFocusCity": "磨坊渡",
-        "geography": "河谷麦田与两岸水磨",
-        "foodAndMaterialCulture": "砂壳麦面包、水磨石、木渡船与沿岸木工。",
-        "banquetInsert": "面包在入席前才切开，麦香很重，外壳却混有细碎的河砂。宫廷厨师把这解释成磨坊石太旧。",
-        "fallCardTitle": "渡口的第九条船",
-        "fallCardBody": "图兰河谷答应交出八条渡船，暗中留下第九条接送逃离磨坊渡的人。告密者领帝国军来到河边时，船已被拆成门板、车轴和三十多把木铲，分散在沿岸村落。",
-        "survivingTrace": "河谷婚礼仍会赠送一把没有上漆的小木铲，据说木料来自那条船。",
-        "mapRevealConcept": "九条渡船的航线重回河面，其中一条在村落间分解为细小木纹。",
-    },
-    {
-        "regionId": 4,
-        "countryId": "melosa",
-        "countryNameZh": "梅罗萨",
-        "countryNameEn": "Melosa",
-        "accent": "vermilion",
-        "chapter": "内海七国",
-        "capitalOrFocusCity": "七拱城",
-        "geography": "内海丘原与石桥商道",
-        "foodAndMaterialCulture": "七桥香草、烤禽、石拱商道与桥市行会。",
-        "banquetInsert": "烤禽下垫着七种香草，每一种来自不同桥市。记录官只写下了六种，剩下一种无人肯说出名字。",
-        "fallCardTitle": "第七座桥",
-        "fallCardBody": "梅罗萨在六座桥上布防，却把最旧的第七桥留给逃难者。守军投降后，帝国史官把那座桥从军图中抹去，因为它证明围城并不完整，也证明有人在封锁中离开。",
-        "survivingTrace": "后世地图恢复了第七桥的位置，但桥名一栏至今空白。",
-        "mapRevealConcept": "七道桥拱依次显影，最旧的一座仍不显示名称。",
-    },
-    {
-        "regionId": 5,
-        "countryId": "urshan",
-        "countryNameZh": "乌尔珊",
-        "countryNameEn": "Urshan",
-        "accent": "mauve",
-        "chapter": "内海七国",
-        "capitalOrFocusCity": "紫盐堡",
-        "geography": "盐沼、高堤与染料作坊",
-        "foodAndMaterialCulture": "紫盐炖梨、盐罐、染缸与高堤作坊。",
-        "banquetInsert": "紫盐被撒在炖梨上，颜色比味道更醒目。瓦罗王命人把盐罐留在桌边，随后却没有再碰它。",
-        "fallCardTitle": "染缸里的印玺",
-        "fallCardBody": "乌尔珊宫廷在政变中更换了三次城门口令。最后一位守将把旧王印投入染缸，向帝国使者声称国家已经没有可以签署降书的人。围城仍继续了十二日。",
-        "survivingTrace": "紫盐堡出土的王印被染料蚀去一角，无法确认最后使用它的是哪一位君主。",
-        "mapRevealConcept": "盐沼和高堤转为暗紫色，缺角王印作为档案页的压印。",
-    },
-    {
-        "regionId": 6,
-        "countryId": "pel-island",
-        "countryNameZh": "佩尔岛",
-        "countryNameEn": "Pel Island",
-        "accent": "clay",
-        "chapter": "内海七国",
-        "capitalOrFocusCity": "砾湾",
-        "geography": "东部小岛、砾滩与浅湾",
-        "foodAndMaterialCulture": "浅金小蟹、渔叉、船帆与海蚀洞储粮。",
-        "banquetInsert": "一盘温热的砾湾小蟹被放在桌角，数量不多，壳上带着浅金色斑点。最年轻的侍者说，岛上孩子会在退潮时徒手捉它们。",
-        "fallCardTitle": "小岛先被记住",
-        "fallCardBody": "佩尔岛没有城墙。岛民把粮食和船帆藏进海蚀洞，随后在砾湾列队交出渔叉。帝国记录把这写成一次迅速而体面的归顺，却没有记下当年冬天所有船只都被征走。",
-        "survivingTrace": "岛上的旧历法把那一年称作无帆之冬，而不是瓦罗王纪年的第一年。",
-        "mapRevealConcept": "小岛海岸完整显现，但近岸不再绘出任何船帆。",
-    },
-)
-
-BANQUET_TIMELINE = (
-    {
-        "completedCountries": 0,
-        "title": "宾客入席",
-        "body": "长桌已经铺好，盘盏仍空。记录官先写下座次，再写窗外送进宫门的七种口音。",
-    },
-    {
-        "completedCountries": 1,
-        "title": "第一道菜",
-        "body": "第一只银盘落在瓦罗王面前。侍者报出产地时，地图上的一个国名刚刚恢复完整。",
-    },
-    {
-        "completedCountries": 2,
-        "title": "第二轮斟酒",
-        "body": "酒杯重新斟满，席间开始谈论道路、港口和今年的收成，仿佛这些地方都只是货单上的来源。",
-    },
-    {
-        "completedCountries": 3,
-        "title": "食欲渐盛",
-        "body": "撤下的盘子越来越多，新的器皿仍不断送来。瓦罗王不再询问菜名，只要求记录官继续念地图。",
-    },
-    {
-        "completedCountries": 4,
-        "title": "主菜登席",
-        "body": "银盖揭开时，热气短暂遮住了桌对面的人。有人把窗推开，宫墙外已经接近深夜。",
-    },
-    {
-        "completedCountries": 5,
-        "title": "盛宴正中",
-        "body": "长桌看起来比开席时更拥挤，也更空。每一道菜都留下器皿，却很少有人再交谈。",
-    },
-    {
-        "completedCountries": 6,
-        "title": "过量与倦意",
-        "body": "瓦罗王的动作慢下来，仍不允许撤走下一只盘子。记录官的墨已经变淡，名字却还没有念完。",
-    },
-    {
-        "completedCountries": 7,
-        "title": "天明与空盘",
-        "body": "最后一道菜失去热气，窗外出现灰白的天光。完整地图留在桌上，宴席到此结束。",
-    },
-)
-
-CHAPTER_EPILOGUE = {
-    "eyebrow": "后世档案 · 内海七国",
-    "title": "地图比帝国活得更久",
-    "body": (
-        "完整地图在天明前被送出宴厅。瓦罗王让人给七国换上同一种颜色，仿佛边界从此只剩装饰。"
-        "宫门外，运粮车仍沿着被改名的旧路驶来，车夫却继续使用那些已经从官册上消失的地名。\n\n"
-        "这个看似无边的政权没有维持多久。加税、征役和争位使各地接连起兵，宫廷卫队在瓦罗王死后第三年撤下王旗；"
-        "七国的边界再度改变，流亡者却没有因此立刻归乡。帝国被推翻得很快，它留下的迁徙、空城与失传手艺却延续了几代人。"
-    ),
-    "survivingTrace": (
-        "这张地图后来被拆成七卷，分别保存于港务所、修道院和旧税库。后世修复者保留了彼此矛盾的地名与边线："
-        "它既是瓦罗王权势顶点的自夸，也是各国曾经存在、抵抗并留下痕迹的证物。"
-    ),
-    "archiveLabel": "后世尾声",
-    "archiveSummary": "地图比帝国活得更久",
-}
 
 
 @dataclass(frozen=True)
@@ -206,12 +38,12 @@ class RegionMetrics:
 @dataclass(frozen=True)
 class RegionLevel:
     region_id: int
-    name: str
+    name: Mapping[str, str]
     accent: str
     cells: tuple[int, ...]
     clues: dict[int, int]
     metrics: RegionMetrics
-    country: Mapping[str, str]
+    country: Mapping[str, object]
 
 
 @dataclass(frozen=True)
@@ -226,9 +58,9 @@ class GeneratedLevel:
 
     def public_dict(self, include_solution: bool = False) -> dict:
         payload = {
-            "schemaVersion": 1,
-            "title": "瓦罗王的餐桌 · 地图一",
-            "subtitle": "先读懂国界，再让每一个数字说话。",
+            "schemaVersion": 2,
+            "title": dict(LEVEL_TITLE),
+            "subtitle": dict(LEVEL_SUBTITLE),
             "width": self.width,
             "height": self.height,
             "seed": self.seed,
@@ -241,7 +73,7 @@ class GeneratedLevel:
             else "basic",
             "campaign": {
                 "chapterId": "inner-sea",
-                "chapterName": "内海七国",
+                "chapterName": dict(CHAPTER_NAME),
                 "banquetTimeline": [dict(beat) for beat in BANQUET_TIMELINE],
                 "epilogue": dict(CHAPTER_EPILOGUE),
             },
@@ -249,7 +81,7 @@ class GeneratedLevel:
             "regions": [
                 {
                     "id": region.region_id,
-                    "name": region.name,
+                    "name": dict(region.name),
                     "accent": region.accent,
                     "cells": list(region.cells),
                     "clues": {str(index): value for index, value in sorted(region.clues.items())},
@@ -495,7 +327,7 @@ def build_level(
             generated_regions.append(
                 RegionLevel(
                     region_id,
-                    str(country["countryNameZh"]),
+                    dict(country["name"]),
                     str(country["accent"]),
                     cells,
                     visible_clues,
@@ -514,9 +346,9 @@ def build_level(
                         max(visible_clues.values()),
                     ),
                     {
-                        key: str(value)
+                        key: dict(value) if isinstance(value, dict) else value
                         for key, value in country.items()
-                        if key not in {"regionId", "accent"}
+                        if key not in {"regionId", "accent", "name"}
                     },
                 )
             )

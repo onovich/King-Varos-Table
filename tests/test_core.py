@@ -120,6 +120,9 @@ class LevelGenerationTests(unittest.TestCase):
         public_payload = level.public_dict()
 
         self.assertNotIn("solution", public_payload)
+        self.assertEqual(public_payload["schemaVersion"], 2)
+        self.assertEqual(set(public_payload["title"]), {"zh-CN", "en"})
+        self.assertEqual(set(public_payload["subtitle"]), {"zh-CN", "en"})
         self.assertEqual((level.width, level.height), (20, 20))
         self.assertGreaterEqual(sum(level.target), 0.45 * len(level.target))
         self.assertLessEqual(sum(level.target), 0.55 * len(level.target))
@@ -143,14 +146,26 @@ class LevelGenerationTests(unittest.TestCase):
             },
             set(epilogue),
         )
-        self.assertIn("推翻", epilogue["body"])
-        self.assertIn("地图", epilogue["survivingTrace"])
+        self.assertTrue(all(set(value) == {"zh-CN", "en"} for value in epilogue.values()))
+        self.assertIn("推翻", epilogue["body"]["zh-CN"])
+        self.assertIn("overthrown", epilogue["body"]["en"])
+        self.assertIn("地图", epilogue["survivingTrace"]["zh-CN"])
+        self.assertIn("map", epilogue["survivingTrace"]["en"].lower())
+        self.assertEqual(
+            set(public_payload["campaign"]["chapterName"]),
+            {"zh-CN", "en"},
+        )
+        self.assertTrue(
+            all(
+                set(beat["title"]) == {"zh-CN", "en"}
+                and set(beat["body"]) == {"zh-CN", "en"}
+                for beat in public_payload["campaign"]["banquetTimeline"]
+            )
+        )
         self.assertTrue(
             all(
                 {
                     "countryId",
-                    "countryNameZh",
-                    "countryNameEn",
                     "chapter",
                     "capitalOrFocusCity",
                     "geography",
@@ -162,6 +177,27 @@ class LevelGenerationTests(unittest.TestCase):
                     "mapRevealConcept",
                 }
                 <= set(region["country"])
+                for region in public_payload["regions"]
+            )
+        )
+        localized_country_fields = {
+            "chapter",
+            "capitalOrFocusCity",
+            "geography",
+            "foodAndMaterialCulture",
+            "banquetInsert",
+            "fallCardTitle",
+            "fallCardBody",
+            "survivingTrace",
+            "mapRevealConcept",
+        }
+        self.assertTrue(
+            all(
+                set(region["name"]) == {"zh-CN", "en"}
+                and all(
+                    set(region["country"][field]) == {"zh-CN", "en"}
+                    for field in localized_country_fields
+                )
                 for region in public_payload["regions"]
             )
         )

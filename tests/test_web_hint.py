@@ -332,7 +332,7 @@ const brokenHint = {
 const proof = buildHintProof(level, clues, values, brokenHint);
 assert.equal(proof.valid, false);
 assert.equal(proof.kind, "invalid");
-assert.match(proof.error, /大集合剩余数减去小集合剩余数/);
+assert.equal(proof.errorKey, "proof.error.differenceTotalMismatch");
 '''
         result = subprocess.run(
             [shutil.which("node"), "--input-type=module", "--eval", script],

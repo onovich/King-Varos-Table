@@ -35,22 +35,22 @@ function residualModel(level, clues, values, residual) {
     playerKnownCells,
     knownBrightCells,
     knownDarkCells,
-    label: residual.clueIndex === null ? "已推导约束" : cellToken(level, residual.clueIndex),
+    label: residual.clueIndex === null ? "derived-constraint" : cellToken(level, residual.clueIndex),
   };
 }
 
-function invalidProof(proof, error) {
+function invalidProof(proof, errorKey) {
   return {
     ...proof,
     kind: "invalid",
     valid: false,
-    error,
+    errorKey,
   };
 }
 
 function residualError(model) {
   if (!model.unknownCells.every((index) => model.cells.includes(index))) {
-    return "剩余未知集合包含了原约束范围之外的格子。";
+    return "proof.error.unknownOutsideConstraint";
   }
   if (
     !Number.isInteger(model.total) ||
@@ -60,10 +60,10 @@ function residualError(model) {
     model.knownDark < 0 ||
     model.total !== model.knownBright + model.remaining
   ) {
-    return "约束的总数、已知亮格数与剩余亮格数不自洽。";
+    return "proof.error.inconsistentTotals";
   }
   if (model.clueIndex !== null && model.clueValue !== model.total) {
-    return "证明中的数字线索值与当前题面不一致。";
+    return "proof.error.clueMismatch";
   }
   return null;
 }
@@ -122,7 +122,7 @@ export function buildHintProof(level, clues, values, hint) {
       values,
       hint.derivation.superset ?? hint.derivation.right,
     );
-    if (!subset || !superset) return invalidProof(proof, "缺少差集证明所需的两个约束。");
+    if (!subset || !superset) return invalidProof(proof, "proof.error.missingSubsetConstraints");
     const malformedResidual = residualError(subset) ?? residualError(superset);
     if (malformedResidual) return invalidProof(proof, malformedResidual);
 
@@ -131,7 +131,7 @@ export function buildHintProof(level, clues, values, hint) {
       subset.unknownCells.length < superset.unknownCells.length &&
       subset.unknownCells.every((index) => superset.unknownCells.includes(index));
     if (!isStrictSubset) {
-      return invalidProof(proof, "小集合并非大集合的严格子集，不能执行差集推理。");
+      return invalidProof(proof, "proof.error.notStrictSubset");
     }
 
     const expectedDifferenceCells = superset.unknownCells.filter((index) => !subsetCells.has(index));
@@ -139,16 +139,16 @@ export function buildHintProof(level, clues, values, hint) {
       hint.derivation.differenceCells ?? expectedDifferenceCells,
     );
     if (!sameCells(differenceCells, expectedDifferenceCells)) {
-      return invalidProof(proof, "证明给出的差集与两个剩余未知集合不一致。");
+      return invalidProof(proof, "proof.error.differenceCellsMismatch");
     }
 
     const differenceTotal = Number(hint.derivation.differenceTotal);
     const expectedDifferenceTotal = superset.remaining - subset.remaining;
     if (!Number.isInteger(differenceTotal) || differenceTotal !== expectedDifferenceTotal) {
-      return invalidProof(proof, "差集亮格数不等于大集合剩余数减去小集合剩余数。");
+      return invalidProof(proof, "proof.error.differenceTotalMismatch");
     }
     if (differenceTotal < 0 || differenceTotal > differenceCells.length) {
-      return invalidProof(proof, "差集所需亮格数超出了差集格数范围。");
+      return invalidProof(proof, "proof.error.differenceTotalOutOfRange");
     }
 
     const forcedCells = uniqueSorted(hint.forcedCells ?? []);
@@ -158,7 +158,7 @@ export function buildHintProof(level, clues, values, hint) {
       !forcedCells.includes(hint.cell) ||
       differenceTotal !== expectedForcedTotal
     ) {
-      return invalidProof(proof, "差集不能推出所展示的全部结论格。");
+      return invalidProof(proof, "proof.error.differenceCannotForceCells");
     }
 
     return {
@@ -191,7 +191,7 @@ export function buildHintProof(level, clues, values, hint) {
     !sameCells(forcedCells, unknownCells) ||
     !forcedCells.includes(hint.cell)
   ) {
-    return invalidProof(proof, "单线索约束不能推出所展示的全部结论格。");
+    return invalidProof(proof, "proof.error.singleClueCannotForceCells");
   }
   return {
     ...proof,
@@ -199,7 +199,7 @@ export function buildHintProof(level, clues, values, hint) {
     source: {
       clueIndex,
       clueValue,
-      token: clueIndex === null ? "当前数字线索" : cellToken(level, clueIndex),
+      token: clueIndex === null ? "current-clue" : cellToken(level, clueIndex),
       cells: sourceCells,
       unknownCells,
       knownBright,
@@ -210,7 +210,7 @@ export function buildHintProof(level, clues, values, hint) {
 }
 
 export function valueToken(value) {
-  return value === DARK ? "暗格" : value === BRIGHT ? "亮格" : "未知";
+  return value === DARK ? "dark" : value === BRIGHT ? "bright" : "unknown";
 }
 
 export { cellToken };

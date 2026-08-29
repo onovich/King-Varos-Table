@@ -253,17 +253,19 @@ assert.equal(restoreSavePayload(level, JSON.stringify(wrongType)), null);
             r'''
 import assert from "node:assert/strict";
 import { populateEpilogueDialog } from "./web/campaign-ui.mjs";
+import { createI18n } from "./web/i18n.mjs";
 
 const level = {
   campaign: {
     epilogue: {
-      eyebrow: "later archive",
-      title: "the map remains",
-      body: "the empire fell",
-      survivingTrace: "seven rolls survived",
+      eyebrow: { en: "later archive", "zh-CN": "后世档案" },
+      title: { en: "the map remains", "zh-CN": "地图留存" },
+      body: { en: "the empire fell", "zh-CN": "帝国覆灭" },
+      survivingTrace: { en: "seven rolls survived", "zh-CN": "七卷留存" },
     },
   },
 };
+const i18n = createI18n("en");
 const elements = {
   eyebrow: { textContent: "" },
   title: { textContent: "" },
@@ -271,12 +273,12 @@ const elements = {
   trace: { textContent: "" },
 };
 
-assert.equal(populateEpilogueDialog(level, elements), true);
+assert.equal(populateEpilogueDialog(level, elements, i18n), true);
 assert.equal(elements.eyebrow.textContent, "later archive");
 assert.equal(elements.title.textContent, "the map remains");
 assert.equal(elements.body.textContent, "the empire fell");
 assert.equal(elements.trace.textContent, "seven rolls survived");
-assert.equal(populateEpilogueDialog({ campaign: {} }, elements), false);
+assert.equal(populateEpilogueDialog({ campaign: {} }, elements, i18n), false);
 '''
         )
 
@@ -285,32 +287,37 @@ assert.equal(populateEpilogueDialog({ campaign: {} }, elements), false);
             r'''
 import assert from "node:assert/strict";
 import { archiveEntries } from "./web/campaign-ui.mjs";
+import { createI18n } from "./web/i18n.mjs";
 
 const level = {
   campaign: {
     epilogue: {
-      archiveLabel: "later record",
-      archiveSummary: "the map remains",
+      archiveLabel: { en: "later record", "zh-CN": "后世尾声" },
+      archiveSummary: { en: "the map remains", "zh-CN": "地图留存" },
     },
   },
   regions: [
     {
       id: 0,
-      name: "first country",
-      country: { capitalOrFocusCity: "first city", fallCardTitle: "first fall" },
+      name: { en: "first country", "zh-CN": "第一国" },
+      country: {
+        capitalOrFocusCity: { en: "first city", "zh-CN": "第一城" },
+        fallCardTitle: { en: "first fall", "zh-CN": "第一次陷落" },
+      },
     },
   ],
 };
+const i18n = createI18n("en");
 const countryOnly = archiveEntries(level, {
   revealedRegionIds: [0],
   epilogueRevealed: false,
-});
+}, undefined, undefined, i18n);
 assert.deepEqual(countryOnly.map((entry) => entry.kind), ["country"]);
 
 const completeArchive = archiveEntries(level, {
   revealedRegionIds: [0],
   epilogueRevealed: true,
-});
+}, undefined, undefined, i18n);
 assert.deepEqual(completeArchive.map((entry) => entry.kind), ["country", "epilogue"]);
 assert.equal(completeArchive[1].title, "later record");
 assert.equal(completeArchive[1].subtitle, "the map remains");
@@ -323,11 +330,13 @@ class CampaignDomContractTests(unittest.TestCase):
         project_root = Path(__file__).resolve().parents[1]
         html = (project_root / "web" / "index.html").read_text(encoding="utf-8")
         app = (project_root / "web" / "app.js").read_text(encoding="utf-8")
+        i18n = (project_root / "web" / "i18n.mjs").read_text(encoding="utf-8")
 
         self.assertIn('id="banquetPanel"', html)
         self.assertIn('id="archiveButton"', html)
         self.assertIn('id="archiveButton" type="button" aria-haspopup="dialog" disabled', html)
-        self.assertIn('id="archiveButtonLabel">地图档案尚未整理', html)
+        self.assertIn('id="archiveButtonLabel" data-i18n="actions.archiveEmpty"', html)
+        self.assertIn('id="languageSwitcher"', html)
         self.assertIn('<dialog class="story-dialog" id="fallDialog"', html)
         self.assertIn('<dialog class="archive-dialog" id="archiveDialog"', html)
         self.assertIn('<dialog class="epilogue-dialog" id="epilogueDialog"', html)
@@ -335,6 +344,7 @@ class CampaignDomContractTests(unittest.TestCase):
         self.assertIn('id="epilogueDialogClose"', html)
         self.assertIn('id="epilogueDialogConfirm"', html)
         self.assertNotIn("innerHTML", html)
-        self.assertIn("关闭后收入亡国档案", html)
-        self.assertIn("关闭后收入地图档案", html)
-        self.assertIn("历史记录正在展示", app)
+        self.assertIn('data-i18n="fall.archiveNote"', html)
+        self.assertIn('data-i18n="epilogue.archiveNote"', html)
+        self.assertIn("cell.countryStoryOpen", app)
+        self.assertIn('"cell.countryStoryOpen"', i18n)

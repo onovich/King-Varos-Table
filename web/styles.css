@@ -127,6 +127,44 @@ h2 {
   font-size: 0.9rem;
 }
 
+.masthead-tools {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 14px;
+}
+
+.language-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(34px, auto));
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid rgba(232, 224, 208, 0.34);
+  background: rgba(10, 25, 27, 0.38);
+}
+
+.language-option {
+  min-height: 30px;
+  padding: 4px 9px;
+  color: rgba(242, 236, 223, 0.68);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.language-option:hover {
+  color: var(--paper-light);
+  background: rgba(242, 236, 223, 0.08);
+}
+
+.language-option[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--focus);
+}
+
 .folio-mark {
   display: grid;
   min-width: 76px;
@@ -1035,6 +1073,16 @@ h2 {
 
   .masthead {
     padding: 0 4px 20px;
+  }
+
+  .masthead-tools {
+    align-self: flex-start;
+    flex-direction: column-reverse;
+    gap: 9px;
+  }
+
+  .language-switcher {
+    align-self: stretch;
   }
 
   .folio-mark {

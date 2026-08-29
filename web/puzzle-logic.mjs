@@ -43,7 +43,12 @@ export function findDirectClueHint(level, region, values) {
         scopeCells,
         unknownCells,
         forcedCells: [],
-        message: `线索 ${clueValue} 还需要 ${remaining} 个亮格，但只剩 ${unknownCells.length} 个未知格。`,
+        messageKey: "logic.directContradiction",
+        messageParams: {
+          clueValue,
+          remaining,
+          unknownCount: unknownCells.length,
+        },
       };
     }
     if (unknownCells.length === 0) continue;
@@ -75,9 +80,7 @@ export function findDirectClueHint(level, region, values) {
       dependsOnPlayerMarks: knownBright + knownDark > 0,
       reasoningLevel: "basic",
       clipped: scopeCells.length < 9,
-      explanation: value === DARK
-        ? "这条数字线索已经不再需要亮格，范围内所有未知格都必为暗格。"
-        : "这条数字线索所需的亮格数等于未知格数，范围内所有未知格都必为亮格。",
+      explanationKey: value === DARK ? "logic.directDark" : "logic.directBright",
     });
   }
 
@@ -102,7 +105,8 @@ export function findDirectClueHint(level, region, values) {
     scopeCells: [],
     unknownCells: [],
     forcedCells: [],
-    message: "当前没有可以由单个数字直接结算的范围。",
+    messageKey: "logic.noDirectStep",
+    messageParams: {},
   };
 }
 
@@ -227,7 +231,11 @@ export function solveDeterministically(cellCount, inputConstraints, initialValue
           status: "contradiction",
           values,
           steps,
-          message: `线索需要 ${remaining} 个亮格，但只剩 ${unknownCells.length} 个未知格。`,
+          messageKey: "logic.solverContradiction",
+          messageParams: {
+            remaining,
+            unknownCount: unknownCells.length,
+          },
         };
       }
       if (unknownCells.length === 0) continue;
@@ -266,16 +274,13 @@ export function solveDeterministically(cellCount, inputConstraints, initialValue
             prerequisiteCells,
             derivation: constraint.derivation,
             remaining,
-            explanation:
-              reasoningLevel === "advanced"
-                ? `高级推理：通过重叠线索的差集得到约束；${
-                    forcedValue === DARK
-                      ? "剩余亮格数为 0，未知格必为暗格。"
-                      : "剩余亮格数等于未知格数，未知格必为亮格。"
-                  }`
-                : forcedValue === DARK
-                  ? "剩余亮格数为 0，未知格必为暗格。"
-                  : "剩余亮格数等于未知格数，未知格必为亮格。",
+            explanationKey: reasoningLevel === "advanced"
+              ? forcedValue === DARK
+                ? "logic.advancedDark"
+                : "logic.advancedBright"
+              : forcedValue === DARK
+                ? "logic.basicDark"
+                : "logic.basicBright",
             reasoningLevel,
           });
           changed = true;
@@ -311,7 +316,8 @@ export function solveDeterministically(cellCount, inputConstraints, initialValue
             status: "contradiction",
             values,
             steps,
-            message: "两条重叠线索推出了矛盾。",
+            messageKey: "logic.overlapContradiction",
+            messageParams: {},
           };
         }
 
@@ -372,7 +378,8 @@ export function findNextHint(level, region, values) {
     sourceCells: [],
     sourceClueIndices: [],
     derivation: null,
-    message: analysis.result.message ?? null,
+    messageKey: analysis.result.messageKey ?? null,
+    messageParams: analysis.result.messageParams ?? {},
   };
 }
 

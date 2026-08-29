@@ -4,18 +4,25 @@ function regionForId(level, regionId) {
   return level.regions.find((region) => region.id === regionId) ?? null;
 }
 
-export function renderBanquetPanel(level, progress, elements) {
+export function renderBanquetPanel(level, progress, elements, i18n) {
   const completedCount = progress.completedRegionIds.length;
   const beat = currentBanquetBeat(level, completedCount);
-  elements.progress.textContent = `${completedCount} / ${level.regions.length} 国`;
-  elements.heading.textContent = beat?.title ?? "宴席未载入";
-  elements.body.textContent = beat?.body ?? "这页档案没有保存宴席记录。";
+  elements.progress.textContent = i18n.t("banquet.progress", {
+    completed: completedCount,
+    total: level.regions.length,
+  });
+  elements.heading.textContent = beat
+    ? i18n.localize(beat.title)
+    : i18n.t("banquet.missingTitle");
+  elements.body.textContent = beat
+    ? i18n.localize(beat.body)
+    : i18n.t("banquet.missingBody");
 
   const latestRegionId = progress.completedRegionIds.at(-1);
   const latestRegion = latestRegionId === undefined
     ? null
     : regionForId(level, latestRegionId);
-  const insert = latestRegion?.country?.banquetInsert ?? "";
+  const insert = i18n.localize(latestRegion?.country?.banquetInsert);
   elements.insert.textContent = insert;
   elements.insert.hidden = insert.length === 0;
 }
@@ -25,17 +32,24 @@ export function archiveEntries(
   progress,
   onSelectRegion = () => {},
   onSelectEpilogue = () => {},
+  i18n,
 ) {
   const entries = (progress.revealedRegionIds ?? [])
     .map((regionId) => {
       const region = regionForId(level, regionId);
       if (!region) return null;
+      const countryName = i18n.localize(region.name);
+      const city = i18n.localize(region.country.capitalOrFocusCity);
+      const fallTitle = i18n.localize(region.country.fallCardTitle);
       return {
         kind: "country",
         regionId,
-        title: region.name,
-        subtitle: `${region.country.capitalOrFocusCity} · ${region.country.fallCardTitle}`,
-        ariaLabel: `重读${region.name}亡国档案：${region.country.fallCardTitle}`,
+        title: countryName,
+        subtitle: `${city} · ${fallTitle}`,
+        ariaLabel: i18n.t("archive.replayCountry", {
+          country: countryName,
+          title: fallTitle,
+        }),
         className: "archive-entry",
         onSelect: () => onSelectRegion(regionId),
       };
@@ -46,9 +60,11 @@ export function archiveEntries(
   if (progress.epilogueRevealed && epilogue) {
     entries.push({
       kind: "epilogue",
-      title: epilogue.archiveLabel,
-      subtitle: epilogue.archiveSummary,
-      ariaLabel: `重读后世尾声：${epilogue.archiveSummary}`,
+      title: i18n.localize(epilogue.archiveLabel),
+      subtitle: i18n.localize(epilogue.archiveSummary),
+      ariaLabel: i18n.t("archive.replayEpilogue", {
+        summary: i18n.localize(epilogue.archiveSummary),
+      }),
       className: "archive-entry archive-entry-epilogue",
       onSelect: onSelectEpilogue,
     });
@@ -62,23 +78,24 @@ export function renderArchiveList(
   elements,
   onSelectRegion,
   onSelectEpilogue,
+  i18n,
 ) {
   elements.list.replaceChildren();
   const archivedRegionIds = progress.revealedRegionIds;
   const archivedCount = archivedRegionIds.length;
   elements.button.disabled = archivedCount === 0;
   elements.buttonLabel.textContent = archivedCount === 0
-    ? "地图档案尚未整理"
+    ? i18n.t("archive.buttonEmpty")
     : progress.epilogueRevealed
-      ? "查看完整地图档案"
-      : "查看亡国档案";
+      ? i18n.t("archive.buttonComplete")
+      : i18n.t("archive.buttonRecords");
   elements.count.hidden = archivedCount === 0;
   elements.count.textContent = String(archivedCount);
   elements.count.setAttribute(
     "aria-label",
     progress.epilogueRevealed
-      ? `已归档 ${archivedCount} 个国家及后世尾声`
-      : `已归档 ${archivedCount} 个国家`,
+      ? i18n.t("archive.countWithEpilogue", { count: archivedCount })
+      : i18n.t("archive.countCountries", { count: archivedCount }),
   );
   elements.empty.hidden = archivedCount > 0;
 
@@ -87,6 +104,7 @@ export function renderArchiveList(
     progress,
     onSelectRegion,
     onSelectEpilogue,
+    i18n,
   )) {
     const button = document.createElement("button");
     button.type = "button";
@@ -106,25 +124,25 @@ export function renderArchiveList(
   }
 }
 
-export function populateFallDialog(level, regionId, elements) {
+export function populateFallDialog(level, regionId, elements, i18n) {
   const region = regionForId(level, regionId);
   if (!region) return false;
 
-  elements.country.textContent = region.name;
-  elements.title.textContent = region.country.fallCardTitle;
-  elements.place.textContent = `${region.country.capitalOrFocusCity} · ${region.country.geography}`;
-  elements.body.textContent = region.country.fallCardBody;
-  elements.trace.textContent = region.country.survivingTrace;
+  elements.country.textContent = i18n.localize(region.name);
+  elements.title.textContent = i18n.localize(region.country.fallCardTitle);
+  elements.place.textContent = `${i18n.localize(region.country.capitalOrFocusCity)} · ${i18n.localize(region.country.geography)}`;
+  elements.body.textContent = i18n.localize(region.country.fallCardBody);
+  elements.trace.textContent = i18n.localize(region.country.survivingTrace);
   return true;
 }
 
-export function populateEpilogueDialog(level, elements) {
+export function populateEpilogueDialog(level, elements, i18n) {
   const epilogue = level.campaign?.epilogue;
   if (!epilogue) return false;
 
-  elements.eyebrow.textContent = epilogue.eyebrow;
-  elements.title.textContent = epilogue.title;
-  elements.body.textContent = epilogue.body;
-  elements.trace.textContent = epilogue.survivingTrace;
+  elements.eyebrow.textContent = i18n.localize(epilogue.eyebrow);
+  elements.title.textContent = i18n.localize(epilogue.title);
+  elements.body.textContent = i18n.localize(epilogue.body);
+  elements.trace.textContent = i18n.localize(epilogue.survivingTrace);
   return true;
 }

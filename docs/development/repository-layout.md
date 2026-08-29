@@ -40,11 +40,13 @@ King-Varos-Table/
 ├─ tests/
 │  ├─ test_core.py
 │  ├─ test_campaign_state.py
+│  ├─ test_i18n.py
 │  └─ test_web_hint.py
 ├─ tools/
 │  └─ generate_level.py
 ├─ varos_table/
 │  ├─ __init__.py
+│  ├─ content.py
 │  ├─ level.py
 │  ├─ minizinc_check.py
 │  └─ solver.py
@@ -55,6 +57,7 @@ King-Varos-Table/
 │  ├─ campaign-state.mjs
 │  ├─ campaign-ui.mjs
 │  ├─ hint-proof.mjs
+│  ├─ i18n.mjs
 │  ├─ index.html
 │  ├─ puzzle-logic.mjs
 │  └─ styles.css
@@ -66,10 +69,10 @@ King-Varos-Table/
 
 ## Directory responsibilities
 
-- `varos_table/` owns level generation, deterministic solving and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
-- `web/` is the browser-playable prototype. Its public level JSON contains regions and clues, but not the target solution.
+- `varos_table/` owns level generation, localized chapter content, deterministic solving and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
+- `web/` is the browser-playable prototype. Its i18n module owns English and Simplified Chinese interface text, while the public level JSON contains bilingual narrative, regions and clues but not the target solution.
 - `models/` contains exact constraint models used by the generator.
-- `tests/` covers Python domain logic plus JavaScript hint and campaign-state behavior through Node subprocesses.
+- `tests/` covers Python domain logic plus JavaScript hint, campaign-state and localization behavior through Node subprocesses.
 - `docs/design/` contains current product decisions and guardrails. These documents override older naming or theme hypotheses in `research/`.
 - `docs/development/` records executable milestones and repository operations; `docs/ideas/` parks deliberately out-of-scope concepts without adding them to the current product contract.
 - `research/` keeps source-based investigation and historical comparisons separate from current specifications.
@@ -90,4 +93,4 @@ npm test
 npm run generate
 ```
 
-`npm run generate` requires MiniZinc with the Gecode solver. Normal gameplay and the committed test suite do not require installing the Python package.
+`npm run generate` requires MiniZinc with the Gecode solver. `npm test` can run without MiniZinc, but it skips the MiniZinc integration check; full verification uses MiniZinc. Normal gameplay does not require installing the Python package.

@@ -10,28 +10,32 @@ A browser-based logic puzzle about restoring the divided map of King Varo's shor
 
 Each number counts the bright cells in a centered area of up to 3×3 cells, including the numbered cell itself. Thick country borders clip that area, so cells across a border never count. Mark every cell bright or dark to reconstruct the map.
 
-The current 20×20 chapter contains seven irregular countries. Completing a country advances the royal banquet and reveals a story about its fall; after all seven records are read, a historical epilogue is added to the archive.
+The current 20×20 chapter contains seven irregular countries. Completing a country advances the royal banquet and reveals a record of its fall; completing the chapter unlocks a historical epilogue.
 
 ## Controls
-
-The interface is currently in Simplified Chinese. Button labels below match the text shown in the game.
 
 | Action | Control |
 | --- | --- |
 | Mark a cell bright | Left click, or focus the cell and press Enter |
 | Mark a cell dark | Right click or Shift+click |
 | Return a cell to unknown | Repeat its current bright or dark action |
-| Request a necessary step | Select `给我一个必然步骤` |
-| Check or clean the board | Select `检查当前推理` or `清除错误答案` |
-| Restart or reread stories | Select `重新开局` or the map archive button |
+| Request a necessary step | Select `Show a certain step` |
+| Check or clean the board | Select `Check my reasoning` or `Remove wrong marks` |
+| Restart or reread stories | Select `Start over` or the map archive button |
+
+## Language
+
+The complete interface, dynamic hints, accessibility labels, banquet text, country records, and epilogue are available in English and Simplified Chinese.
+
+On the first visit, the game follows the browser's preferred language and falls back to English when neither language is present. The language switcher in the upper-right corner stores a manual choice locally and uses it on later visits. Changing language does not reset board or story progress.
 
 ## Features
 
 - Seven connected, irregular countries with region-clipped clues covering 0–9.
 - A visible single-clue deduction path, plus MiniZinc verification that each country has no second solution.
-- Hints calculated from the player's current board, contradiction reporting, region filtering, and wrong-answer cleanup.
+- Hints calculated from the player's current board, contradiction reporting, country filtering, and wrong-answer cleanup.
 - Banquet milestones, one-time fall records, a chapter epilogue, a rereadable archive, and versioned local saves.
-- Public level data contains the map and clues but omits the target solution.
+- Public level data contains the map, bilingual narrative, and clues but omits the target solution.
 
 ## Development
 
@@ -39,7 +43,7 @@ Requirements:
 
 - Python 3;
 - Node.js with npm;
-- MiniZinc with the Gecode solver for level generation and the full uniqueness checks.
+- MiniZinc with the Gecode solver for level generation and full uniqueness checks.
 
 Run the local prototype:
 
@@ -72,9 +76,9 @@ Generation overwrites `web/data/demo-level.json` and fails unless MiniZinc prove
 
 ## Status
 
-Version `0.3.0` is a locally playable prototype with one seven-country chapter. The interface is Simplified Chinese and currently targets desktop pointer input. Enter can mark bright cells, but complete keyboard-only and touch controls are not implemented. There is no hosted public demo.
+Version `0.3.0` is a locally playable prototype with one seven-country chapter. English and Simplified Chinese were runtime-tested in the browser during the current localization pass. The interface currently targets desktop pointer input; Enter can mark bright cells, but complete keyboard-only and touch controls are not implemented. There is no hosted public demo.
 
-The 26-test suite passed during this README audit. Finished art, production story content, and a multi-chapter campaign remain to be built.
+All 31 automated tests passed during this update. Finished art, production story content, and a multi-chapter campaign remain to be built.
 
 ## License
 

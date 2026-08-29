@@ -24,6 +24,24 @@ import {
   renderArchiveList,
   renderBanquetPanel,
 } from "./campaign-ui.mjs";
+import {
+  applyDocumentTranslations,
+  createI18n,
+  persistLocale,
+  preferredLocale,
+} from "./i18n.mjs";
+
+const localeStorage = (() => {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+})();
+const browserLanguages = navigator.languages?.length
+  ? navigator.languages
+  : [navigator.language];
+const i18n = createI18n(preferredLocale(localeStorage, browserLanguages));
 
 const refs = {
   subtitle: document.querySelector("#levelSubtitle"),
@@ -68,6 +86,7 @@ const refs = {
   epilogueTitle: document.querySelector("#epilogueTitle"),
   epilogueBody: document.querySelector("#epilogueBody"),
   epilogueTrace: document.querySelector("#epilogueTrace"),
+  languageOptions: [...document.querySelectorAll("[data-locale]")],
 };
 
 const state = {
@@ -86,6 +105,7 @@ const state = {
   archiveStoryOnClose: false,
   epilogueReturnFocus: null,
   archiveEpilogueOnClose: false,
+  messages: new Map(),
 };
 
 function stateName(value) {
@@ -95,14 +115,29 @@ function stateName(value) {
 }
 
 function valueLabel(value) {
-  if (value === BRIGHT) return "亮格";
-  if (value === DARK) return "暗格";
-  return "未知";
+  if (value === BRIGHT) return i18n.t("state.bright");
+  if (value === DARK) return i18n.t("state.dark");
+  return i18n.t("state.unknown");
 }
 
-function setMessage(element, text, tone = "neutral") {
-  element.textContent = text;
+function localizedMessage(key, params = {}) {
+  return () => i18n.t(key, params);
+}
+
+function setMessage(element, renderer, tone = "neutral") {
+  const renderText = typeof renderer === "function"
+    ? renderer
+    : localizedMessage(renderer);
+  state.messages.set(element, { renderText, tone });
+  element.textContent = renderText();
   element.dataset.tone = tone;
+}
+
+function renderMessages() {
+  for (const [element, descriptor] of state.messages) {
+    element.textContent = descriptor.renderText();
+    element.dataset.tone = descriptor.tone;
+  }
 }
 
 function showNarrativeDialog(dialog, initialFocus) {
@@ -158,7 +193,7 @@ function renderCampaign() {
     body: refs.banquetBody,
     progress: refs.banquetProgress,
     insert: refs.banquetInsert,
-  });
+  }, i18n);
   renderArchiveList(
     state.level,
     state.campaign,
@@ -171,6 +206,7 @@ function renderCampaign() {
     },
     openArchivedStory,
     openArchivedEpilogue,
+    i18n,
   );
 }
 
@@ -202,7 +238,7 @@ function openStoryDialog(
       place: refs.fallPlace,
       body: refs.fallCardBody,
       trace: refs.fallSurvivingTrace,
-    })
+    }, i18n)
   ) {
     return;
   }
@@ -235,7 +271,7 @@ function openEpilogueDialog(
       title: refs.epilogueTitle,
       body: refs.epilogueBody,
       trace: refs.epilogueTrace,
-    })
+    }, i18n)
   ) {
     return false;
   }
@@ -286,10 +322,27 @@ function analyseBoard() {
   return {
     results,
     conflicts,
-    contradictionMessage: contradiction
-      ? `${contradiction.region.name}：${contradiction.result.message}`
-      : null,
+    contradiction,
   };
+}
+
+function regionName(region) {
+  return i18n.localize(region?.name);
+}
+
+function contradictionMessage(analysis) {
+  const contradiction = analysis.contradiction;
+  if (!contradiction) return null;
+  const detail = contradiction.result.messageKey
+    ? i18n.t(
+        contradiction.result.messageKey,
+        contradiction.result.messageParams ?? {},
+      )
+    : i18n.t("message.conflictFallback");
+  return i18n.t("logic.regionContradiction", {
+    region: regionName(contradiction.region),
+    detail,
+  });
 }
 
 function edgeClasses(index) {
@@ -348,7 +401,7 @@ function nextHintCandidate(analysis) {
 function coordinateFor(index) {
   const row = Math.floor(index / state.level.width) + 1;
   const column = (index % state.level.width) + 1;
-  return `第${row}行第${column}列`;
+  return i18n.t("coordinate.cell", { row, column });
 }
 
 function regionHasAdvancedReasoning(region) {
@@ -363,7 +416,7 @@ function renderTabs(analysis = null) {
   allButton.className = "region-tab";
   allButton.setAttribute("role", "tab");
   allButton.setAttribute("aria-selected", String(state.selectedRegion === null));
-  allButton.textContent = "整页";
+  allButton.textContent = i18n.t("tabs.all");
   allButton.addEventListener("click", () => {
     state.selectedRegion = null;
     clearHint();
@@ -378,9 +431,9 @@ function renderTabs(analysis = null) {
     const advanced = regionHasAdvancedReasoning(region) || nextStepFor(item)?.reasoningLevel === "advanced";
     const suffix = item
       ? completed
-        ? " · 已完成"
+        ? ` · ${i18n.t("tabs.completed")}`
         : advanced
-          ? " · 高级"
+          ? ` · ${i18n.t("tabs.advanced")}`
           : ""
       : "";
     button.type = "button";
@@ -390,7 +443,7 @@ function renderTabs(analysis = null) {
     const dot = document.createElement("span");
     dot.className = "tab-dot";
     dot.setAttribute("aria-hidden", "true");
-    button.append(dot, document.createTextNode(`${region.name}${suffix}`));
+    button.append(dot, document.createTextNode(`${regionName(region)}${suffix}`));
     button.style.color = `var(--${region.accent})`;
     button.addEventListener("click", () => {
       state.selectedRegion = region.id;
@@ -438,20 +491,34 @@ function renderBoard(focusIndex = null) {
     button.setAttribute("role", "gridcell");
     button.setAttribute("aria-rowindex", String(y + 1));
     button.setAttribute("aria-colindex", String(x + 1));
+    const hintLabel = state.hintIndex === index
+      ? i18n.t("cell.hintStrong")
+      : state.hintScopeIndices.has(index)
+        ? i18n.t("cell.hintScope")
+        : "";
+    const clueLabel = clue === null
+      ? i18n.t("cell.noClue")
+      : i18n.t("cell.clue", { clue });
     button.setAttribute(
       "aria-label",
-      `${region.name}，第 ${y + 1} 行第 ${x + 1} 列，${clue === null ? "没有数字线索" : `线索 ${clue}`}，当前${valueLabel(value)}${
-        state.hintIndex === index
-          ? "，当前提示数字，强高亮"
-          : state.hintScopeIndices.has(index)
-            ? "，当前提示范围，弱高亮"
-            : ""
-      }`,
+      i18n.t("cell.aria", {
+        region: regionName(region),
+        row: y + 1,
+        column: x + 1,
+        clue: clueLabel,
+        value: valueLabel(value),
+        hint: hintLabel,
+      }),
     );
     if (countryComplete) {
       button.setAttribute(
         "aria-label",
-        `${button.getAttribute("aria-label")}，${countryArchived ? "该国已经完成并收入档案" : "该国已经完成，历史记录正在展示"}`,
+        i18n.t("cell.completedAria", {
+          base: button.getAttribute("aria-label"),
+          status: i18n.t(
+            countryArchived ? "cell.countryArchived" : "cell.countryStoryOpen",
+          ),
+        }),
       );
     }
 
@@ -493,18 +560,20 @@ function updateStats(analysis) {
   refs.cellCount.textContent = String(total);
   refs.clueCount.textContent = String(clueCount);
   refs.progressLabel.textContent = `${placed} / ${total}`;
-  refs.proofStatus.textContent = solved === state.level.regions.length ? "已完成" : "唯一已证";
+  refs.proofStatus.textContent = i18n.t(
+    solved === state.level.regions.length ? "proof.complete" : "proof.unique",
+  );
   if (analysis.conflicts.size > 0) {
-    refs.reasoningBadge.textContent = "先处理矛盾";
+    refs.reasoningBadge.textContent = i18n.t("reasoning.conflict");
     refs.reasoningBadge.dataset.level = "waiting";
   } else if (solved === state.level.regions.length) {
-    refs.reasoningBadge.textContent = "本页完成";
+    refs.reasoningBadge.textContent = i18n.t("reasoning.complete");
     refs.reasoningBadge.dataset.level = "complete";
   } else if (nextStep) {
-    refs.reasoningBadge.textContent = "基础提示可用";
+    refs.reasoningBadge.textContent = i18n.t("reasoning.basic");
     refs.reasoningBadge.dataset.level = "basic";
   } else {
-    refs.reasoningBadge.textContent = "暂无基础提示";
+    refs.reasoningBadge.textContent = i18n.t("reasoning.stalled");
     refs.reasoningBadge.dataset.level = "waiting";
   }
 }
@@ -535,7 +604,10 @@ function setCell(index, value) {
   if (analysis.conflicts.size > 0) {
     setMessage(
       refs.boardMessage,
-      `${analysis.contradictionMessage ?? "这一步让某个数字超出可能范围。"} 橙色边框标出了受影响区域。`,
+      () => i18n.t("message.moveContradiction", {
+        reason: contradictionMessage(analysis)
+          ?? i18n.t("message.moveContradictionFallback"),
+      }),
       "error",
     );
   } else if (transition.newlyCompletedRegionIds.length > 0) {
@@ -544,12 +616,16 @@ function setCell(index, value) {
     );
     setMessage(
       refs.boardMessage,
-      `${completedRegion?.name ?? "这个国家"}的版图已经完整复原。一份新的历史记录正在展开。`,
+      () => i18n.t("message.countryCompleted", {
+        country: completedRegion
+          ? regionName(completedRegion)
+          : i18n.t("message.countryFallback"),
+      }),
       "success",
     );
     queueMicrotask(() => showNextPendingStory(refs.archiveButton));
   } else {
-    setMessage(refs.boardMessage, "记录已更新。需要时可以让提示器寻找下一条必然关系。", "neutral");
+    setMessage(refs.boardMessage, "message.recordUpdated", "neutral");
   }
 }
 
@@ -560,10 +636,13 @@ function requestHint() {
     renderAll(null, analysis);
     setMessage(
       refs.statusNote,
-      `${analysis.contradictionMessage ?? "当前盘面有矛盾。"} 先把橙色边框附近的标记改回未知。`,
+      () => i18n.t("message.hintConflict", {
+        reason: contradictionMessage(analysis)
+          ?? i18n.t("message.boardConflictFallback"),
+      }),
       "error",
     );
-    setMessage(refs.boardMessage, "提示器不会跨过矛盾替你猜。", "error");
+    setMessage(refs.boardMessage, "message.hintStopsAtConflict", "error");
     return;
   }
 
@@ -577,12 +656,16 @@ function requestHint() {
     renderAll(null, analysis);
     setMessage(
       refs.statusNote,
-      `${item.region.name} · 基础提示：请看${coordinateFor(step.clueIndex)}的数字 ${step.clueValue}。`,
+      () => i18n.t("message.hintFound", {
+        country: regionName(item.region),
+        coordinate: coordinateFor(step.clueIndex),
+        clue: step.clueValue,
+      }),
       "success",
     );
     setMessage(
       refs.boardMessage,
-      `粗橙框是提示数字；弱橙框是它在同一区域内的有效 3×3 范围。只根据这个数字就能处理整个高亮范围。`,
+      "message.hintScope",
       "neutral",
     );
     return;
@@ -592,13 +675,18 @@ function requestHint() {
   if (solved) {
     clearHint();
     renderAll(null, analysis);
-    setMessage(refs.statusNote, "这一页已经被完整解开。", "success");
-    setMessage(refs.boardMessage, "所有区域都通过了确定性推导。", "success");
+    setMessage(refs.statusNote, "message.pageSolved", "success");
+    setMessage(refs.boardMessage, "message.allRegionsSolved", "success");
   } else {
-    const scope = state.selectedRegion === null ? "当前盘面" : "当前区域";
     renderAll(null, analysis);
-    setMessage(refs.statusNote, `${scope}暂时没有能由单个数字直接结算的范围。`, "neutral");
-    setMessage(refs.boardMessage, "提示不会悄悄升级成双线索作差；继续落笔，或切换到另一个区域。", "neutral");
+    setMessage(
+      refs.statusNote,
+      state.selectedRegion === null
+        ? "message.noDirectBoard"
+        : "message.noDirectRegion",
+      "neutral",
+    );
+    setMessage(refs.boardMessage, "message.noAdvancedHint", "neutral");
   }
 }
 
@@ -609,28 +697,35 @@ function checkBoard() {
   if (analysis.conflicts.size > 0) {
     setMessage(
       refs.statusNote,
-      `${analysis.contradictionMessage ?? "发现矛盾。"} 橙色边框所在区域里，至少有一个标记与数字范围冲突。`,
+      () => i18n.t("message.checkConflict", {
+        reason: contradictionMessage(analysis)
+          ?? i18n.t("message.conflictFallback"),
+      }),
       "error",
     );
-    setMessage(refs.boardMessage, "把可疑标记改回未知，再继续推理。", "error");
+    setMessage(refs.boardMessage, "message.returnUnknown", "error");
     return;
   }
   if (analysis.results.every(isRegionComplete)) {
     clearHint();
     renderAll(null, analysis);
-    setMessage(refs.statusNote, "完成。每个区域都被纯逻辑解开，且题面只有这一组答案。", "success");
-    setMessage(refs.boardMessage, "瓦罗王的第一张版图，已经复原。", "success");
+    setMessage(refs.statusNote, "message.completed", "success");
+    setMessage(refs.boardMessage, "message.mapRestored", "success");
     return;
   }
   const remaining = state.values.filter((value) => value === UNKNOWN).length;
-  setMessage(refs.statusNote, `没有发现矛盾，还有 ${remaining} 格未知。继续找 0 或“剩余数等于未知数”的线索。`, "neutral");
-  setMessage(refs.boardMessage, "检查通过：目前的标记仍然可能成立。", "neutral");
+  setMessage(
+    refs.statusNote,
+    localizedMessage("message.checkRemaining", { remaining }),
+    "neutral",
+  );
+  setMessage(refs.boardMessage, "message.checkPassed", "neutral");
 }
 
 function clearErrors() {
   if (!state.solution) {
-    setMessage(refs.statusNote, "当前关卡无法重建完整答案，不能安全地清除错误标记。", "error");
-    setMessage(refs.boardMessage, "题面保持不变。", "neutral");
+    setMessage(refs.statusNote, "message.cleanupUnavailable", "error");
+    setMessage(refs.boardMessage, "message.boardUnchanged", "neutral");
     return;
   }
 
@@ -644,13 +739,15 @@ function clearErrors() {
   if (cleanup.removedIndices.length > 0) {
     setMessage(
       refs.statusNote,
-      `已清除 ${cleanup.removedIndices.length} 个错误标记；正确标记和未知格均保持不变。`,
+      localizedMessage("message.cleanupDone", {
+        count: cleanup.removedIndices.length,
+      }),
       "success",
     );
-    setMessage(refs.boardMessage, "错误答案已全部移除，可以从当前正确进度继续。", "success");
+    setMessage(refs.boardMessage, "message.cleanupContinue", "success");
   } else {
-    setMessage(refs.statusNote, "当前没有错误标记，无需清除。", "neutral");
-    setMessage(refs.boardMessage, "棋盘没有发生变化。", "neutral");
+    setMessage(refs.statusNote, "message.cleanupNone", "neutral");
+    setMessage(refs.boardMessage, "message.noBoardChange", "neutral");
   }
 }
 
@@ -669,8 +766,8 @@ function resetBoard() {
   if (refs.epilogueDialog.open) refs.epilogueDialog.close();
   removeStoredProgress();
   renderAll();
-  setMessage(refs.statusNote, "棋盘已清空。你不需要猜，只需要找出下一条必然关系。", "neutral");
-  setMessage(refs.boardMessage, "先选择一个数字，看看它的 3×3 范围。", "neutral");
+  setMessage(refs.statusNote, "message.reset", "neutral");
+  setMessage(refs.boardMessage, "board.initial", "neutral");
 }
 
 function prepareLevel(level) {
@@ -691,7 +788,7 @@ function prepareLevel(level) {
   clearHint();
   state.conflictIndices = new Set();
   refs.clearErrorsButton.disabled = state.solution === null;
-  refs.subtitle.textContent = level.subtitle;
+  refs.subtitle.textContent = i18n.localize(level.subtitle);
   refs.seedLabel.textContent = `SEED ${level.seed}`;
   let initialAnalysis = analyseBoard();
   if (
@@ -723,9 +820,57 @@ async function loadLevel() {
     prepareLevel(await response.json());
   } catch (error) {
     console.error(error);
-    setMessage(refs.statusNote, "关卡文件没有载入。请使用本地静态服务器打开 web/ 目录。", "error");
-    setMessage(refs.boardMessage, "例如：python -m http.server 4173 --directory web", "error");
+    setMessage(refs.statusNote, "message.loadFailed", "error");
+    setMessage(refs.boardMessage, "message.serveExample", "error");
   }
+}
+
+function updateLanguageSwitcher() {
+  for (const option of refs.languageOptions) {
+    const locale = option.dataset.locale;
+    const labelKey = locale === "zh-CN" ? "language.zhCN" : "language.en";
+    const label = i18n.t(labelKey);
+    option.setAttribute("aria-pressed", String(locale === i18n.locale));
+    option.setAttribute("aria-label", label);
+    option.setAttribute("title", label);
+  }
+}
+
+function renderOpenNarrative() {
+  if (refs.fallDialog.open && state.activeStoryRegionId !== null) {
+    populateFallDialog(state.level, state.activeStoryRegionId, {
+      country: refs.fallCountry,
+      title: refs.fallCardTitle,
+      place: refs.fallPlace,
+      body: refs.fallCardBody,
+      trace: refs.fallSurvivingTrace,
+    }, i18n);
+  }
+  if (refs.epilogueDialog.open) {
+    populateEpilogueDialog(state.level, {
+      eyebrow: refs.epilogueEyebrow,
+      title: refs.epilogueTitle,
+      body: refs.epilogueBody,
+      trace: refs.epilogueTrace,
+    }, i18n);
+  }
+}
+
+function applyLocale() {
+  applyDocumentTranslations(document, i18n);
+  updateLanguageSwitcher();
+  if (state.level) {
+    refs.subtitle.textContent = i18n.localize(state.level.subtitle);
+    renderAll();
+    renderOpenNarrative();
+  }
+  renderMessages();
+}
+
+function chooseLocale(locale) {
+  if (!i18n.setLocale(locale)) return;
+  persistLocale(localeStorage, i18n.locale);
+  applyLocale();
 }
 
 refs.hintButton.addEventListener("click", requestHint);
@@ -737,6 +882,9 @@ refs.archiveDialogClose.addEventListener("click", () => refs.archiveDialog.close
 refs.archiveDialog.addEventListener("click", (event) => {
   if (event.target === refs.archiveDialog) refs.archiveDialog.close();
 });
+for (const option of refs.languageOptions) {
+  option.addEventListener("click", () => chooseLocale(option.dataset.locale));
+}
 wireDialogDismissControls(
   refs.fallDialog,
   [refs.fallDialogClose, refs.fallDialogConfirm],
@@ -777,4 +925,5 @@ refs.epilogueDialog.addEventListener("close", () => {
   if (returnFocus && !returnFocus.disabled) returnFocus.focus();
 });
 
+applyLocale();
 loadLevel();
