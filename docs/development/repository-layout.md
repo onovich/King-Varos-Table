@@ -26,6 +26,7 @@ King-Varos-Table/
 │  │  └─ narrative-packaging.md
 │  ├─ development/
 │  │  ├─ first-fall-vertical-slice.md
+│  │  ├─ prologue-and-level-book.md
 │  │  └─ repository-layout.md
 │  ├─ ideas/
 │  │  └─ layered-land-puzzle.md
@@ -41,24 +42,34 @@ King-Varos-Table/
 │  ├─ test_core.py
 │  ├─ test_campaign_state.py
 │  ├─ test_i18n.py
+│  ├─ test_level_book.py
 │  └─ test_web_hint.py
 ├─ tools/
+│  ├─ generate_campaign.py
 │  └─ generate_level.py
 ├─ varos_table/
 │  ├─ __init__.py
 │  ├─ content.py
 │  ├─ level.py
 │  ├─ minizinc_check.py
-│  └─ solver.py
+│  ├─ solver.py
+│  └─ tutorials.py
 ├─ web/
 │  ├─ data/
-│  │  └─ demo-level.json
+│  │  ├─ campaign.json
+│  │  └─ levels/
+│  │     ├─ first-light.json
+│  │     ├─ inner-sea.json
+│  │     ├─ three-small-realms.json
+│  │     └─ within-the-border.json
 │  ├─ app.js
 │  ├─ campaign-state.mjs
 │  ├─ campaign-ui.mjs
 │  ├─ hint-proof.mjs
 │  ├─ i18n.mjs
 │  ├─ index.html
+│  ├─ level-book-ui.mjs
+│  ├─ level-book.mjs
 │  ├─ puzzle-logic.mjs
 │  └─ styles.css
 ├─ .gitignore
@@ -69,10 +80,11 @@ King-Varos-Table/
 
 ## Directory responsibilities
 
-- `varos_table/` owns level generation, localized chapter content, deterministic solving and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
-- `web/` is the browser-playable prototype. Its i18n module owns English and Simplified Chinese interface text, while the public level JSON contains bilingual narrative, regions and clues but not the target solution.
+- `varos_table/` owns formal-map and tutorial generation, localized chapter content, deterministic solving and the MiniZinc bridge. It stays at repository root so the verified commands work without an installation step.
+- `web/` is the browser-playable campaign slice. Its i18n module owns English and Simplified Chinese interface text; `level-book.mjs` owns unlock/save rules; `level-book-ui.mjs` only renders the catalog. Public level JSON contains bilingual content, regions and clues but not target solutions.
+- `web/data/campaign.json` is the small level-book manifest. Each file under `web/data/levels/` remains independently loadable and independently saved.
 - `models/` contains exact constraint models used by the generator.
-- `tests/` covers Python domain logic plus JavaScript hint, campaign-state and localization behavior through Node subprocesses.
+- `tests/` covers Python domain logic plus JavaScript hint, campaign-state, level-book and localization behavior through Node subprocesses.
 - `docs/design/` contains current product decisions and guardrails. These documents override older naming or theme hypotheses in `research/`.
 - `docs/development/` records executable milestones and repository operations; `docs/ideas/` parks deliberately out-of-scope concepts without adding them to the current product contract.
 - `research/` keeps source-based investigation and historical comparisons separate from current specifications.
@@ -91,6 +103,7 @@ King-Varos-Table/
 npm start
 npm test
 npm run generate
+npm run generate:map
 ```
 
-`npm run generate` requires MiniZinc with the Gecode solver. `npm test` can run without MiniZinc, but it skips the MiniZinc integration check; full verification uses MiniZinc. Normal gameplay does not require installing the Python package.
+`npm run generate` rebuilds the manifest and all four boards; `npm run generate:map` rebuilds only the formal Inner Sea map. Both generation commands require MiniZinc with the Gecode solver. `npm test` can run without MiniZinc, but it skips the MiniZinc integration check; full verification uses MiniZinc. Normal gameplay does not require installing the Python package.

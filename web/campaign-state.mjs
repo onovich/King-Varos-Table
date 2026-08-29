@@ -56,7 +56,23 @@ export function createCampaignProgress() {
   return normalizedProgress();
 }
 
-export function reconcileCampaignProgress(progress, completedRegionIds) {
+export function hasNarrativeCampaign(level) {
+  return (
+    level?.kind !== "tutorial" &&
+    Boolean(
+      level?.campaign?.chapterId ||
+      level?.campaign?.epilogue ||
+      level?.campaign?.banquetTimeline?.length ||
+      (level?.regions ?? []).some((region) => region.country?.fallCardBody),
+    )
+  );
+}
+
+export function reconcileCampaignProgress(
+  progress,
+  completedRegionIds,
+  { queueStories = true } = {},
+) {
   const previous = normalizedProgress(progress);
   const current = uniqueRegionIds(completedRegionIds);
   const previousCompleted = new Set(previous.completedRegionIds);
@@ -70,8 +86,10 @@ export function reconcileCampaignProgress(progress, completedRegionIds) {
   const newlyCompletedRegionIds = current.filter((regionId) => !previousCompleted.has(regionId));
 
   for (const regionId of newlyCompletedRegionIds) {
-    if (!revealed.has(regionId)) pending.add(regionId);
+    if (queueStories && !revealed.has(regionId)) pending.add(regionId);
   }
+
+  if (!queueStories) pending.clear();
 
   return {
     newlyCompletedRegionIds,
@@ -237,13 +255,25 @@ export function restoreSavePayload(level, serialized) {
     const completed = new Set(campaign.completedRegionIds);
     const revealed = new Set(campaign.revealedRegionIds);
     const pending = new Set(campaign.pendingStoryRegionIds);
+    const narrative = hasNarrativeCampaign(level);
     if (
       campaign.revealedRegionIds.some((regionId) => !completed.has(regionId)) ||
       campaign.pendingStoryRegionIds.some(
         (regionId) => !completed.has(regionId) || revealed.has(regionId),
       ) ||
-      campaign.completedRegionIds.some(
-        (regionId) => !revealed.has(regionId) && !pending.has(regionId),
+      (
+        narrative &&
+        campaign.completedRegionIds.some(
+          (regionId) => !revealed.has(regionId) && !pending.has(regionId),
+        )
+      ) ||
+      (
+        !narrative &&
+        (
+          campaign.revealedRegionIds.length > 0 ||
+          campaign.pendingStoryRegionIds.length > 0 ||
+          campaign.epilogueRevealed
+        )
       )
     ) {
       return null;

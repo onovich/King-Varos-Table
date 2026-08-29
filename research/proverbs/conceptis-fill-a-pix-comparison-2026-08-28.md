@@ -2,7 +2,7 @@
 
 - 调研日期：2026-08-28
 - 调研范围：核对 Conceptis Fill-a-Pix 的官方规则、解题技巧、产品形态和数字版功能，并与 `LearnProverbs` 当前公开关卡、生成器、求解器和网页交互逐项比较。
-- 当前项目基线：`web/data/demo-level.json`，20×20、四区域、seed `20260828`。
+- 当时的项目基线：`web/data/demo-level.json`，20×20、四区域、seed `20260828`。该文件后来由关卡册架构取代；当前正式地图位于 `web/data/levels/inner-sea.json`，本报告的量化结果仍保留为历史快照。
 
 ## 证据标记
 
@@ -188,7 +188,7 @@
 
 ### 8.1 当前演示关卡的量化结果
 
-对 `web/data/demo-level.json` 直接统计得到：
+对当时的 `web/data/demo-level.json` 直接统计得到：
 
 | 指标 | 当前值 |
 |---|---:|

@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "bookId": "king-varos-table",
+  "title": {
+    "zh-CN": "瓦罗王的地图册",
+    "en": "King Varo's Map Book"
+  },
+  "chapters": [
+    {
+      "id": "prologue",
+      "number": "00",
+      "title": {
+        "zh-CN": "开宴之前",
+        "en": "Before the Feast"
+      },
+      "description": {
+        "zh-CN": "三张练习页，从一个数字的确定性推导走到多国版图。",
+        "en": "Three practice leaves, from one-clue certainty to a map of several countries."
+      },
+      "levels": [
+        {
+          "id": "first-light",
+          "source": "./data/levels/first-light.json",
+          "folio": "00A",
+          "title": {
+            "zh-CN": "序页一 · 第一盏灯",
+            "en": "Prologue I · First Light"
+          },
+          "summary": {
+            "zh-CN": "从 0 与满数开始，学会标记亮格和暗格。",
+            "en": "Begin with zeroes and full counts, then mark light and dark cells."
+          },
+          "width": 6,
+          "height": 6,
+          "regionCount": 1,
+          "difficulty": "tutorial",
+          "unlockAfter": null
+        },
+        {
+          "id": "within-the-border",
+          "source": "./data/levels/within-the-border.json",
+          "folio": "00B",
+          "title": {
+            "zh-CN": "序页二 · 国界以内",
+            "en": "Prologue II · Within the Border"
+          },
+          "summary": {
+            "zh-CN": "粗线会裁掉邻国格子；每个数字只计算自己国家的一侧。",
+            "en": "A thick border clips away the neighboring country; every clue counts only its own side."
+          },
+          "width": 8,
+          "height": 8,
+          "regionCount": 2,
+          "difficulty": "tutorial",
+          "unlockAfter": "first-light"
+        },
+        {
+          "id": "three-small-realms",
+          "source": "./data/levels/three-small-realms.json",
+          "folio": "00C",
+          "title": {
+            "zh-CN": "序页三 · 三国小图",
+            "en": "Prologue III · Three Small Realms"
+          },
+          "summary": {
+            "zh-CN": "分别推进三个国家，并熟悉提示、检查与错误清理。",
+            "en": "Advance through three countries separately and learn hints, checking, and wrong-mark cleanup."
+          },
+          "width": 10,
+          "height": 10,
+          "regionCount": 3,
+          "difficulty": "tutorial",
+          "unlockAfter": "within-the-border"
+        }
+      ]
+    },
+    {
+      "id": "inner-sea",
+      "number": "01",
+      "title": {
+        "zh-CN": "内海七国",
+        "en": "Seven Kingdoms of the Inner Sea"
+      },
+      "description": {
+        "zh-CN": "第一道正式版图：七个国家、七份陷落记录，以及一场逐渐显露本意的晚宴。",
+        "en": "The first formal map: seven countries, seven fall records, and a banquet that gradually reveals its true appetite."
+      },
+      "levels": [
+        {
+          "id": "inner-sea",
+          "source": "./data/levels/inner-sea.json",
+          "folio": "01",
+          "title": {
+            "zh-CN": "内海七国",
+            "en": "Seven Kingdoms of the Inner Sea"
+          },
+          "summary": {
+            "zh-CN": "20×20 正式版图；完成每个国家后解锁一份历史故事卡。",
+            "en": "A 20×20 formal map; completing each country reveals one historical story card."
+          },
+          "width": 20,
+          "height": 20,
+          "regionCount": 7,
+          "difficulty": "standard",
+          "unlockAfter": "three-small-realms"
+        }
+      ]
+    }
+  ]
+}

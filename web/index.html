@@ -17,6 +17,16 @@
           <p class="subtitle" id="levelSubtitle" data-i18n="brand.loadingSubtitle">Unfolding an unfinished map…</p>
         </div>
         <div class="masthead-tools">
+          <button
+            class="level-book-button"
+            id="levelBookButton"
+            type="button"
+            aria-haspopup="dialog"
+            disabled
+          >
+            <span data-i18n="levelBook.button">LEVEL BOOK</span>
+            <strong id="levelBookButtonCount">0/4</strong>
+          </button>
           <div
             class="language-switcher"
             id="languageSwitcher"
@@ -29,7 +39,7 @@
           </div>
           <div class="folio-mark" aria-label="Current map number" data-i18n-aria-label="folio.label">
             <span>MAP</span>
-            <strong>01</strong>
+            <strong id="folioNumber">—</strong>
           </div>
         </div>
       </header>
@@ -41,6 +51,12 @@
           <p class="lede" data-i18n="rules.lede">
             Each number counts the bright cells in its centered area of up to 3×3 cells, including the numbered cell itself and only cells in the same country. Bright and dark cells differ by color alone; clues range from 0 to 9, and cells beyond a thick border never count.
           </p>
+
+          <section class="lesson-panel" id="lessonPanel" aria-labelledby="lessonTitle" hidden>
+            <p class="section-kicker" data-i18n="tutorial.kicker">PRACTICE LEAF</p>
+            <h3 id="lessonTitle"></h3>
+            <p id="lessonBody"></p>
+          </section>
 
           <div class="rule-card" aria-label="Controls" data-i18n-aria-label="rules.controlsLabel">
             <div class="rule-row">
@@ -58,13 +74,13 @@
           </div>
 
           <div class="action-stack">
-            <button class="button button-primary" id="hintButton" type="button" data-i18n="actions.hint">Show a certain step</button>
+            <button class="button button-primary" id="hintButton" type="button" data-i18n="actions.hint" disabled>Show a certain step</button>
             <div class="button-row">
-              <button class="button button-quiet" id="checkButton" type="button" data-i18n="actions.check">Check my reasoning</button>
-              <button class="button button-quiet" id="clearErrorsButton" type="button" data-i18n="actions.clearErrors">Remove wrong marks</button>
+              <button class="button button-quiet" id="checkButton" type="button" data-i18n="actions.check" disabled>Check my reasoning</button>
+              <button class="button button-quiet" id="clearErrorsButton" type="button" data-i18n="actions.clearErrors" disabled>Remove wrong marks</button>
             </div>
-            <button class="button button-quiet" id="resetButton" type="button" data-i18n="actions.reset">Start over</button>
-            <button class="button button-archive" id="archiveButton" type="button" aria-haspopup="dialog" disabled>
+            <button class="button button-quiet" id="resetButton" type="button" data-i18n="actions.reset" disabled>Start over</button>
+            <button class="button button-archive" id="archiveButton" type="button" aria-haspopup="dialog" disabled hidden>
               <span id="archiveButtonLabel" data-i18n="actions.archiveEmpty">Map archive not yet compiled</span>
               <span class="button-count" id="archiveCount" aria-label="Archived country count" data-i18n-aria-label="archive.countInitial" hidden>0</span>
             </button>
@@ -93,7 +109,7 @@
             The numbers are ready. You do not need to guess—only find the next certainty.
           </p>
 
-          <section class="banquet-panel" id="banquetPanel" aria-labelledby="banquetHeading">
+          <section class="banquet-panel" id="banquetPanel" aria-labelledby="banquetHeading" hidden>
             <div class="banquet-label">
               <p class="section-kicker" data-i18n="banquet.kicker">THE BANQUET</p>
               <span id="banquetProgress" data-i18n="banquet.initialProgress">0 / 7 countries</span>
@@ -109,8 +125,8 @@
           <div class="puzzle-header">
             <div>
               <p class="section-kicker" data-i18n="puzzle.kicker">THE UNFINISHED MAP</p>
-              <h2 id="puzzleHeading" data-i18n="puzzle.heading">The Unfinished Map</h2>
-              <p class="puzzle-description" data-i18n="puzzle.description">20×20 board · Counts stay within each country · Every country has a unique solution</p>
+              <h2 id="puzzleHeading" tabindex="-1">The Unfinished Map</h2>
+              <p class="puzzle-description" id="puzzleDescription">Loading the first practice leaf…</p>
             </div>
             <div class="puzzle-meta">
               <div class="reasoning-badge" id="reasoningBadge" data-level="waiting" aria-live="polite" data-i18n="puzzle.reasoningWaiting">Awaiting marks</div>
@@ -154,6 +170,40 @@
         <span id="seedLabel">SEED —</span>
       </footer>
     </div>
+
+    <dialog class="level-book-dialog" id="levelBookDialog" aria-labelledby="levelBookHeading">
+      <section class="level-book-sheet">
+        <header class="archive-header">
+          <div>
+            <p class="section-kicker" data-i18n="levelBook.kicker">THE MAP BOOK</p>
+            <h2 id="levelBookHeading" data-i18n="levelBook.heading">Leaves of the Campaign</h2>
+          </div>
+          <button class="dialog-close" id="levelBookDialogClose" type="button" aria-label="Close the level book" data-i18n-aria-label="levelBook.closeLabel">×</button>
+        </header>
+        <div class="level-book-intro">
+          <p data-i18n="levelBook.intro">Complete each leaf to unseal the next. Every board keeps its own progress.</p>
+          <strong id="levelBookProgress">0 / 4 complete</strong>
+        </div>
+        <div class="level-book-chapters" id="levelBookChapters"></div>
+      </section>
+    </dialog>
+
+    <dialog class="completion-dialog" id="completionDialog" aria-labelledby="completionTitle">
+      <article class="completion-card">
+        <header class="story-card-header">
+          <div>
+            <p class="section-kicker" data-i18n="completion.kicker">LEAF COMPLETE</p>
+            <h2 id="completionTitle" data-i18n="completion.defaultTitle">This leaf is complete</h2>
+          </div>
+          <button class="dialog-close" id="completionDialogClose" type="button" aria-label="Close the completion notice" data-i18n-aria-label="completion.closeLabel">×</button>
+        </header>
+        <p class="completion-body" id="completionBody" data-i18n="completion.defaultBody">The next leaf has been added to the map book.</p>
+        <footer class="completion-actions">
+          <button class="button button-quiet-paper" id="completionBookButton" type="button" data-i18n="completion.openBook">Open level book</button>
+          <button class="button button-primary" id="completionNextButton" type="button" data-i18n="completion.next">Continue to next leaf</button>
+        </footer>
+      </article>
+    </dialog>
 
     <dialog class="story-dialog" id="fallDialog" aria-labelledby="fallCardTitle">
       <article class="story-card">

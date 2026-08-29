@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 2,
+  "levelId": "first-light",
+  "kind": "tutorial",
+  "title": {
+    "zh-CN": "序页一 · 第一盏灯",
+    "en": "Prologue I · First Light"
+  },
+  "subtitle": {
+    "zh-CN": "从 0 与满数开始，学会标记亮格和暗格。",
+    "en": "Begin with zeroes and full counts, then mark light and dark cells."
+  },
+  "width": 6,
+  "height": 6,
+  "seed": 1001,
+  "clueRange": [
+    0,
+    8
+  ],
+  "reasoningLevel": "basic",
+  "campaign": {
+    "chapterId": "prologue"
+  },
+  "tutorial": {
+    "lessonTitle": {
+      "zh-CN": "先找能一次说完的数字",
+      "en": "Find a number that says everything"
+    },
+    "lessonBody": {
+      "zh-CN": "数字 0 覆盖的未知格一定全暗；当数字还需要的亮格数恰好等于范围内未知格数时，它们一定全亮。左键标亮，右键标暗。",
+      "en": "Every unknown cell covered by a 0 must be dark. When a clue still needs exactly as many bright cells as remain unknown, all of them must be bright. Left-click for bright; right-click for dark."
+    },
+    "completionTitle": {
+      "zh-CN": "第一张练习页已经读懂",
+      "en": "The first practice leaf is complete"
+    },
+    "completionBody": {
+      "zh-CN": "你已经用单个数字确定了整张小图。下一页会把国界放进数字的范围里。",
+      "en": "You resolved the whole miniature from single clues. The next leaf puts a national border inside those counting areas."
+    }
+  },
+  "regionMap": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "regions": [
+    {
+      "id": 0,
+      "name": {
+        "zh-CN": "灯房",
+        "en": "Lamp Hall"
+      },
+      "accent": "ochre",
+      "cells": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ],
+      "clues": {
+        "0": 4,
+        "1": 6,
+        "6": 5,
+        "7": 7,
+        "10": 8,
+        "12": 3,
+        "17": 6,
+        "18": 1,
+        "20": 0,
+        "21": 2,
+        "22": 5,
+        "25": 0,
+        "34": 1
+      },
+      "metrics": {
+        "fullClueCount": 36,
+        "visibleClueCount": 13,
+        "solverSteps": 36,
+        "firstForcedCells": 36,
+        "uniqueVerified": true,
+        "basicSteps": 36,
+        "advancedSteps": 0,
+        "reasoningLevel": "basic",
+        "brightCount": 18,
+        "darkCount": 18,
+        "clueMin": 0,
+        "clueMax": 8
+      }
+    }
+  ]
+}

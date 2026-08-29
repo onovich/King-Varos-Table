@@ -23,7 +23,7 @@ def main() -> int:
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("web/data/demo-level.json"),
+        default=Path("web/data/levels/inner-sea.json"),
         help="public level JSON path (the hidden solution is omitted by default)",
     )
     parser.add_argument(

@@ -134,6 +134,40 @@ h2 {
   gap: 14px;
 }
 
+.level-book-button {
+  display: grid;
+  min-height: 46px;
+  padding: 7px 11px;
+  color: var(--paper-light);
+  background: rgba(10, 25, 27, 0.38);
+  border: 1px solid rgba(232, 224, 208, 0.34);
+  cursor: pointer;
+  text-align: left;
+}
+
+.level-book-button:hover {
+  color: var(--ink);
+  background: var(--focus);
+}
+
+.level-book-button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.level-book-button span {
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.level-book-button strong {
+  margin-top: 2px;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .language-switcher {
   display: grid;
   grid-template-columns: repeat(2, minmax(34px, auto));
@@ -220,6 +254,32 @@ h2 {
   color: rgba(242, 236, 223, 0.76);
   font-size: 0.92rem;
   line-height: 1.75;
+}
+
+.lesson-panel {
+  margin: 22px 0 2px;
+  padding: 16px 17px;
+  background: rgba(239, 198, 108, 0.08);
+  border-left: 3px solid var(--focus);
+}
+
+.lesson-panel .section-kicker {
+  margin-bottom: 7px;
+}
+
+.lesson-panel h3 {
+  margin: 0 0 8px;
+  color: var(--paper-light);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.lesson-panel p:last-child {
+  margin: 0;
+  color: rgba(242, 236, 223, 0.75);
+  font-size: 0.76rem;
+  line-height: 1.65;
 }
 
 .inline-mark {
@@ -329,6 +389,17 @@ h2 {
 .button-quiet:hover {
   color: var(--ink);
   background: var(--paper-light);
+}
+
+.button-quiet-paper {
+  color: var(--ink);
+  background: transparent;
+  border-color: var(--line);
+}
+
+.button-quiet-paper:hover {
+  color: var(--paper-light);
+  background: var(--ink);
 }
 
 .button-archive {
@@ -605,7 +676,9 @@ h2 {
   display: grid;
   grid-template-columns: repeat(var(--columns, 20), minmax(28px, 1fr));
   gap: 2px;
-  min-width: 700px;
+  width: min(100%, var(--board-max-width, 100%));
+  min-width: var(--board-min-width, 700px);
+  margin-inline: auto;
   padding: 2px;
   background: #101b1c;
 }
@@ -804,7 +877,9 @@ h2 {
 
 .story-dialog,
 .archive-dialog,
-.epilogue-dialog {
+.epilogue-dialog,
+.level-book-dialog,
+.completion-dialog {
   width: min(720px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);
   padding: 0;
@@ -822,16 +897,28 @@ h2 {
   width: min(760px, calc(100% - 32px));
 }
 
+.level-book-dialog {
+  width: min(880px, calc(100% - 32px));
+}
+
+.completion-dialog {
+  width: min(620px, calc(100% - 32px));
+}
+
 .story-dialog::backdrop,
 .archive-dialog::backdrop,
-.epilogue-dialog::backdrop {
+.epilogue-dialog::backdrop,
+.level-book-dialog::backdrop,
+.completion-dialog::backdrop {
   background: rgba(8, 19, 20, 0.78);
   backdrop-filter: blur(3px);
 }
 
 .story-card,
 .archive-sheet,
-.epilogue-card {
+.epilogue-card,
+.level-book-sheet,
+.completion-card {
   padding: clamp(22px, 5vw, 46px);
   background-color: var(--paper-light);
   background-image: repeating-linear-gradient(
@@ -1018,6 +1105,154 @@ h2 {
   border-color: rgba(80, 121, 128, 0.55);
 }
 
+.level-book-intro {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 22px;
+  margin: 20px 0 26px;
+}
+
+.level-book-intro p {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+.level-book-intro strong {
+  flex: 0 0 auto;
+  color: var(--signal);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
+
+.level-book-chapters {
+  display: grid;
+  gap: 26px;
+}
+
+.level-book-chapter {
+  border-top: 1px solid var(--line);
+}
+
+.level-book-chapter-header {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 15px;
+  padding: 18px 0 14px;
+}
+
+.level-book-chapter-header > span {
+  color: var(--signal);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 1.55rem;
+}
+
+.level-book-chapter-header h3 {
+  margin: 0 0 5px;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.level-book-chapter-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+
+.level-book-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.level-book-entry {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 14px 15px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  text-align: left;
+}
+
+.level-book-entry:hover:not(:disabled),
+.level-book-entry[aria-current="page"] {
+  color: var(--paper-light);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.level-book-entry:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.level-book-entry-folio {
+  color: var(--signal);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.level-book-entry-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.level-book-entry-copy strong {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
+  font-size: 0.96rem;
+  font-weight: 600;
+}
+
+.level-book-entry-copy > span,
+.level-book-entry-meta {
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.level-book-entry:hover:not(:disabled) .level-book-entry-copy > span,
+.level-book-entry:hover:not(:disabled) .level-book-entry-meta,
+.level-book-entry[aria-current="page"] .level-book-entry-copy > span,
+.level-book-entry[aria-current="page"] .level-book-entry-meta {
+  color: rgba(242, 236, 223, 0.7);
+}
+
+.level-book-entry-meta {
+  max-width: 11rem;
+  text-align: right;
+}
+
+.completion-body {
+  margin: 24px 0 0;
+  color: var(--ink-soft);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", serif;
+  font-size: 1.05rem;
+  line-height: 1.8;
+}
+
+.completion-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
 @keyframes hintPulse {
   0%,
   100% {
@@ -1051,6 +1286,7 @@ h2 {
   .rules-panel .section-kicker,
   .rules-panel h2,
   .rules-panel .lede,
+  .rules-panel .lesson-panel,
   .rules-panel .status-note,
   .banquet-panel {
     grid-column: 1 / -1;
@@ -1072,17 +1308,15 @@ h2 {
   }
 
   .masthead {
+    display: block;
     padding: 0 4px 20px;
   }
 
   .masthead-tools {
-    align-self: flex-start;
-    flex-direction: column-reverse;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 9px;
-  }
-
-  .language-switcher {
-    align-self: stretch;
   }
 
   .folio-mark {
@@ -1130,10 +1364,6 @@ h2 {
     padding: 6px;
   }
 
-  .board {
-    min-width: 680px;
-  }
-
   .puzzle-footer {
     display: block;
   }
@@ -1151,7 +1381,9 @@ h2 {
 
   .story-dialog,
   .archive-dialog,
-  .epilogue-dialog {
+  .epilogue-dialog,
+  .level-book-dialog,
+  .completion-dialog {
     width: calc(100% - 20px);
     max-height: calc(100dvh - 20px);
   }
@@ -1170,6 +1402,22 @@ h2 {
   .archive-entry {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .level-book-intro,
+  .completion-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .level-book-entry {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .level-book-entry-meta {
+    grid-column: 2;
+    max-width: none;
+    text-align: left;
   }
 }
 

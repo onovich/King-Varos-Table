@@ -1,5 +1,7 @@
 {
   "schemaVersion": 2,
+  "levelId": "inner-sea",
+  "kind": "campaign",
   "title": {
     "zh-CN": "瓦罗王的餐桌 · 地图一",
     "en": "King Varo's Table · Map One"

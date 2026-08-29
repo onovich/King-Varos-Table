@@ -38,7 +38,7 @@ import {
   deriveDirectSolution,
 } from "./web/puzzle-logic.mjs";
 
-const level = JSON.parse(fs.readFileSync("./web/data/demo-level.json", "utf8"));
+const level = JSON.parse(fs.readFileSync("./web/data/levels/inner-sea.json", "utf8"));
 const derivedSolution = deriveDirectSolution(level);
 assert.ok(derivedSolution);
 assert.equal(derivedSolution.length, 400);
@@ -66,7 +66,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { UNKNOWN, findDirectClueHint } from "./web/puzzle-logic.mjs";
 
-const level = JSON.parse(fs.readFileSync("./web/data/demo-level.json", "utf8"));
+const level = JSON.parse(fs.readFileSync("./web/data/levels/inner-sea.json", "utf8"));
 const values = Array(level.width * level.height).fill(UNKNOWN);
 
 while (true) {

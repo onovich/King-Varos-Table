@@ -88,13 +88,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { bundleKeys } from "./web/i18n.mjs";
 
-const source = ["app.js", "campaign-ui.mjs", "puzzle-logic.mjs"]
+const source = ["app.js", "campaign-ui.mjs", "level-book-ui.mjs", "puzzle-logic.mjs"]
   .map((name) => fs.readFileSync(`./web/${name}`, "utf8"))
   .join("\n");
 const prefixes = [
   "archive", "banquet", "board", "cell", "coordinate", "epilogue",
-  "fall", "footer", "language", "legend", "logic", "message", "proof",
-  "puzzle", "reasoning", "rules", "state", "stats", "tabs",
+  "completion", "fall", "footer", "language", "legend", "levelBook",
+  "logic", "message", "meta", "proof", "puzzle", "reasoning", "rules",
+  "state", "stats", "tabs", "tutorial",
 ];
 const pattern = new RegExp(`["']((?:${prefixes.join("|")})\\.[A-Za-z0-9.]+)["']`, "g");
 const referenced = new Set([...source.matchAll(pattern)].map((match) => match[1]));
@@ -112,7 +113,7 @@ for (const key of referenced) {
 class LocalizedLevelContractTests(unittest.TestCase):
     def test_committed_level_contains_complete_english_and_chinese_narrative(self):
         payload = json.loads(
-            (PROJECT_ROOT / "web" / "data" / "demo-level.json").read_text(encoding="utf-8")
+            (PROJECT_ROOT / "web" / "data" / "levels" / "inner-sea.json").read_text(encoding="utf-8")
         )
         locales = {"zh-CN", "en"}
 

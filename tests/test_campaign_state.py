@@ -248,6 +248,44 @@ assert.equal(restoreSavePayload(level, JSON.stringify(wrongType)), null);
 '''
         )
 
+    def test_tutorial_save_accepts_completed_regions_without_story_queue(self):
+        self.run_node(
+            r'''
+import assert from "node:assert/strict";
+import {
+  createCampaignProgress,
+  createSavePayload,
+  reconcileCampaignProgress,
+  restoreSavePayload,
+} from "./web/campaign-state.mjs";
+
+const level = {
+  schemaVersion: 2,
+  kind: "tutorial",
+  width: 2,
+  height: 1,
+  seed: 1001,
+  campaign: { chapterId: "prologue" },
+  regionMap: [0, 1],
+  regions: [{ id: 0, clues: { 0: 1 } }, { id: 1, clues: { 1: 0 } }],
+};
+let transition = reconcileCampaignProgress(createCampaignProgress(), [0], { queueStories: false });
+assert.deepEqual(transition.progress.completedRegionIds, [0]);
+assert.deepEqual(transition.progress.pendingStoryRegionIds, []);
+
+const payload = createSavePayload(level, [1, -1], transition.progress);
+const restored = restoreSavePayload(level, JSON.stringify(payload));
+assert.deepEqual(restored.campaign.completedRegionIds, [0]);
+assert.deepEqual(restored.campaign.pendingStoryRegionIds, []);
+
+const invalid = {
+  ...payload,
+  campaign: { ...payload.campaign, pendingStoryRegionIds: [0] },
+};
+assert.equal(restoreSavePayload(level, JSON.stringify(invalid)), null);
+'''
+        )
+
     def test_epilogue_content_populates_the_visible_story_fields(self):
         self.run_node(
             r'''

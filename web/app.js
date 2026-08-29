@@ -11,6 +11,7 @@ import {
   archiveStory,
   createCampaignProgress,
   createSavePayload,
+  hasNarrativeCampaign,
   isCampaignCompatibleWithBoard,
   isEpilogueReady,
   nextPendingStory,
@@ -30,6 +31,19 @@ import {
   persistLocale,
   preferredLocale,
 } from "./i18n.mjs";
+import {
+  completeLevel,
+  createLevelBookProgress,
+  createLevelBookSave,
+  firstPlayableLevelId,
+  isLevelUnlocked,
+  levelEntryFor,
+  restoreLevelBookProgress,
+  saveKeyForLevelBook,
+  selectLevel,
+  validateManifest,
+} from "./level-book.mjs";
+import { renderLevelBook } from "./level-book-ui.mjs";
 
 const localeStorage = (() => {
   try {
@@ -45,6 +59,12 @@ const i18n = createI18n(preferredLocale(localeStorage, browserLanguages));
 
 const refs = {
   subtitle: document.querySelector("#levelSubtitle"),
+  folioNumber: document.querySelector("#folioNumber"),
+  puzzleHeading: document.querySelector("#puzzleHeading"),
+  puzzleDescription: document.querySelector("#puzzleDescription"),
+  lessonPanel: document.querySelector("#lessonPanel"),
+  lessonTitle: document.querySelector("#lessonTitle"),
+  lessonBody: document.querySelector("#lessonBody"),
   regionTabs: document.querySelector("#regionTabs"),
   board: document.querySelector("#board"),
   boardMessage: document.querySelector("#boardMessage"),
@@ -60,6 +80,7 @@ const refs = {
   reasoningBadge: document.querySelector("#reasoningBadge"),
   progressLabel: document.querySelector("#progressLabel"),
   seedLabel: document.querySelector("#seedLabel"),
+  banquetPanel: document.querySelector("#banquetPanel"),
   banquetHeading: document.querySelector("#banquetHeading"),
   banquetBody: document.querySelector("#banquetBody"),
   banquetProgress: document.querySelector("#banquetProgress"),
@@ -71,6 +92,18 @@ const refs = {
   archiveDialogClose: document.querySelector("#archiveDialogClose"),
   archiveEmpty: document.querySelector("#archiveEmpty"),
   archiveList: document.querySelector("#archiveList"),
+  levelBookButton: document.querySelector("#levelBookButton"),
+  levelBookButtonCount: document.querySelector("#levelBookButtonCount"),
+  levelBookDialog: document.querySelector("#levelBookDialog"),
+  levelBookDialogClose: document.querySelector("#levelBookDialogClose"),
+  levelBookProgress: document.querySelector("#levelBookProgress"),
+  levelBookChapters: document.querySelector("#levelBookChapters"),
+  completionDialog: document.querySelector("#completionDialog"),
+  completionDialogClose: document.querySelector("#completionDialogClose"),
+  completionTitle: document.querySelector("#completionTitle"),
+  completionBody: document.querySelector("#completionBody"),
+  completionBookButton: document.querySelector("#completionBookButton"),
+  completionNextButton: document.querySelector("#completionNextButton"),
   fallDialog: document.querySelector("#fallDialog"),
   fallDialogClose: document.querySelector("#fallDialogClose"),
   fallDialogConfirm: document.querySelector("#fallDialogConfirm"),
@@ -90,6 +123,13 @@ const refs = {
 };
 
 const state = {
+  manifest: null,
+  bookProgress: null,
+  bookSaveKey: null,
+  currentEntry: null,
+  nextLevelId: null,
+  loadRevision: 0,
+  loading: true,
   level: null,
   values: [],
   solution: null,
@@ -163,6 +203,40 @@ function readStoredProgress(key) {
   }
 }
 
+function persistLevelBookProgress() {
+  if (!state.manifest || !state.bookProgress || !state.bookSaveKey) return;
+  try {
+    const payload = createLevelBookSave(state.manifest, state.bookProgress);
+    window.localStorage.setItem(state.bookSaveKey, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("Could not persist level-book progress.", error);
+  }
+}
+
+function renderLevelBookState() {
+  if (!state.manifest || !state.bookProgress) return;
+  renderLevelBook(
+    state.manifest,
+    state.bookProgress,
+    state.currentEntry?.id ?? null,
+    {
+      progress: refs.levelBookProgress,
+      buttonCount: refs.levelBookButtonCount,
+      chapters: refs.levelBookChapters,
+    },
+    chooseLevel,
+    i18n,
+  );
+  refs.levelBookButton.disabled = false;
+}
+
+function openLevelBook() {
+  if (!state.manifest || !state.bookProgress) return;
+  renderLevelBookState();
+  refs.levelBookDialog.showModal();
+  queueMicrotask(() => refs.levelBookDialogClose.focus());
+}
+
 function persistProgress() {
   if (!state.level || !state.saveKey) return;
   try {
@@ -188,6 +262,10 @@ function removeStoredProgress() {
 
 function renderCampaign() {
   if (!state.level) return;
+  const narrative = hasNarrativeCampaign(state.level);
+  refs.banquetPanel.hidden = !narrative;
+  refs.archiveButton.hidden = !narrative;
+  if (!narrative) return;
   renderBanquetPanel(state.level, state.campaign, {
     heading: refs.banquetHeading,
     body: refs.banquetBody,
@@ -221,6 +299,7 @@ function syncCampaignWithBoard(analysis) {
   const transition = reconcileCampaignProgress(
     state.campaign,
     completedRegionIds,
+    { queueStories: hasNarrativeCampaign(state.level) },
   );
   state.campaign = transition.progress;
   return transition;
@@ -458,6 +537,12 @@ function renderBoard(focusIndex = null) {
   const { width, height, regionMap } = state.level;
   const activeIndex = focusIndex ?? document.activeElement?.dataset?.index;
   refs.board.style.setProperty("--columns", width);
+  refs.board.style.setProperty("--board-min-width", `${Math.max(288, width * 34)}px`);
+  refs.board.style.setProperty(
+    "--board-max-width",
+    width <= 10 ? `${width * 64}px` : "100%",
+  );
+  refs.board.setAttribute("aria-busy", String(state.loading));
   refs.board.setAttribute("aria-rowcount", height);
   refs.board.setAttribute("aria-colcount", width);
   refs.board.replaceChildren();
@@ -486,7 +571,7 @@ function renderBoard(focusIndex = null) {
       .filter(Boolean)
       .join(" ");
     button.classList.toggle("is-country-complete", countryComplete);
-    button.disabled = countryComplete;
+    button.disabled = state.loading || countryComplete;
     button.dataset.index = String(index);
     button.setAttribute("role", "gridcell");
     button.setAttribute("aria-rowindex", String(y + 1));
@@ -511,13 +596,16 @@ function renderBoard(focusIndex = null) {
       }),
     );
     if (countryComplete) {
+      const completionStatus = state.level.kind === "tutorial"
+        ? i18n.t("cell.practiceCompleted")
+        : i18n.t(
+            countryArchived ? "cell.countryArchived" : "cell.countryStoryOpen",
+          );
       button.setAttribute(
         "aria-label",
         i18n.t("cell.completedAria", {
           base: button.getAttribute("aria-label"),
-          status: i18n.t(
-            countryArchived ? "cell.countryArchived" : "cell.countryStoryOpen",
-          ),
+          status: completionStatus,
         }),
       );
     }
@@ -528,7 +616,7 @@ function renderBoard(focusIndex = null) {
     clueSpan.setAttribute("aria-hidden", "true");
     button.append(clueSpan);
 
-    if (!countryComplete) {
+    if (!state.loading && !countryComplete) {
       button.addEventListener("click", (event) => {
         if (event.shiftKey) {
           setCell(index, state.values[index] === DARK ? UNKNOWN : DARK);
@@ -592,6 +680,98 @@ function clearHint() {
   state.hintScopeIndices = new Set();
 }
 
+function renderLevelChrome() {
+  if (!state.level || !state.currentEntry) return;
+  const levelTitle = i18n.localize(state.currentEntry.title)
+    || i18n.localize(state.level.title);
+  refs.subtitle.textContent = i18n.localize(state.level.subtitle);
+  refs.folioNumber.textContent = state.currentEntry.folio;
+  refs.puzzleHeading.textContent = levelTitle;
+  refs.puzzleDescription.textContent = i18n.t("puzzle.descriptionDynamic", {
+    width: state.level.width,
+    height: state.level.height,
+    regions: state.level.regions.length,
+  });
+  refs.board.setAttribute(
+    "aria-label",
+    i18n.t("puzzle.boardFor", { title: levelTitle }),
+  );
+  refs.seedLabel.textContent = `SEED ${state.level.seed}`;
+  document.title = i18n.t("meta.levelTitle", { level: levelTitle });
+
+  const tutorial = state.level.tutorial;
+  refs.lessonPanel.hidden = !tutorial;
+  refs.lessonTitle.textContent = tutorial
+    ? i18n.localize(tutorial.lessonTitle)
+    : "";
+  refs.lessonBody.textContent = tutorial
+    ? i18n.localize(tutorial.lessonBody)
+    : "";
+  renderLevelBookState();
+}
+
+function renderCompletionDialog() {
+  if (!state.level) return;
+  const tutorial = state.level.tutorial;
+  refs.completionTitle.textContent = tutorial
+    ? i18n.localize(tutorial.completionTitle)
+    : i18n.t("completion.defaultTitle");
+  refs.completionBody.textContent = tutorial
+    ? i18n.localize(tutorial.completionBody)
+    : i18n.t("completion.defaultBody");
+  refs.completionNextButton.hidden = state.nextLevelId === null;
+}
+
+function openCompletionDialog() {
+  renderCompletionDialog();
+  if (refs.levelBookDialog.open) refs.levelBookDialog.close();
+  if (!refs.completionDialog.open) refs.completionDialog.showModal();
+  queueMicrotask(() => {
+    const target = state.nextLevelId
+      ? refs.completionNextButton
+      : refs.completionBookButton;
+    target.focus();
+  });
+}
+
+function recordLevelCompletion(analysis) {
+  if (
+    !state.manifest ||
+    !state.bookProgress ||
+    !state.currentEntry ||
+    !analysis.results.every(isRegionComplete)
+  ) {
+    return false;
+  }
+  const completion = completeLevel(
+    state.manifest,
+    state.bookProgress,
+    state.currentEntry.id,
+  );
+  state.bookProgress = completion.progress;
+  state.nextLevelId = completion.nextLevelId;
+  if (!completion.newlyCompleted) return false;
+
+  persistLevelBookProgress();
+  renderLevelBookState();
+  if (state.level.kind === "tutorial") {
+    setMessage(refs.statusNote, "message.tutorialCompleted", "success");
+    queueMicrotask(openCompletionDialog);
+  }
+  return true;
+}
+
+function setLoading(loading) {
+  state.loading = loading;
+  refs.board.setAttribute("aria-busy", String(loading));
+  const unavailable = loading || state.level === null;
+  refs.hintButton.disabled = unavailable;
+  refs.checkButton.disabled = unavailable;
+  refs.resetButton.disabled = unavailable;
+  refs.clearErrorsButton.disabled = unavailable || state.solution === null;
+  if (state.level) renderBoard();
+}
+
 function setCell(index, value) {
   const region = regionFor(index);
   if (state.campaign.completedRegionIds.includes(region.id)) return;
@@ -601,6 +781,7 @@ function setCell(index, value) {
   const transition = syncCampaignWithBoard(analysis);
   renderAll(index, analysis);
   persistProgress();
+  const completedLevelNow = recordLevelCompletion(analysis);
   if (analysis.conflicts.size > 0) {
     setMessage(
       refs.boardMessage,
@@ -614,16 +795,26 @@ function setCell(index, value) {
     const completedRegion = state.level.regions.find(
       (candidate) => candidate.id === transition.newlyCompletedRegionIds[0],
     );
-    setMessage(
-      refs.boardMessage,
-      () => i18n.t("message.countryCompleted", {
-        country: completedRegion
-          ? regionName(completedRegion)
-          : i18n.t("message.countryFallback"),
-      }),
-      "success",
-    );
-    queueMicrotask(() => showNextPendingStory(refs.archiveButton));
+    if (hasNarrativeCampaign(state.level)) {
+      setMessage(
+        refs.boardMessage,
+        () => i18n.t("message.countryCompleted", {
+          country: completedRegion
+            ? regionName(completedRegion)
+            : i18n.t("message.countryFallback"),
+        }),
+        "success",
+      );
+      queueMicrotask(() => showNextPendingStory(refs.archiveButton));
+    } else {
+      setMessage(
+        refs.boardMessage,
+        completedLevelNow
+          ? "message.tutorialCompleted"
+          : "message.practiceRegionCompleted",
+        "success",
+      );
+    }
   } else {
     setMessage(refs.boardMessage, "message.recordUpdated", "neutral");
   }
@@ -710,7 +901,13 @@ function checkBoard() {
     clearHint();
     renderAll(null, analysis);
     setMessage(refs.statusNote, "message.completed", "success");
-    setMessage(refs.boardMessage, "message.mapRestored", "success");
+    setMessage(
+      refs.boardMessage,
+      state.level.kind === "tutorial"
+        ? "message.tutorialCompleted"
+        : "message.mapRestored",
+      "success",
+    );
     return;
   }
   const remaining = state.values.filter((value) => value === UNKNOWN).length;
@@ -764,14 +961,20 @@ function resetBoard() {
   if (refs.fallDialog.open) refs.fallDialog.close();
   if (refs.archiveDialog.open) refs.archiveDialog.close();
   if (refs.epilogueDialog.open) refs.epilogueDialog.close();
+  if (refs.completionDialog.open) refs.completionDialog.close();
   removeStoredProgress();
   renderAll();
   setMessage(refs.statusNote, "message.reset", "neutral");
   setMessage(refs.boardMessage, "board.initial", "neutral");
 }
 
-function prepareLevel(level) {
+function prepareLevel(level, entry) {
+  if (level.levelId && level.levelId !== entry.id) {
+    throw new TypeError(`level id ${level.levelId} does not match manifest entry ${entry.id}`);
+  }
   state.level = level;
+  state.currentEntry = entry;
+  state.nextLevelId = null;
   state.saveKey = saveKeyForLevel(level);
   const restored = restoreSavePayload(level, readStoredProgress(state.saveKey));
   const emptyValues = new Array(level.width * level.height).fill(UNKNOWN);
@@ -787,9 +990,21 @@ function prepareLevel(level) {
   state.selectedRegion = null;
   clearHint();
   state.conflictIndices = new Set();
+  state.messages.clear();
+  setMessage(refs.statusNote, "status.initial", "neutral");
+  setMessage(refs.boardMessage, "board.initial", "neutral");
+  state.loading = false;
+  refs.hintButton.disabled = false;
+  refs.checkButton.disabled = false;
+  refs.resetButton.disabled = false;
   refs.clearErrorsButton.disabled = state.solution === null;
-  refs.subtitle.textContent = i18n.localize(level.subtitle);
-  refs.seedLabel.textContent = `SEED ${level.seed}`;
+  state.bookProgress = selectLevel(
+    state.manifest,
+    state.bookProgress,
+    entry.id,
+  );
+  persistLevelBookProgress();
+  renderLevelChrome();
   let initialAnalysis = analyseBoard();
   if (
     restored &&
@@ -806,21 +1021,84 @@ function prepareLevel(level) {
   syncCampaignWithBoard(initialAnalysis);
   renderAll(null, initialAnalysis);
   persistProgress();
-  if (state.campaign.pendingStoryRegionIds.length > 0) {
+  recordLevelCompletion(initialAnalysis);
+  const url = new URL(window.location.href);
+  url.searchParams.set("level", entry.id);
+  window.history.replaceState({}, "", url);
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  if (
+    hasNarrativeCampaign(state.level) &&
+    state.campaign.pendingStoryRegionIds.length > 0
+  ) {
     queueMicrotask(() => showNextPendingStory(refs.archiveButton));
   } else if (isEpilogueReady(state.level, state.campaign)) {
     queueMicrotask(() => showEpilogueIfReady(refs.archiveButton));
   }
 }
 
-async function loadLevel() {
+async function loadLevelById(levelId) {
+  const entry = levelEntryFor(state.manifest, levelId);
+  if (!entry || !isLevelUnlocked(state.manifest, state.bookProgress, levelId)) {
+    return false;
+  }
+  const revision = ++state.loadRevision;
+  setLoading(true);
+  setMessage(
+    refs.statusNote,
+    () => i18n.t("message.loadingLevel", { level: i18n.localize(entry.title) }),
+    "neutral",
+  );
   try {
-    const response = await fetch("./data/demo-level.json", { cache: "no-store" });
+    const response = await fetch(entry.source, { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    prepareLevel(await response.json());
+    const level = await response.json();
+    if (revision !== state.loadRevision) return false;
+    prepareLevel(level, entry);
+    return true;
   } catch (error) {
     console.error(error);
+    if (revision !== state.loadRevision) return false;
+    setLoading(false);
     setMessage(refs.statusNote, "message.loadFailed", "error");
+    setMessage(refs.boardMessage, "message.serveExample", "error");
+    return false;
+  }
+}
+
+async function chooseLevel(levelId) {
+  if (!state.manifest || !state.bookProgress) return;
+  if (!isLevelUnlocked(state.manifest, state.bookProgress, levelId)) return;
+  if (refs.levelBookDialog.open) refs.levelBookDialog.close();
+  if (refs.completionDialog.open) refs.completionDialog.close();
+  if (state.currentEntry?.id === levelId) return;
+  const loaded = await loadLevelById(levelId);
+  if (loaded) refs.puzzleHeading.focus({ preventScroll: true });
+}
+
+async function loadCampaign() {
+  try {
+    const response = await fetch("./data/campaign.json", { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    state.manifest = validateManifest(await response.json());
+    state.bookSaveKey = saveKeyForLevelBook(state.manifest);
+    state.bookProgress = restoreLevelBookProgress(
+      state.manifest,
+      readStoredProgress(state.bookSaveKey),
+    ) ?? createLevelBookProgress(state.manifest);
+    const requestedLevelId = new URL(window.location.href).searchParams.get("level");
+    const initialLevelId = requestedLevelId && isLevelUnlocked(
+      state.manifest,
+      state.bookProgress,
+      requestedLevelId,
+    )
+      ? requestedLevelId
+      : firstPlayableLevelId(state.manifest, state.bookProgress);
+    renderLevelBookState();
+    await loadLevelById(initialLevelId);
+  } catch (error) {
+    console.error(error);
+    setLoading(false);
+    setMessage(refs.statusNote, "message.catalogLoadFailed", "error");
     setMessage(refs.boardMessage, "message.serveExample", "error");
   }
 }
@@ -859,11 +1137,13 @@ function renderOpenNarrative() {
 function applyLocale() {
   applyDocumentTranslations(document, i18n);
   updateLanguageSwitcher();
+  renderLevelBookState();
   if (state.level) {
-    refs.subtitle.textContent = i18n.localize(state.level.subtitle);
+    renderLevelChrome();
     renderAll();
     renderOpenNarrative();
   }
+  if (refs.completionDialog.open) renderCompletionDialog();
   renderMessages();
 }
 
@@ -878,6 +1158,27 @@ refs.checkButton.addEventListener("click", checkBoard);
 refs.clearErrorsButton.addEventListener("click", clearErrors);
 refs.resetButton.addEventListener("click", resetBoard);
 refs.archiveButton.addEventListener("click", openArchive);
+refs.levelBookButton.addEventListener("click", openLevelBook);
+refs.levelBookDialogClose.addEventListener("click", () => refs.levelBookDialog.close());
+refs.levelBookDialog.addEventListener("click", (event) => {
+  if (event.target === refs.levelBookDialog) refs.levelBookDialog.close();
+});
+refs.completionDialogClose.addEventListener("click", () => refs.completionDialog.close());
+refs.completionDialog.addEventListener("click", (event) => {
+  if (event.target === refs.completionDialog) refs.completionDialog.close();
+});
+refs.completionDialog.addEventListener("close", () => {
+  if (!refs.levelBookDialog.open) refs.levelBookButton.focus({ preventScroll: true });
+});
+refs.completionBookButton.addEventListener("click", () => {
+  refs.completionDialog.close();
+  queueMicrotask(openLevelBook);
+});
+refs.completionNextButton.addEventListener("click", () => {
+  const nextLevelId = state.nextLevelId;
+  refs.completionDialog.close();
+  if (nextLevelId) queueMicrotask(() => chooseLevel(nextLevelId));
+});
 refs.archiveDialogClose.addEventListener("click", () => refs.archiveDialog.close());
 refs.archiveDialog.addEventListener("click", (event) => {
   if (event.target === refs.archiveDialog) refs.archiveDialog.close();
@@ -926,4 +1227,4 @@ refs.epilogueDialog.addEventListener("close", () => {
 });
 
 applyLocale();
-loadLevel();
+loadCampaign();

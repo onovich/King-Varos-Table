@@ -6,27 +6,27 @@
 - Visibility: public
 - Default branch: `main`
 - Evidence mode: `runtime-tested`
-- Runtime check: local HTTP server opened in headless Chrome; the page returned HTTP 200, rendered 400 board cells and five region tabs including the all-regions tab, and produced no console or page errors.
+- Runtime check: local HTTP server opened in the in-app browser; the level book, three tutorial leaves, 400-cell formal map and bilingual UI rendered without console errors.
 
 Inspected evidence:
 
 | Path | What it proves |
 | --- | --- |
 | `web/index.html` | Product name, visible rule text, controls and board layout |
-| `web/styles.css` | Ink, paper, signal and four-region palette; print-like material language |
-| `web/data/demo-level.json` | 20×20 board, four 100-cell regions, 0–9 clue range and public omission of the target solution |
+| `web/styles.css` | Ink, paper, signal and seven-region palette; print-like material language |
+| `web/data/levels/inner-sea.json` | 20×20 board, seven irregular regions, 0–9 clue range and public omission of the target solution |
 | `web/puzzle-logic.mjs` | Region-clipped 3×3 neighborhoods and direct-clue hints |
 | `varos_table/level.py` | Deterministic generation and direct-clue solvability gate |
 | `varos_table/minizinc_check.py` | MiniZinc second-solution blocking check |
-| `tests/` | Eighteen passing tests in the current local run |
+| `tests/` | Thirty-six passing tests in the current local run |
 | `docs/design/narrative-packaging.md` | Map-and-banquet premise and the role of national borders |
 
 Claim boundaries:
 
 - The current repository is a browser-playable prototype, not a finished game.
-- The no-guess guarantee applies to the committed demo and the direct-clue rule set tested by the generator and browser logic.
-- The `v3` cover board is a forward-looking seven-region composition rather than the committed four-region JSON. Its 139 visible clues were recomputed from the repository's deterministic target with the production region-clipped neighborhood function; every candidate region was solved by direct clues and independently returned no second MiniZinc solution.
-- The banquet narrative and country-fall story cards are documented but not implemented in the runtime.
+- The no-guess guarantee applies to all four committed boards and the direct-clue rule set tested by the generator and browser logic.
+- The `v3` cover board uses the same seven-region geometry as the committed formal map. Its cover-specific set of 139 visible clues was recomputed with the production region-clipped neighborhood function; the playable map currently publishes 137 pruned clues. Both sets direct-solve and return no second MiniZinc solution per region.
+- The level book, tutorial progression, banquet narrative and country-fall story cards are implemented in the runtime.
 - No public hosted demo or open-source license is currently included.
 
 ## Promise, proof and exclusions

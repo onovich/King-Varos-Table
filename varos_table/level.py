@@ -59,6 +59,8 @@ class GeneratedLevel:
     def public_dict(self, include_solution: bool = False) -> dict:
         payload = {
             "schemaVersion": 2,
+            "levelId": "inner-sea",
+            "kind": "campaign",
             "title": dict(LEVEL_TITLE),
             "subtitle": dict(LEVEL_SUBTITLE),
             "width": self.width,
