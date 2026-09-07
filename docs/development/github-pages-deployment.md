@@ -1,6 +1,6 @@
 # GitHub Pages 部署契约
 
-状态：已上线；HTTPS 可访问，强制 HTTPS 跳转待启用  
+状态：旧版已上线；后续发布记录已确认启用强制 HTTPS。当前本地连续旅程尚未发布。
 目标站点：`https://game.onovich.com/King-Varos-Table/`
 
 ## 发布边界
@@ -37,4 +37,4 @@
 - Codex 侧边浏览器成功进入 `?level=first-light` 的 6×6 首关。点击提示后，R1C1 的数字 4 强高亮，同国范围内其余 3 格弱高亮；浏览器未记录错误或警告。
 - `https://game.onovich.com/GameLetter/` 仍返回 HTTP 200；没有修改共享域名、DNS 或其他项目配置。
 - 本次仅发布已提交的可玩版本；本地未提交的世界地图界面及相关设计文件不在发布提交内。
-- 剩余配置：本仓库 `https_enforced` 仍为 `false`，HTTP 暂不自动跳转。证书已可用，但未在尚未登录的侧边浏览器中改动设置；后续登录后启用，或在用户同意改用已登录的 GitHub CLI 后处理。直接使用上方 HTTPS 地址即可安全访问。
+- 后续操作记录：已启用 Enforce HTTPS，并验证 HTTP 301 / HTTPS 200（来自同日任务交接记录）。连续旅程整改没有再次修改 Pages、DNS 或部署线上版本。

@@ -101,7 +101,7 @@ def build_report(manifest_path: Path) -> dict:
         entry
         for chapter in manifest["chapters"]
         for entry in chapter["levels"]
-    ]
+    ] + manifest.get("journeys", [])
     listed_paths = {
         _level_path(manifest_path, entry["source"]).resolve()
         for entry in entries

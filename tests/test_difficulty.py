@@ -170,13 +170,13 @@ class DifficultyReportTests(unittest.TestCase):
         report = json.loads(result.stdout)
         self.assertEqual(
             [level["id"] for level in report["levels"]],
-            ["first-light", "within-the-border", "three-small-realms", "inner-sea"],
+            ["first-light", "within-the-border", "three-small-realms", "inner-sea", "inner-sea-journey-v1"],
         )
         self.assertEqual(
             [level["label"] for level in report["levels"]],
-            ["tutorial", "tutorial", "tutorial", "standard"],
+            ["tutorial", "tutorial", "tutorial", "standard", "standard"],
         )
-        inner_sea = report["levels"][-1]
+        inner_sea = report["levels"][3]
         self.assertEqual(inner_sea["deductionSteps"], 139)
         self.assertEqual(inner_sea["advancedDeductions"], 0)
         self.assertEqual(len(inner_sea["regions"]), 7)

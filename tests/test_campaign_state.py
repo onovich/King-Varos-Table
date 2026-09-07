@@ -401,25 +401,21 @@ assert.equal(completeArchive[1].subtitle, "the map remains");
 
 
 class CampaignDomContractTests(unittest.TestCase):
-    def test_story_dialog_archive_and_banquet_panel_are_fixed_in_the_page(self):
+    def test_story_dialog_and_fixed_reading_strip_replace_permanent_story_panels(self):
         project_root = Path(__file__).resolve().parents[1]
         html = (project_root / "web" / "index.html").read_text(encoding="utf-8")
-        app = (project_root / "web" / "app.js").read_text(encoding="utf-8")
-        i18n = (project_root / "web" / "i18n.mjs").read_text(encoding="utf-8")
-
-        self.assertIn('id="banquetPanel"', html)
+        app = (project_root / "web" / "journey-app.mjs").read_text(encoding="utf-8")
+        dialogs = (project_root / "web" / "journey-dialogs.mjs").read_text(encoding="utf-8")
+        self.assertIn('src="./journey-app.mjs"', html)
+        self.assertNotIn('id="banquetPanel"', html)
+        self.assertIn('class="reading-strip"', html)
         self.assertIn('id="archiveButton"', html)
-        self.assertIn('id="archiveButton" type="button" aria-haspopup="dialog" disabled', html)
-        self.assertIn('id="archiveButtonLabel" data-i18n="actions.archiveEmpty"', html)
-        self.assertIn('id="languageSwitcher"', html)
-        self.assertIn('<dialog class="story-dialog" id="fallDialog"', html)
-        self.assertIn('<dialog class="archive-dialog" id="archiveDialog"', html)
-        self.assertIn('<dialog class="epilogue-dialog" id="epilogueDialog"', html)
-        self.assertIn('aria-labelledby="epilogueTitle"', html)
-        self.assertIn('id="epilogueDialogClose"', html)
-        self.assertIn('id="epilogueDialogConfirm"', html)
+        self.assertIn('data-locale="zh-CN"', html)
+        self.assertIn('data-locale="en"', html)
+        self.assertIn('<dialog id="completionDialog"', html)
+        self.assertIn('aria-labelledby="storyTitle"', html)
+        self.assertIn('<dialog id="readingDialog"', html)
         self.assertNotIn("innerHTML", html)
-        self.assertIn('data-i18n="fall.archiveNote"', html)
-        self.assertIn('data-i18n="epilogue.archiveNote"', html)
-        self.assertIn("cell.countryStoryOpen", app)
-        self.assertIn('"cell.countryStoryOpen"', i18n)
+        self.assertIn('session.pendingEvent()', app)
+        self.assertIn('campaign.revealedRegionIds', dialogs)
+        self.assertIn('campaign.epilogueRevealed', dialogs)

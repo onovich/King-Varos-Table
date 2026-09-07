@@ -67,13 +67,20 @@ assert.equal(i18n.localize({ en: "Map", "zh-CN": "地图" }), "地图");
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { bundleKeys } from "./web/i18n.mjs";
+import { journeyCopy } from "./web/journey-text.mjs";
 
 const html = fs.readFileSync("./web/index.html", "utf8");
 const keys = [...html.matchAll(/data-i18n(?:-aria-label|-title)?="([^"]+)"/g)]
   .map((match) => match[1]);
 const en = new Set(bundleKeys("en"));
 const zh = new Set(bundleKeys("zh-CN"));
-assert.ok(keys.length > 40);
+const journeyKeys=[...html.matchAll(/data-j="([^"]+)"/g)].map(match=>match[1]);
+assert.ok(journeyKeys.length > 30);
+assert.deepEqual(Object.keys(journeyCopy.en).sort(),Object.keys(journeyCopy['zh-CN']).sort());
+for(const key of journeyKeys) {
+  assert.ok(journeyCopy.en[key],`missing English journey key: ${key}`);
+  assert.ok(journeyCopy['zh-CN'][key],`missing Chinese journey key: ${key}`);
+}
 for (const key of keys) {
   assert.ok(en.has(key), `missing English key: ${key}`);
   assert.ok(zh.has(key), `missing Chinese key: ${key}`);

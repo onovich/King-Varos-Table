@@ -15,6 +15,7 @@ export function cloneBoardSnapshot(snapshot) {
   return {
     values: [...snapshot.values],
     campaign: cloneCampaign(snapshot.campaign),
+    ...(snapshot.narrative ? {narrative: structuredClone(snapshot.narrative)} : {}),
   };
 }
 
@@ -30,7 +31,8 @@ function snapshotsEqual(left, right) {
     && arraysEqual(left.campaign.completedRegionIds, right.campaign.completedRegionIds)
     && arraysEqual(left.campaign.revealedRegionIds, right.campaign.revealedRegionIds)
     && arraysEqual(left.campaign.pendingStoryRegionIds, right.campaign.pendingStoryRegionIds)
-    && left.campaign.epilogueRevealed === right.campaign.epilogueRevealed;
+    && left.campaign.epilogueRevealed === right.campaign.epilogueRevealed
+    && JSON.stringify(left.narrative) === JSON.stringify(right.narrative);
 }
 
 

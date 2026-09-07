@@ -231,12 +231,14 @@ def _prune_region(
     full_clues: Mapping[int, int],
     target: list[int],
     rng: random.Random,
+    protected_clues: Iterable[int] = (),
 ) -> tuple[dict[int, int], SolveResult]:
     working = dict(full_clues)
     shuffled_clues = list(region_cells)
     rng.shuffle(shuffled_clues)
     target_local = tuple(target[index] for index in region_cells)
     required_clues = {next(cell for cell in region_cells if full_clues[cell] == clue) for clue in set(full_clues.values())}
+    required_clues.update(protected_clues)
 
     for clue_index in shuffled_clues:
         if clue_index in required_clues:
@@ -263,10 +265,14 @@ def build_level(
     max_attempts: int = 100,
     verify_with_minizinc: bool = True,
     require_full_clue_range: bool = True,
+    region_map: Iterable[int] | None = None,
+    teaching_region_id: int | None = None,
 ) -> GeneratedLevel:
     """Generate a unique level solvable by visible single-clue deductions."""
 
-    base_region_map = build_region_map(width, height)
+    base_region_map = list(region_map) if region_map is not None else build_region_map(width, height)
+    if len(base_region_map) != width * height:
+        raise ValueError("region_map must cover the whole board")
     region_ids = sorted(set(base_region_map))
     if region_ids != list(range(len(region_ids))):
         raise ValueError("region ids must be contiguous and start at zero")
@@ -302,6 +308,15 @@ def build_level(
             country = countries_by_region_id[region_id]
             cells = _region_cells(base_region_map, region_id)
             clues = {cell: full_clues[cell] for cell in cells}
+            protected = []
+            if region_id == teaching_region_id:
+                zeroes = [cell for cell in cells if clues[cell] == 0]
+                full = [cell for cell in cells if clues[cell] == len(neighbours_for_cell(width, height, base_region_map, cell))]
+                clipped = [cell for cell in cells if len(neighbours_for_cell(width, height, base_region_map, cell)) < 9]
+                if not zeroes or not full or not clipped:
+                    failed = True
+                    break
+                protected = [zeroes[0], full[0], clipped[0]]
             full_result = _solve_region(width, height, base_region_map, cells, clues)
             target_local = tuple(target[cell] for cell in cells)
             if full_result.status != "solved" or full_result.values != target_local:
@@ -317,6 +332,7 @@ def build_level(
                     clues,
                     target,
                     rng,
+                    protected,
                 )
             except ValueError:
                 failed = True

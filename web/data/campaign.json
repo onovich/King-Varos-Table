@@ -5,6 +5,17 @@
     "zh-CN": "瓦罗王的地图册",
     "en": "King Varo's Map Book"
   },
+  "journeys": [
+    {
+      "id": "inner-sea-journey-v1",
+      "source": "./data/levels/inner-sea-journey-v1.json",
+      "title": {"zh-CN": "内海 · 连续地图", "en": "Inner Sea · Continuous Map"},
+      "width": 32,
+      "height": 24,
+      "regionCount": 7,
+      "difficulty": "standard"
+    }
+  ],
   "chapters": [
     {
       "id": "prologue",

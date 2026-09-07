@@ -1,326 +1,94 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#18282a" />
-    <title data-i18n="meta.title">King Varo's Table · Logic Prototype</title>
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="shell">
-      <header class="masthead">
-        <div>
-          <p class="eyebrow" data-i18n="brand.eyebrow">KING VARO'S TABLE / LOGIC ATLAS</p>
-          <h1 data-i18n="brand.title">King Varo's Table</h1>
-          <p class="subtitle" id="levelSubtitle" data-i18n="brand.loadingSubtitle">Unfolding an unfinished map…</p>
-        </div>
-        <div class="masthead-tools">
-          <button
-            class="level-book-button"
-            id="levelBookButton"
-            type="button"
-            aria-haspopup="dialog"
-            disabled
-          >
-            <span data-i18n="levelBook.button">LEVEL BOOK</span>
-            <strong id="levelBookButtonCount">0/4</strong>
-          </button>
-          <div
-            class="language-switcher"
-            id="languageSwitcher"
-            role="group"
-            aria-label="Language"
-            data-i18n-aria-label="language.label"
-          >
-            <button class="language-option" type="button" data-locale="zh-CN">中</button>
-            <button class="language-option" type="button" data-locale="en">EN</button>
-          </div>
-          <div class="folio-mark" aria-label="Current map number" data-i18n-aria-label="folio.label">
-            <span>MAP</span>
-            <strong id="folioNumber">—</strong>
-          </div>
-        </div>
-      </header>
-
-      <main class="workbench">
-        <aside class="panel rules-panel" aria-labelledby="rulesHeading">
-          <p class="section-kicker" data-i18n="rules.kicker">THE RULE</p>
-          <h2 id="rulesHeading" data-i18n="rules.heading">Let the numbers speak.</h2>
-          <p class="lede" data-i18n="rules.lede">
-            Each number counts the bright cells in its centered area of up to 3×3 cells, including the numbered cell itself and only cells in the same country. Bright and dark cells differ by color alone; clues range from 0 to 9, and cells beyond a thick border never count.
-          </p>
-
-          <section class="lesson-panel" id="lessonPanel" aria-labelledby="lessonTitle" hidden>
-            <p class="section-kicker" data-i18n="tutorial.kicker">PRACTICE LEAF</p>
-            <h3 id="lessonTitle"></h3>
-            <p id="lessonBody"></p>
-          </section>
-
-          <div class="rule-card" aria-label="Controls" data-i18n-aria-label="rules.controlsLabel">
-            <div class="rule-row">
-              <span class="rule-glyph">1</span>
-              <span data-i18n="rules.bright">Bright tool: click, tap, Enter, or 1</span>
-            </div>
-            <div class="rule-row">
-              <span class="rule-glyph rule-glyph-dark">×</span>
-              <span data-i18n="rules.dark">Dark tool: click, tap, right-click, Shift+click, or 2</span>
-            </div>
-            <div class="rule-row">
-              <span class="rule-glyph rule-glyph-erase"></span>
-              <span data-i18n="rules.erase">Erase tool: click, tap, Delete, or 3</span>
-            </div>
-            <div class="rule-row">
-              <span class="rule-glyph">↔</span>
-              <span data-i18n="rules.drag">Mouse / pen: hold and drag across cells; one stroke undoes as one step</span>
-            </div>
-            <div class="rule-row">
-              <span class="rule-glyph rule-glyph-hint">◎</span>
-              <span data-i18n="rules.hint">Hint: strong outline for the clue, soft outline for its scope</span>
-            </div>
-          </div>
-
-          <div class="action-stack">
-            <button class="button button-primary" id="hintButton" type="button" data-i18n="actions.hint" disabled>Show a certain step</button>
-            <div class="button-row">
-              <button class="button button-quiet" id="checkButton" type="button" data-i18n="actions.check" disabled>Check my reasoning</button>
-              <button class="button button-quiet" id="clearErrorsButton" type="button" data-i18n="actions.clearErrors" disabled>Remove wrong marks</button>
-            </div>
-            <button class="button button-quiet" id="resetButton" type="button" data-i18n="actions.reset" disabled>Start over</button>
-            <button class="button button-archive" id="archiveButton" type="button" aria-haspopup="dialog" disabled hidden>
-              <span id="archiveButtonLabel" data-i18n="actions.archiveEmpty">Map archive not yet compiled</span>
-              <span class="button-count" id="archiveCount" aria-label="Archived country count" data-i18n-aria-label="archive.countInitial" hidden>0</span>
-            </button>
-          </div>
-
-          <div class="stats-grid" aria-label="Level statistics" data-i18n-aria-label="stats.label">
-            <div class="stat">
-              <span class="stat-label" data-i18n="stats.regions">Countries</span>
-              <strong id="regionCount">—</strong>
-            </div>
-            <div class="stat">
-              <span class="stat-label" data-i18n="stats.cells">Cells</span>
-              <strong id="cellCount">—</strong>
-            </div>
-            <div class="stat">
-              <span class="stat-label" data-i18n="stats.clues">Visible clues</span>
-              <strong id="clueCount">—</strong>
-            </div>
-            <div class="stat stat-proof">
-              <span class="stat-label" data-i18n="stats.proof">Proof</span>
-              <strong id="proofStatus">—</strong>
-            </div>
-          </div>
-
-          <p class="status-note" id="statusNote" role="status" aria-live="polite" data-i18n="status.initial">
-            The numbers are ready. You do not need to guess—only find the next certainty.
-          </p>
-
-          <section class="banquet-panel" id="banquetPanel" aria-labelledby="banquetHeading" hidden>
-            <div class="banquet-label">
-              <p class="section-kicker" data-i18n="banquet.kicker">THE BANQUET</p>
-              <span id="banquetProgress" data-i18n="banquet.initialProgress">0 / 7 countries</span>
-            </div>
-            <h3 id="banquetHeading" data-i18n="banquet.initialHeading">The Guests Take Their Seats</h3>
-            <p id="banquetBody" data-i18n="banquet.initialBody">The long table is laid, but every dish is empty. The first map record awaits restoration.</p>
-            <p class="banquet-insert" id="banquetInsert" hidden></p>
-          </section>
-
-        </aside>
-
-        <section class="panel puzzle-panel" aria-labelledby="puzzleHeading">
-          <div class="puzzle-header">
-            <div>
-              <p class="section-kicker" data-i18n="puzzle.kicker">THE UNFINISHED MAP</p>
-              <h2 id="puzzleHeading" tabindex="-1">The Unfinished Map</h2>
-              <p class="puzzle-description" id="puzzleDescription">Loading the first practice leaf…</p>
-            </div>
-            <div class="puzzle-meta">
-              <div class="reasoning-badge" id="reasoningBadge" data-level="waiting" aria-live="polite" data-i18n="puzzle.reasoningWaiting">Awaiting marks</div>
-              <div class="progress-stamp" aria-live="polite">
-                <span data-i18n="puzzle.progress">Marked</span>
-                <strong id="progressLabel">0 / 400</strong>
-              </div>
-            </div>
-          </div>
-
-          <nav class="region-tabs" id="regionTabs" aria-label="Country filter" data-i18n-aria-label="puzzle.regionTabsLabel" role="tablist"></nav>
-
-          <div
-            class="mark-toolbar"
-            id="markToolbar"
-            role="group"
-            aria-label="Board tools"
-            data-i18n-aria-label="tools.label"
-          >
-            <span class="mark-toolbar-label" data-i18n="tools.label">Board tools</span>
-            <div class="mark-tool-list">
-              <button class="mark-tool" type="button" data-tool="bright" aria-pressed="true" aria-keyshortcuts="1" disabled>
-                <i class="mark-tool-swatch mark-tool-swatch-bright" aria-hidden="true"></i>
-                <span data-i18n="tools.bright">Bright</span>
-                <kbd>1</kbd>
-              </button>
-              <button class="mark-tool" type="button" data-tool="dark" aria-pressed="false" aria-keyshortcuts="2" disabled>
-                <i class="mark-tool-swatch mark-tool-swatch-dark" aria-hidden="true"></i>
-                <span data-i18n="tools.dark">Dark</span>
-                <kbd>2</kbd>
-              </button>
-              <button class="mark-tool" type="button" data-tool="erase" aria-pressed="false" aria-keyshortcuts="3" disabled>
-                <i class="mark-tool-swatch mark-tool-swatch-erase" aria-hidden="true"></i>
-                <span data-i18n="tools.erase">Erase</span>
-                <kbd>3</kbd>
-              </button>
-            </div>
-            <div
-              class="history-tool-list"
-              role="group"
-              aria-label="Edit history"
-              data-i18n-aria-label="history.label"
-            >
-              <button class="history-tool" id="undoButton" type="button" aria-keyshortcuts="Control+Z Meta+Z" disabled>
-                <span data-i18n="actions.undo">Undo</span>
-                <kbd>Ctrl/⌘ Z</kbd>
-              </button>
-              <button class="history-tool" id="redoButton" type="button" aria-keyshortcuts="Control+Y Control+Shift+Z Meta+Shift+Z" disabled>
-                <span data-i18n="actions.redo">Redo</span>
-                <kbd>Ctrl Y · ⇧⌘ Z</kbd>
-              </button>
-            </div>
-          </div>
-
-          <div class="board-frame">
-            <div
-              class="board"
-              id="board"
-              role="grid"
-              aria-label="King Varo's Table logic board"
-              data-i18n-aria-label="puzzle.boardLabel"
-              aria-rowcount="20"
-              aria-colcount="20"
-            ></div>
-          </div>
-
-          <div class="puzzle-footer">
-            <div class="board-key" aria-label="Board legend" data-i18n-aria-label="legend.label">
-              <span><i class="key-swatch key-clue"></i><span data-i18n="legend.clue">Number clue</span></span>
-              <span><i class="key-swatch key-region"></i><span data-i18n="legend.border">Country border</span></span>
-              <span><i class="key-swatch key-hint"></i><span data-i18n="legend.hint">Hint clue (strong)</span></span>
-              <span><i class="key-swatch key-hint-scope"></i><span data-i18n="legend.scope">Effective scope (soft)</span></span>
-            </div>
-            <p class="board-message" id="boardMessage" role="status" aria-live="polite" data-i18n="board.initial">
-              Choose a number and inspect its 3×3 area.
-            </p>
-          </div>
-        </section>
-      </main>
-
-      <footer class="footer-line">
-        <span data-i18n="footer.prototype">LOCAL PROTOTYPE · NO GUESS / UNIQUE BY MINIZINC</span>
-        <span id="seedLabel">SEED —</span>
-      </footer>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#172729">
+  <title>King Varo's Table</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./journey.css">
+</head>
+<body>
+  <main id="gameRoot" class="game" data-screen="title">
+    <header class="game-header">
+      <button id="menuButton" class="icon-button" data-j="menu">Menu</button>
+      <div class="current-place"><span data-j="chapter">THE INNER SEA</span><h1 id="countryTitle">King Varo's Table</h1><small id="countryProgress"></small></div>
+      <span id="mapProgress" class="map-progress"></span>
+      <button id="overviewButton" data-j="overview">Whole map</button>
+    </header>
+    <section id="mapViewport" class="map-viewport" tabindex="0" aria-label="Map">
+      <div id="mapWorld" class="map-world">
+        <div id="board" class="map-board" role="grid" aria-label="Logic map"></div>
+        <div id="countryLabels" class="country-labels"></div>
+      </div>
+      <div class="map-corner" aria-hidden="true">K · V</div>
+      <div class="zoom-tools"><button id="zoomOutButton" aria-label="Zoom out">−</button><button id="focusButton" data-j="focus">Focus</button><button id="zoomInButton" aria-label="Zoom in">+</button></div>
+    </section>
+    <aside id="markToolbar" class="game-tools" role="group" data-i18n-aria-label="tools.label" aria-label="Board tools">
+      <div class="mark-tools">
+        <button data-tool="bright" aria-keyshortcuts="1" aria-pressed="true"><span class="tool-symbol sun" aria-hidden="true">☼</span><span data-i18n="tools.bright" data-j="bright">Bright</span></button>
+        <button data-tool="dark" aria-keyshortcuts="2" aria-pressed="false"><span class="tool-symbol" aria-hidden="true">☾</span><span data-i18n="tools.dark" data-j="dark">Dark</span></button>
+        <button data-tool="erase" aria-keyshortcuts="3" aria-pressed="false"><span class="tool-symbol" aria-hidden="true">◇</span><span data-i18n="tools.erase" data-j="erase">Erase</span></button>
+        <button data-tool="move" aria-keyshortcuts="4" aria-pressed="false"><span class="tool-symbol" aria-hidden="true">↔</span><span data-j="move">Move</span></button>
+      </div>
+      <div class="assist-tools" role="group" data-i18n-aria-label="history.label" aria-label="Edit history">
+        <button id="undoButton" aria-keyshortcuts="Control+Z Meta+Z" title="Ctrl/⌘ Z"><span aria-hidden="true">↶</span><span data-i18n="actions.undo" data-j="undo">Undo</span></button>
+        <button id="redoButton" aria-keyshortcuts="Control+Y Control+Shift+Z Meta+Shift+Z" title="Ctrl Y · ⇧⌘ Z"><span aria-hidden="true">↷</span><span data-i18n="actions.redo" data-j="redo">Redo</span></button>
+        <button id="hintButton"><span aria-hidden="true">◎</span><span data-j="hint">Hint</span></button>
+        <button id="clearErrorsButton"><span aria-hidden="true">⌫</span><span data-j="clearErrors">Clear errors</span></button>
+      </div>
+    </aside>
+    <section class="reading-strip" aria-label="Current note">
+      <div id="lessonPanel"><span id="noteKicker"></span><p id="statusNote" role="status" aria-live="polite"></p></div>
+      <button id="noteButton" data-j="read">Read</button>
+      <button id="countryStoryButton" data-j="readCountry" hidden>Read country record</button>
+      <button id="landscapeButton" data-j="viewLandscape" hidden>Restored coast</button>
+      <button id="skipGuideButton" data-j="skip">Skip guidance</button>
+    </section>
+    <section id="titleScreen" class="title-screen" aria-labelledby="gameTitle">
+      <div class="title-scene" aria-hidden="true"></div>
+      <div class="title-content">
+        <p class="eyebrow" data-j="titleKicker"></p>
+        <h2 id="gameTitle"><span data-j="titleLead"></span><strong data-j="titleTail"></strong></h2>
+        <p class="title-intro" data-j="titlePrologue"></p>
+        <nav class="title-actions" aria-label="Journey">
+          <button id="startButton" disabled data-j="newStart"></button>
+          <button id="resumeButton" hidden data-j="remember"></button>
+          <button id="exitButton" data-j="endAll"></button>
+        </nav>
+        <p id="titleSaveNotice" class="small-note" role="status"></p>
+      <p id="loadError" role="alert" hidden></p>
+      <button id="retryButton" hidden data-j="retry">Try again</button>
+      </div>
+      <p class="title-colophon" data-j="titleColophon"></p>
+    </section>
+  </main>
+  <section id="exitScreen" class="exit-screen" hidden><p class="eyebrow" data-j="titleColophon"></p><h2 id="exitHeading" tabindex="-1" data-j="exitHeading"></h2><p data-j="exitBody"></p></section>
+  <dialog id="menuDialog" class="game-dialog" aria-labelledby="menuTitle">
+    <header><h2 id="menuTitle" data-j="menu">Menu</h2><button class="close-dialog" data-j="close">Close</button></header>
+    <div class="menu-list">
+      <button id="returnButton" class="primary" data-j="return">Return to map</button>
+      <button id="titleReturnButton" data-j="backTitle">Return to title</button>
+      <button id="levelBookButton" data-j="practiceLegacy">Practice & previous edition</button>
+      <button id="archiveButton" data-j="archive">Collected notes</button>
+      <button id="helpButton" data-j="help">How to play</button>
+      <button id="checkButton" data-j="check">Check this map</button>
+      <fieldset><legend data-j="language">Language</legend><button data-locale="zh-CN">中</button><button data-locale="en">EN</button></fieldset>
     </div>
-
-    <dialog class="level-book-dialog" id="levelBookDialog" aria-labelledby="levelBookHeading">
-      <section class="level-book-sheet">
-        <header class="archive-header">
-          <div>
-            <p class="section-kicker" data-i18n="levelBook.kicker">THE MAP BOOK</p>
-            <h2 id="levelBookHeading" data-i18n="levelBook.heading">Leaves of the Campaign</h2>
-          </div>
-          <button class="dialog-close" id="levelBookDialogClose" type="button" aria-label="Close the level book" data-i18n-aria-label="levelBook.closeLabel">×</button>
-        </header>
-        <div class="level-book-intro">
-          <p data-i18n="levelBook.intro">Complete each leaf to unseal the next. Every board keeps its own progress.</p>
-          <strong id="levelBookProgress">0 / 4 complete</strong>
-        </div>
-        <div class="level-book-chapters" id="levelBookChapters"></div>
-      </section>
-    </dialog>
-
-    <dialog class="completion-dialog" id="completionDialog" aria-labelledby="completionTitle">
-      <article class="completion-card">
-        <header class="story-card-header">
-          <div>
-            <p class="section-kicker" data-i18n="completion.kicker">LEAF COMPLETE</p>
-            <h2 id="completionTitle" data-i18n="completion.defaultTitle">This leaf is complete</h2>
-          </div>
-          <button class="dialog-close" id="completionDialogClose" type="button" aria-label="Close the completion notice" data-i18n-aria-label="completion.closeLabel">×</button>
-        </header>
-        <p class="completion-body" id="completionBody" data-i18n="completion.defaultBody">The next leaf has been added to the map book.</p>
-        <footer class="completion-actions">
-          <button class="button button-quiet-paper" id="completionBookButton" type="button" data-i18n="completion.openBook">Open level book</button>
-          <button class="button button-primary" id="completionNextButton" type="button" data-i18n="completion.next">Continue to next leaf</button>
-        </footer>
-      </article>
-    </dialog>
-
-    <dialog class="story-dialog" id="fallDialog" aria-labelledby="fallCardTitle">
-      <article class="story-card">
-        <header class="story-card-header">
-          <div>
-            <p class="section-kicker" data-i18n="fall.kicker">THE FALL RECORD</p>
-            <p class="story-country" id="fallCountry"></p>
-            <h2 id="fallCardTitle" data-i18n="fall.defaultTitle">Record of a Fall</h2>
-          </div>
-          <button class="dialog-close" id="fallDialogClose" type="button" aria-label="Close the fall record" data-i18n-aria-label="fall.closeLabel">×</button>
-        </header>
-        <p class="story-place" id="fallPlace"></p>
-        <p class="story-chronology" id="fallChronology"></p>
-        <section class="map-reveal" aria-labelledby="fallMapRevealHeading">
-          <p class="section-kicker" id="fallMapRevealHeading" data-i18n="fall.mapRevealKicker">RESTORED MAP MOTIF</p>
-          <strong id="fallMapMotif"></strong>
-          <p id="fallMapReveal"></p>
-        </section>
-        <p class="story-body" id="fallCardBody"></p>
-        <section class="surviving-trace" aria-labelledby="survivingTraceHeading">
-          <p class="section-kicker" id="survivingTraceHeading" data-i18n="fall.traceKicker">SURVIVING TRACE</p>
-          <p id="fallSurvivingTrace"></p>
-        </section>
-        <footer class="story-card-footer">
-          <span data-i18n="fall.archiveNote">Closing adds this record to the archive</span>
-          <button class="button button-primary" id="fallDialogConfirm" type="button" data-i18n="fall.confirm">Put away the record</button>
-        </footer>
-      </article>
-    </dialog>
-
-    <dialog class="archive-dialog" id="archiveDialog" aria-labelledby="archiveHeading">
-      <section class="archive-sheet">
-        <header class="archive-header">
-          <div>
-            <p class="section-kicker" data-i18n="archive.kicker">THE ARCHIVE</p>
-            <h2 id="archiveHeading" data-i18n="archive.heading">Records of the Fallen</h2>
-          </div>
-          <button class="dialog-close" id="archiveDialogClose" type="button" aria-label="Close the archive" data-i18n-aria-label="archive.closeLabel">×</button>
-        </header>
-        <p class="archive-intro" data-i18n="archive.intro">Restored countries remain here. Rereading a record does not advance the banquet.</p>
-        <p class="archive-empty" id="archiveEmpty" data-i18n="archive.empty">No country is complete. The first record remains sealed.</p>
-        <div class="archive-list" id="archiveList" role="list"></div>
-      </section>
-    </dialog>
-
-    <dialog class="epilogue-dialog" id="epilogueDialog" aria-labelledby="epilogueTitle">
-      <article class="epilogue-card">
-        <header class="story-card-header epilogue-card-header">
-          <div>
-            <p class="section-kicker" data-i18n="epilogue.kicker">THE MAP BEARS WITNESS</p>
-            <p class="story-country" id="epilogueEyebrow" data-i18n="epilogue.defaultEyebrow">Later archive · Seven Kingdoms of the Inner Sea</p>
-            <h2 id="epilogueTitle" data-i18n="epilogue.defaultTitle">The Map Outlived the Empire</h2>
-          </div>
-          <button class="dialog-close" id="epilogueDialogClose" type="button" aria-label="Close the historical epilogue" data-i18n-aria-label="epilogue.closeLabel">×</button>
-        </header>
-        <p class="story-body epilogue-body" id="epilogueBody"></p>
-        <section class="surviving-trace epilogue-trace" aria-labelledby="epilogueTraceHeading">
-          <p class="section-kicker" id="epilogueTraceHeading" data-i18n="epilogue.traceKicker">THE SURVIVING MAP</p>
-          <p id="epilogueTrace"></p>
-        </section>
-        <footer class="story-card-footer">
-          <span data-i18n="epilogue.archiveNote">Closing adds the epilogue to the map archive</span>
-          <button class="button button-primary" id="epilogueDialogConfirm" type="button" data-i18n="epilogue.confirm">Close the archive</button>
-        </footer>
-      </article>
-    </dialog>
-
-    <script type="module" src="./app.js"></script>
-  </body>
+    <p id="storageNotice" class="small-note" role="status"></p>
+  </dialog>
+  <dialog id="levelBookDialog" class="game-dialog" aria-labelledby="levelBookHeading">
+    <header><h2 id="levelBookHeading" data-j="practiceLegacy">Practice & previous edition</h2><button class="close-dialog" data-j="close">Close</button></header>
+    <p data-j="legacyExplanation">These maps keep their own progress. They are not required for the new journey.</p>
+    <div id="levelBookChapters" class="menu-list"></div>
+  </dialog>
+  <dialog id="completionDialog" class="game-dialog story-dialog" aria-labelledby="storyTitle">
+    <article><p id="storyKicker" class="eyebrow"></p><h2 id="storyTitle"></h2><p id="storyPlace" class="story-place"></p><div id="storyBody" class="story-body"></div><p id="storyReveal" class="story-body"></p><p id="storyTrace" class="story-trace"></p><button id="storyContinue" class="primary" data-j="continue">Continue</button></article>
+  </dialog>
+  <dialog id="readingDialog" class="game-dialog" aria-labelledby="readingTitle">
+    <header><h2 id="readingTitle"></h2><button class="close-dialog" data-j="close">Close</button></header><div id="readingBody" class="story-body"></div><button id="readingBack" hidden></button>
+  </dialog>
+  <noscript>This game needs JavaScript. 此游戏需要启用 JavaScript。</noscript>
+  <script type="module" src="./journey-app.mjs"></script>
+</body>
 </html>

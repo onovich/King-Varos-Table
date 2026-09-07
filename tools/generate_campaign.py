@@ -112,11 +112,16 @@ def main() -> int:
     main_level = build_level(seed=args.seed, verify_with_minizinc=verify)
     write_public_level(main_level, args.output_directory / "inner-sea.json")
     campaign_payload = main_level.public_dict()
+    manifest = build_manifest(tutorial_levels, campaign_payload)
+    if args.manifest.exists():
+        existing = json.loads(args.manifest.read_text(encoding="utf-8"))
+        if "journeys" in existing:
+            manifest["journeys"] = existing["journeys"]
 
     args.manifest.parent.mkdir(parents=True, exist_ok=True)
     args.manifest.write_text(
         json.dumps(
-            build_manifest(tutorial_levels, campaign_payload),
+            manifest,
             ensure_ascii=False,
             indent=2,
         ) + "\n",
