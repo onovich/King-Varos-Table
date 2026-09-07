@@ -66,6 +66,7 @@ import {
   validateManifest,
 } from "./level-book.mjs";
 import { renderLevelBook } from "./level-book-ui.mjs";
+import { createWorldAtlas } from "./world-atlas.mjs";
 
 const localeStorage = (() => {
   try {
@@ -78,6 +79,9 @@ const browserLanguages = navigator.languages?.length
   ? navigator.languages
   : [navigator.language];
 const i18n = createI18n(preferredLocale(localeStorage, browserLanguages));
+const initialUrl = new URL(window.location.href);
+const useWorldAtlas = initialUrl.searchParams.get("mode") !== "puzzle";
+let worldAtlasController = null;
 
 const refs = {
   subtitle: document.querySelector("#levelSubtitle"),
@@ -1513,6 +1517,7 @@ function applyLocale() {
   }
   if (refs.completionDialog.open) renderCompletionDialog();
   renderMessages();
+  worldAtlasController?.setLocale(i18n.locale);
 }
 
 function chooseLocale(locale) {
@@ -1612,5 +1617,17 @@ refs.epilogueDialog.addEventListener("close", () => {
   if (returnFocus && !returnFocus.disabled) returnFocus.focus();
 });
 
-applyLocale();
-loadCampaign();
+if (useWorldAtlas) {
+  document.body.dataset.mode = "atlas";
+  document.querySelector("#atlasExperience").hidden = false;
+  document.querySelector("#puzzleShell").hidden = true;
+  worldAtlasController = createWorldAtlas({
+    initialCountryId: initialUrl.searchParams.get("country"),
+    locale: i18n.locale,
+    onLocaleChange: chooseLocale,
+  });
+} else {
+  document.body.dataset.mode = "puzzle";
+  applyLocale();
+  loadCampaign();
+}

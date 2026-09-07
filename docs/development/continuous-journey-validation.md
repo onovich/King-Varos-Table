@@ -90,3 +90,9 @@ Browser validation on fresh origin 4187: no-save title omits Remember the past; 
 Selecting a country and pressing Focus now interpolate the live x/y/scale camera over 520ms using cubic ease-out. Input hit testing reads the same camera as rendering. Pointer-down, direct pan/zoom, resizing, loading and leaving the game cancel pending motion; reduced-motion preference uses an immediate transition. Frames update session camera without synchronous storage writes each frame; the completed motion persists normally.
 
 71 tests pass. Added deterministic animation coverage for the midpoint easing value, exact endpoint, cancellation, replacement from the live position, and reduced motion. Browser confirmed an intermediate transform followed by the intended final country fit, preserved 7/7 progress and no console warnings/errors.
+
+## All experimental directions included for push — 2026-09-08
+
+The user explicitly requested all outstanding work, including the experimental 3D direction. This submission includes the independent imperial-table prototype, local Three.js dependency and license, credited scanned food models and PBR textures, all three rounds of screenshots, prototype tests, prior world-atlas modules and styles, visual concept images, research notes, and the relief-chronicle reference screenshot under tmp/. The production entry still loads journey-app.mjs; the 3D prototype remains a separate entry at web/prototypes/imperial-table/index.html. Historical atlas HTML is retained as a design archive.
+
+Pre-push validation: all 80 unittest cases passed in 5.437 seconds with MiniZinc on PATH; git diff --check passed. The prototype README and review gallery record the earlier browser checks and visual results. Mobile hardware performance remains unverified. No deployment or replacement of the production menu is included.
