@@ -1,6 +1,6 @@
 # GitHub Pages 部署契约
 
-状态：已配置，等待远端首次部署验收  
+状态：已上线；HTTPS 可访问，强制 HTTPS 跳转待启用  
 目标站点：`https://game.onovich.com/King-Varos-Table/`
 
 ## 发布边界
@@ -28,3 +28,13 @@
 - 页面资源无 404，浏览器控制台无模块或跨源错误。
 - 本项目 HTTP 地址自动跳转到 HTTPS。
 - `https://game.onovich.com/GameLetter/` 等已有项目继续可访问。
+
+## 首次发布记录（2026-09-07）
+
+- 发布提交：`73bf1374846ba6099a938e2a59517e93c85cb724`。
+- [GitHub Actions 首次部署](https://github.com/onovich/King-Varos-Table/actions/runs/34074584972) 的 `validate`、`deploy` 均成功；包含 MiniZinc 的完整测试共 60 项，全数通过。
+- `web/` 中全部 19 个已提交文件在线返回 HTTP 200；逐文件 SHA-256 与提交内容一致。HTML、模块、CSS、图标和关卡 JSON 的 Content-Type 正确。
+- Codex 侧边浏览器成功进入 `?level=first-light` 的 6×6 首关。点击提示后，R1C1 的数字 4 强高亮，同国范围内其余 3 格弱高亮；浏览器未记录错误或警告。
+- `https://game.onovich.com/GameLetter/` 仍返回 HTTP 200；没有修改共享域名、DNS 或其他项目配置。
+- 本次仅发布已提交的可玩版本；本地未提交的世界地图界面及相关设计文件不在发布提交内。
+- 剩余配置：本仓库 `https_enforced` 仍为 `false`，HTTP 暂不自动跳转。证书已可用，但未在尚未登录的侧边浏览器中改动设置；后续登录后启用，或在用户同意改用已登录的 GitHub CLI 后处理。直接使用上方 HTTPS 地址即可安全访问。
