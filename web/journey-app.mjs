@@ -1,3 +1,4 @@
+import {createJourneyThree} from './journey-three.mjs?v=12';
 import {createI18n,preferredLocale,persistLocale} from './i18n.mjs';
 import {createJourneyText} from './journey-text.mjs';
 import {createJourneySession,journeySaveKey,validJourneyRun} from './journey-session.mjs';
@@ -14,6 +15,7 @@ import {levelEntries} from './level-book.mjs';
 const NEW_LEVEL='inner-sea-journey-v1', el=id=>document.getElementById(id);
 let storage;try{storage=window.localStorage;}catch{/* Privacy mode can deny even the getter. */}
 const i18n=createI18n(preferredLocale(storage,navigator.languages)),t=createJourneyText(i18n),localize=v=>i18n.localize(v);
+let three,threePromise;
 let level,session,board,manifest,camera,tool='bright',hint=null,message=null,currentNote=null,loadToken=0;
 const migrationRun=validJourneyRun(new URL(location.href).searchParams.get('run'));
 const viewport=el('mapViewport'), size=()=>({width:viewport.clientWidth,height:viewport.clientHeight});
@@ -26,12 +28,21 @@ function save(){if(!session?.getState().started || el('gameRoot').dataset.screen
 function displayCamera(next){camera=next;board.camera(camera);session.setCamera(camera);}
 const cameraMotion=createCameraMotion({read:()=>camera,write:displayCamera,finish:save});
 function setCamera(next){cameraMotion.cancel();displayCamera(clampCamera(level,next,size()));save();}
+function fitScene(cells=null){
+  if(!three)return fitMap(level,size(),cells);
+  const full=size(),left=0,top=document.querySelector('.game-header').getBoundingClientRect().bottom-viewport.getBoundingClientRect().top+12;
+  const vp=viewport.getBoundingClientRect();
+  const bottom=Math.max(...[el('markToolbar'),document.querySelector('.reading-strip')].map(node=>vp.bottom-node.getBoundingClientRect().top))+16;
+  const fitted=fitMap(level,{width:full.width-left,height:full.height-top-bottom},cells);
+  return {...fitted,x:fitted.x+left,y:fitted.y+top};
+}
 function focusCountry(animate=false){
-  const target=clampCamera(level,fitMap(level,size(),level.regions.find(r=>r.id===session.getState().activeRegionId).cells),size());
-  if(animate)cameraMotion.move(target,{reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});else setCamera(target);
+  three?.focusView();
+  const target=clampCamera(level,fitScene(level.regions.find(r=>r.id===session.getState().activeRegionId).cells),size());
+  if(three)setCamera(target);else if(animate)cameraMotion.move(target,{reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches});else setCamera(target);
 }
 viewport.addEventListener('pointerdown',()=>cameraMotion.cancel(),{capture:true});
-function overview(){setCamera(fitMap(level,size()));message={key:session.getState().campaign.epilogueRevealed?'allDone':'chooseCountry'};render();}
+function overview(){three?.overview();setCamera(fitScene());message={key:session.getState().campaign.epilogueRevealed?'allDone':'chooseCountry'};render();}
 function selectCountry(id){
   const previous=session.getState().activeRegionId;
   if(!session.selectRegion(id)){message={key:'lockedCountry'};render();return;}
@@ -125,15 +136,19 @@ async function load(id=NEW_LEVEL,autoStart=false,fresh=false){
     session=createJourneySession(level,{saved:payload,legacyProgress,skipGuide:false});
     if(migrating && session.getState().started){try{writeAutoSave(storage,level.levelId,session.serialize());}catch{storageWarning();}}
     hint=null;message=null;
-    board=createJourneyBoard(level,{board:el('board'),labels:el('countryLabels'),viewport,world:el('mapWorld'),t,localize,onCountry:selectCountry});
-    camera=session.getState().camera??fitMap(level,size());setCamera(camera);
+    threePromise??=createJourneyThree(viewport).catch(error=>{threePromise=null;throw error;});three=await threePromise;
+    if(token!==loadToken)return;
+    const dom=createJourneyBoard(level,{board:el('board'),labels:el('countryLabels'),viewport,world:el('mapWorld'),t,localize,onCountry:selectCountry});
+    const visual=three.attach(level,{labels:el('countryLabels')});
+    board={render(state,hint,preview){dom.render(state,hint,preview);visual.render(state,hint,preview);},camera:next=>visual.camera(next),focus(index){dom.focus(index);visual.focus(index);}};
+    camera=session.getState().camera??fitScene();setCamera(camera);
     el('startButton').disabled=false;el('resumeButton').disabled=false;setTool('bright');translate();
     const url=new URL(location.href);url.searchParams.set('level',level.levelId);url.searchParams.delete('country');url.searchParams.delete('mode');
     url.searchParams.delete('run');window.history.replaceState(null,'',url);
     if(autoStart)begin();
   }catch(error){
     if(token!==loadToken)return;
-    el('loadError').textContent=t(location.protocol==='file:'?'localFile':'loadFailed');
+    el('loadError').textContent=error.message?.startsWith('3D ')?error.message:t(location.protocol==='file:'?'localFile':'loadFailed');
     el('loadError').hidden=false;el('retryButton').hidden=false;console.error('Map loading failed',error);
   }
 }
@@ -197,7 +212,7 @@ el('levelBookButton').addEventListener('click',()=>{
   }dialogs.open('levelBookDialog');
 });
 for(const b of document.querySelectorAll('[data-locale]'))b.addEventListener('click',()=>{i18n.setLocale(b.dataset.locale);persistLocale(storage,i18n.locale);translate();});
-installJourneyInput(viewport,{ready,level:()=>level,camera:()=>camera,setCamera,tool:()=>tool,setTool,values:()=>session.getState().values,
+installJourneyInput(viewport,{ready,hit:point=>three?.hit(point)??null,editable:()=>three?.editable()??false,level:()=>level,camera:()=>camera,setCamera,tool:()=>tool,setTool,values:()=>session.getState().values,
   canEdit:index=>session.canEdit(index),mark,select:selectCountry,preview:values=>{if(board)board.render(session.getState(),hint,values);},history:historyAction,
   focus:index=>{board.focus(index);const p={x:(index%level.width+.5)*CELL_SIZE*camera.scale+camera.x,y:(Math.floor(index/level.width)+.5)*CELL_SIZE*camera.scale+camera.y};
     if(p.x<24||p.x>size().width-24||p.y<24||p.y>size().height-24)setCamera({...camera,x:camera.x+size().width/2-p.x,y:camera.y+size().height/2-p.y});}});

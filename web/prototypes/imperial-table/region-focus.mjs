@@ -1,0 +1,15 @@
+import * as T from './vendor/three.module.min.js';
+let serial=0;
+export function regionBounds(data,id){const cells=data.regions.find(r=>r.id===id)?.cells??[];if(!cells.length)return null;const xs=cells.map(i=>i%data.width),ys=cells.map(i=>Math.floor(i/data.width));const minX=Math.min(...xs),maxX=Math.max(...xs)+1,minY=Math.min(...ys),maxY=Math.max(...ys)+1;return {minX,maxX,minY,maxY,x:(minX+maxX)/2,y:(minY+maxY)/2};}
+export function focusState(previous,pixels,width=390){const factor=Math.min(1,Math.max(240,width)/390);return previous?pixels>24*factor:pixels>=29*factor;}
+export function createRegionFocus(map,board,data){
+ const previousMaterial=map.material;map.material=previousMaterial.clone();previousMaterial.dispose();
+ const generation=++serial;
+ const bytes=new Uint8Array(data.width*data.height*4),mask=new T.DataTexture(bytes,data.width,data.height);mask.magFilter=T.LinearFilter;mask.minFilter=T.LinearFilter;mask.flipY=false;
+ const oldBytes=bytes.slice(),oldMask=new T.DataTexture(oldBytes,data.width,data.height);oldMask.magFilter=T.LinearFilter;oldMask.minFilter=T.LinearFilter;const regionProgress={value:1};
+ const amount={value:0},regionMask={value:mask},extent={value:new T.Vector2(board.unit*data.width,board.unit*data.height)};let active=null,target=0;
+ function install(material,brightness){material.onBeforeCompile=shader=>{Object.assign(shader.uniforms,{focusAmount:amount,regionMask,previousRegion:{value:oldMask},regionProgress,focusExtent:extent});shader.vertexShader='varying vec2 focusWorld;\n'+shader.vertexShader;shader.vertexShader=shader.vertexShader.replace('#include <worldpos_vertex>','#include <worldpos_vertex>\n focusWorld=(modelMatrix*vec4(transformed,1.)).xz;');shader.fragmentShader='varying vec2 focusWorld;uniform float focusAmount;uniform sampler2D regionMask;uniform sampler2D previousRegion;uniform float regionProgress;uniform vec2 focusExtent;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <colorspace_fragment>',`#include <colorspace_fragment>
+vec2 focusUv=focusWorld/focusExtent+.5;float inside=step(0.,focusUv.x)*step(focusUv.x,1.)*step(0.,focusUv.y)*step(focusUv.y,1.);float selected=mix(texture2D(previousRegion,focusUv).r,texture2D(regionMask,focusUv).r,regionProgress)*inside;gl_FragColor.rgb*=mix(1.,mix(${brightness.toFixed(2)},1.,selected),focusAmount);`);};material.customProgramCacheKey=()=>`focus-${brightness}-${generation}`;material.needsUpdate=true;}
+ install(map.material,.28);install(board.mesh.material,.20);
+ return {set(id,focused){target=focused?1:0;if(id!==active){oldBytes.set(bytes);oldMask.needsUpdate=true;regionProgress.value=active===null?1:0;active=id;for(let i=0;i<data.regionMap.length;i++){const v=data.regionMap[i]===id?255:0;bytes.set([v,v,v,255],i*4);}mask.needsUpdate=true;}},update(dt){regionProgress.value=Math.min(1,regionProgress.value+dt/.25);amount.value+=Math.sign(target-amount.value)*Math.min(Math.abs(target-amount.value),dt/.25);},dispose(){mask.dispose();oldMask.dispose();}};
+}

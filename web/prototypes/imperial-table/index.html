@@ -1,9 +1,9 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>盛宴将启 · 瓦罗王的餐桌</title><link rel="stylesheet" href="./style.css"></head><body data-view="banquet">
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>盛宴将启 · 瓦罗王的餐桌</title><link rel="stylesheet" href="./style.css?v=8"></head><body data-view="banquet">
 <canvas id="scene" aria-label="帝国宴席与七国海图"></canvas>
 <div class="vignette" aria-hidden="true"></div>
-<header><span class="wordmark">V A R O <i>／</i> 七国山河</span><span class="edition">视觉试稿 · 盛宴将启</span></header>
+<header><span class="wordmark">V A R O <i>／</i> 七国山河</span><span class="edition">海图第七稿 · 盛宴将启</span></header>
 <main id="intro"><p class="eyebrow">七国的山河，今夜俱在席间</p><h1>盛宴<span>将启</span></h1><p class="prologue">金杯尚未举起，远方已铺满长桌。<br>让目光越过烛火，抵达帝国的每一处海岸。</p><button id="enter" disabled>俯瞰海图 <span>↗</span></button><p class="signature">瓦罗王的餐桌 <span>／</span> THE TABLE OF VARO</p></main>
 <section id="mapUI" hidden><div class="map-heading"><p class="eyebrow">帝国海图</p><h2 id="regionName">七国，尽入眼底</h2><p id="regionLine">选择一处山河，让镜头带你靠近。</p></div><div class="view-actions"><button id="overview">查看全图</button><button id="banquet">返回宴席</button></div><nav id="countries" aria-label="选择地区"></nav><p class="instruction">拖动平移 · 滚轮缩放 · 点击地区靠近</p></section>
 <div id="hoverLabel" hidden></div><p id="loading" role="status">正在点亮宴厅……</p><section id="failure" role="alert" hidden><h2>宴厅暂未能展开</h2><p id="failureText"></p><button onclick="location.reload()">重新载入</button></section>
-<footer><span>山河为席 · 四海为宾</span><span id="performance" aria-label="预览性能"></span></footer>
-<script type="module">import('./app.mjs').catch(error=>{document.querySelector('#failure').hidden=false;document.querySelector('#failureText').textContent='无法加载 3D 场景，请检查浏览器是否支持 WebGL 2，然后重新载入。';document.querySelector('#loading').hidden=true;console.error(error);});</script></body></html>
+<footer><span>山河为席 · 四海为宾</span><button id="fireMotion" type="button" aria-pressed="true">烛火动态：开</button><span id="performance" aria-label="预览性能"></span></footer>
+<script type="module">import('./app.mjs?v=8').catch(error=>{document.querySelector('#failure').hidden=false;document.querySelector('#failureText').textContent='无法加载 3D 场景，请检查浏览器是否支持 WebGL 2，然后重新载入。';document.querySelector('#loading').hidden=true;console.error(error);});</script></body></html>

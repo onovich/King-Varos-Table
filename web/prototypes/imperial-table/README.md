@@ -21,7 +21,7 @@
 - `board-data.mjs`：正式内海关卡的只读布局与可见线索快照，不含答案。
 - `board.mjs`：独立透明棋盘平面、坐标拾取、渐显、标记和撤销。
 - `materials.mjs` / `craft.mjs`：材质、倒角、盘盏装饰、杯纹、蜡滴、织物、柱头与檐线。
-- `assets/sea-chart.png`：内置 imagegen 生成的海图底图；[生成提示词与来源](assets/PROMPT.md)。
+- `assets/sea-chart.webp`：内置 imagegen 生成的海图底图；[生成提示词与来源](assets/PROMPT.md)。
 - `camera.mjs` / `motion.mjs`：构图终点、插值及可中断动画。
 - `app.mjs` / `style.css` / `index.html`：输入、生命周期、屏幕空间 UI。
 - `vendor/three.module.min.js`、`three.core.min.js`：npm 官方包 `three@0.185.1` 的构建产物；MIT 许可证保存在 `vendor/LICENSE`。没有 CDN 或外部模型依赖。
@@ -89,3 +89,31 @@ Windows / Codex 内置浏览器，本机列出的显卡为 NVIDIA GeForce RTX 50
 验证：80 项自动测试通过，新增本地 glTF 完整性、加载器依赖与火光波动／减少动态效果契约测试。桌面短时观察仍约 60 FPS，手机实机性能未验证。初次 glTF 加载遗漏 SkeletonUtils 的问题已补齐并通过导入测试。
 
 第三稿浏览器检查：1440×900、1280×720、390×844、320×740；进入海图、近景、点击标记、拖动与返回正常。桌面短时观察约 60 FPS。四视图与两张窄屏截图见 [对照页](review.html)。完整手机硬件帧率与热稳定性仍未验证。
+# Blender 器物对照试验
+
+新增 [器物对照页](blender-review.html)，通过 `?craft=blender` 使用本机 Blender 无头生成的瓷盘、金杯和餐巾；默认版本不变。源码为 `tools/build_blender_tableware.py`，使用 `tools/Build-BlenderTableware.ps1` 隐藏窗口、低优先级、双线程 CPU 重建。详细验证与限制见 `docs/development/blender-tableware-study.md`。本轮 81 项自动测试通过。
+# 整体第四稿
+
+最新 [整体效果页](hall-review.html) 包含远景、总览、近景和窄屏截图。默认已整合 Blender 器物与御座帷幕，增加拱顶和建筑层次，重新平衡木材、石材、窗光与烛光。屋顶随镜头升高淡出，避免遮挡地图总览。`?craft=classic` 只对照旧器物，不还原旧版建筑。完整 83 项测试通过，过程及限制见 `docs/development/imperial-hall-round-four.md`。
+# HDR 第五稿（待浏览器验收）
+
+[HDR 资源与对照入口](hdr-review.html)。默认加载专用 HDR 与桌面烘焙；`?lighting=legacy` 对照简化环境，`?craft=classic` 不使用与 Blender 器物绑定的烘焙图。本轮简化非重点 PBR 材质，新增运行资源约 2.03 MiB，无新增实时阴影灯或光追。85 项自动测试通过，但浏览器工具启动故障，尚无本轮实时截图和性能结果。详细状态见 `docs/development/imperial-hdr-round-five.md`。
+
+
+## 第六稿：烛火与座椅
+
+`furniture-review.html` 为离线模型预览。使用 `tools/Build-BlenderTableware.ps1 -Study Furniture` 隐藏、低优先级、双线程生成。八张椅子共用 590,800 字节 GLB，三个材质批次；新增约 24 次主通道绘制，替换旧方板椅子。水果、餐盘、桌面未调整。烛火形变和灯光强度同步变化，保持光源位置及两盏缓存阴影，页脚可显式切换动态。86 项测试通过；CUA 初始化失败，网页画面与 FPS 尚未复核。
+
+
+## 第七稿：海图与棋盘统一
+
+入口 `?revision=7`，纹理审阅 `atlas-review.html`。海图基于 `atlas-layout-guide.png` 由 imagegen 生成，再编码为 WebP。分区大体匹配，手绘海岸不承诺像素级一致；拾取以方格数据为准。`atlas-layout.mjs` 统一棋盘位置、纹理纵向校准、烛台与纸面净空。棋盘使用非自发光 Standard 材质并接收阴影，屏幕导航仍为 HTML。水果、餐盘、桌面未修改。
+
+正式 `inner-sea-journey-v1` 分区已更新，所有格子仍为方形；重新生成 236 个线索，七国通过直接推理及 MiniZinc 唯一解验证。存档 fingerprint 会拒绝旧分区记录，未删除用户存储。再生成使用 `python tools/generate_journey.py` 然后 `python tools/sync_atlas_snapshot.py`。
+
+87 项测试通过，所有模块语法检查通过。CUA 初始化失败，未完成第七稿运行画面、各屏幕尺寸或 FPS 验证。
+
+
+## 正式接入（第八轮）
+
+根入口已使用此处的场景与受光棋盘资源；正式玩法由 `web/journey-app.mjs` 和 `web/journey-three.mjs` 衔接，不使用试稿的临时标记作为进度。滚轮与其他镜头输入统一平滑。烛光增强，环境填光适度降低。完整验证见 `docs/development/imperial-table-production.md`。

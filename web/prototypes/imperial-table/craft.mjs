@@ -5,7 +5,7 @@ export function bevelBox(w,h,d){
  const p=g.attributes.position,n=g.attributes.normal,uv=g.attributes.uv;
  for(let i=0;i<p.count;i++){const nx=Math.abs(n.getX(i)),ny=Math.abs(n.getY(i)),nz=Math.abs(n.getZ(i));uv.setXY(i,nx>ny&&nx>nz?p.getZ(i)/d+.5:p.getX(i)/w+.5,ny>nx&&ny>nz?p.getZ(i)/d+.5:p.getY(i)/h+.5);}return g;
 }
-export function addCraft(scene,m){
+export function addCraft(scene,m,{blenderTableware=false}={}){
  const add=(g,mat,x,y,z)=>{const o=new T.Mesh(g,mat);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);return o;};
  const ring=(radius,tube,mat,x,y,z)=>{const o=add(new T.TorusGeometry(radius,tube,8,64),mat,x,y,z);o.rotation.x=Math.PI/2;return o;};
  const curve=(points,mat,r=.025)=>add(new T.TubeGeometry(new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p))),24,r,8,false),mat,0,0,0);
@@ -17,23 +17,15 @@ export function addCraft(scene,m){
  const seats=[[-4.75,-5.8],[-4.75,0],[-4.75,5.8],[4.75,-5.8],[4.75,0],[4.75,5.8],[0,-7.8]];
  for(const [x,z] of seats){
   // Two nested porcelain courses and a restrained engraved gilt rim.
-  ring(.79,.013,m.gold,x,3.14,z);ring(.95,.012,m.bronze,x,3.22,z);
+  if(!blenderTableware){ring(.79,.013,m.gold,x,3.14,z);ring(.95,.012,m.bronze,x,3.22,z);
   for(let k=0;k<28;k++){const a=k/28*Math.PI*2;const leaf=add(new T.SphereGeometry(.027,8,6),m.gold,x+Math.cos(a)*.95,3.235,z+Math.sin(a)*.95);leaf.scale.set(.7,.22,1.7);leaf.rotation.y=-a;}
-  // Fork tines and a shaped knife blade replace the impression of loose sticks.
-  for(let k=0;k<4;k++)add(bevelBox(.023,.025,.23),m.gold,x-1.25+(k-1.5)*.042,3.11,z-.56);
-  add(bevelBox(.19,.028,.44),m.gold,x+1.23,3.11,z-.37);
+  }
   const gx=x+(x<0?.7:-.7),gz=z-.85;
-  for(const y of [3.08,3.48,3.77,3.97])ring(y<3.5?.22:.305,.014,m.gold,gx,y,gz);
+  if(!blenderTableware){for(const y of [3.08,3.48,3.77,3.97])ring(y<3.5?.22:.305,.014,m.gold,gx,y,gz);
   for(let k=0;k<12;k++){const a=k*Math.PI/6;curve([[gx+Math.cos(a)*.18,3.56,gz+Math.sin(a)*.18],[gx+Math.cos(a)*.28,3.76,gz+Math.sin(a)*.28],[gx+Math.cos(a)*.307,3.94,gz+Math.sin(a)*.307]],m.bronze,.009);}
   // Folded linen, caught by a metal napkin ring, beside each setting.
   const linen=add(bevelBox(.5,.13,.78),new T.MeshStandardMaterial({color:'#c7bb9c',roughness:1}),x+(x<0?1.18:-1.18),3.15,z+.8);linen.rotation.y=.25;
-  const nr=add(new T.TorusGeometry(.19,.035,10,32),m.gold,linen.position.x,3.18,z+.8);nr.rotation.y=Math.PI/2;nr.scale.y=.65;
- }
- // Wax is imperfect: lip, rivulets and a tiny visible wick.
- for(const [x,z] of [[-4,-3],[4,-3],[-4,3],[4,3],[2.5,7.8]]){
-  ring(.105,.016,m.ivory,x,4.45,z).castShadow=false;
-  for(let k=0;k<4;k++){const a=k*1.7;const drip=add(new T.SphereGeometry(.026,8,10),m.ivory,x+Math.cos(a)*.101,4.33-(k%2)*.08,z+Math.sin(a)*.101);drip.scale.y=3.5;drip.castShadow=false;}
-  add(new T.CylinderGeometry(.008,.008,.09,8),new T.MeshBasicMaterial({color:'#322317'}),x,4.46,z);
+  const nr=add(new T.TorusGeometry(.19,.035,10,32),m.gold,linen.position.x,3.18,z+.8);nr.rotation.y=Math.PI/2;nr.scale.y=.65;}
  }
  // Blown-glass decanter: a thin shell, amber liquid and metal lip.
  const vessel=[[0,0],[.35,0],[.46,.13],[.52,.55],[.40,.95],[.17,1.20],[.14,1.62],[.19,1.69],[.16,1.71],[.115,1.61],[.14,1.18],[.36,.93],[.47,.53],[.40,.12],[0,.07]];

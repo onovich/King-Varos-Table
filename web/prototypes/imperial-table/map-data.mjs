@@ -1,5 +1,6 @@
+import {BOARD} from './atlas-layout.mjs?v=12';
 // Region identities plus a local, read-only snapshot of the real 2D board.
-import {boardData} from './board-data.mjs';
+import {boardData} from './board-data.mjs?v=12';
 export const regions=[
  {id:'loven',name:'洛汶低地',line:'河流穿过低地，通往遥远的粮仓。',color:'#afb7a0',points:[[.07,.10],[.37,.07],[.40,.30],[.31,.40],[.09,.35]]},
  {id:'aspa',name:'阿斯帕',line:'白色城阶，向内海层层展开。',color:'#c8b894',points:[[.37,.07],[.67,.10],[.66,.32],[.51,.39],[.40,.30]]},
@@ -10,8 +11,8 @@ export const regions=[
  {id:'pel',name:'佩尔岛',line:'潮水漫过砾湾，海风先于宾客抵达。',color:'#cdbd9d',points:[[.82,.48],[.91,.49],[.95,.57],[.92,.65],[.84,.63],[.79,.57]]}
 ];
 export const MAP={width:7.2,height:9.4,y:3.035};
-export function center(region){const cells=boardData.regions[regions.indexOf(region)].cells;return cells.reduce((a,i)=>[a[0]+(.04+(i%32+.5)/32*.92)/cells.length,a[1]+(.236+(Math.floor(i/32)+.5)/24*.528)/cells.length],[0,0]);}
+export function center(region){const cells=boardData.regions[regions.indexOf(region)].cells;return cells.reduce((a,i)=>[a[0]+(BOARD.u+(i%32+.5)/32*BOARD.width)/cells.length,a[1]+(BOARD.v+(Math.floor(i/32)+.5)/24*BOARD.height)/cells.length],[0,0]);}
 export function contains(points,u,v){let inside=false;for(let i=0,j=points.length-1;i<points.length;j=i++){
  const [x,y]=points[i],[a,b]=points[j];if((y>v)!==(b>v)&&u<(a-x)*(v-y)/(b-y)+x)inside=!inside;}return inside;}
-export function regionAt(u,v){const x=Math.floor((u-.04)/.92*32),y=Math.floor((v-.236)/.528*24);return x<0||y<0||x>=32||y>=24?null:regions[boardData.regionMap[y*32+x]];}
+export function regionAt(u,v){const x=Math.floor((u-BOARD.u)/BOARD.width*32),y=Math.floor((v-BOARD.v)/BOARD.height*24);return x<0||y<0||x>=32||y>=24?null:regions[boardData.regionMap[y*32+x]];}
 export function worldPoint(u,v){return [(u-.5)*MAP.width,MAP.y,(v-.5)*MAP.height];}

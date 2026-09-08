@@ -40,7 +40,7 @@
 
 ## 14 · 残阳御图／The Last Campaign — 主解谜页首选
 
-![残阳御图](14-last-campaign.png)
+![残阳御图](14-last-campaign.webp)
 
 **征伐。** 残阳、军旗、笔直军道与角式城门仍然发布“最后凯旋”的帝国官方叙述。  
 **衰落。** 干涸河床、港口残影、褪金和失修道路从地形层显出；它们不是血腥败相，而是基础设施与地方秩序在帝国地图内部慢慢沉没。  
@@ -50,7 +50,7 @@
 
 ## 15 · 裂冠王朝图／Fractured Dynasty Atlas — 章节盛景首选
 
-![裂冠王朝图](15-fractured-dynasty-atlas.png)
+![裂冠王朝图](15-fractured-dynasty-atlas.webp)
 
 **征伐。** 左侧金日、凯旋拱、队列与被纳入皇权的道路展示帝国最自信的版本。  
 **衰落。** 右侧断冠、剥落马赛克、失修高架渠、雾中旧城和重新出现的地方地名提醒玩家：统一叙事正在失去边缘。
@@ -74,5 +74,5 @@
 
 两稿均由独立子代理使用内置图像生成流程完成并保存到项目：
 
-- [14-last-campaign.png](14-last-campaign.png)：残阳金、朱砂、煤黑、病态青绿的最后凯旋；地形底下有干河、废港、旧路与褪金。
-- [15-fractured-dynasty-atlas.png](15-fractured-dynasty-atlas.png)：同一马赛克地图从金日凯旋、行军与凯旋拱，连续褪变为断冠、雾城与失修水道。
+- [14-last-campaign.webp](14-last-campaign.webp)：残阳金、朱砂、煤黑、病态青绿的最后凯旋；地形底下有干河、废港、旧路与褪金。
+- [15-fractured-dynasty-atlas.webp](15-fractured-dynasty-atlas.webp)：同一马赛克地图从金日凯旋、行军与凯旋拱，连续褪变为断冠、雾城与失修水道。

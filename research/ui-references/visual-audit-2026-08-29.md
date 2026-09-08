@@ -83,7 +83,7 @@ inkle 的官方说明把游戏定义为考古、遗址探索与失落语言释�
 
 ## 3. 对当前第 04 稿的审计
 
-现有原画见 [`docs/ui-concepts/04-epigraphic-ledger.png`](../../docs/ui-concepts/04-epigraphic-ledger.png)，原评审已正确优先保留棋盘、工具、范围、提示和档案的层级，并指出范围必须严格按代码显示同国 3×3。下面是本轮的补充，而不是推翻该评审。
+现有原画见 [`docs/ui-concepts/04-epigraphic-ledger.webp`](../../docs/ui-concepts/04-epigraphic-ledger.webp)，原评审已正确优先保留棋盘、工具、范围、提示和档案的层级，并指出范围必须严格按代码显示同国 3×3。下面是本轮的补充，而不是推翻该评审。
 
 | 当前元素 | 风险判断 | 为什么会偏向博物馆拟物／文化错位 | 针对性修正 |
 | --- | --- | --- | --- |

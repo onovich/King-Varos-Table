@@ -7,6 +7,8 @@
   <title>King Varo's Table</title>
   <link rel="icon" href="./favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./journey.css">
+  <link rel="stylesheet" href="./journey-three.css?v=12">
+  <link rel="stylesheet" href="./journey-parchment.css?v=12">
 </head>
 <body>
   <main id="gameRoot" class="game" data-screen="title">
@@ -71,6 +73,7 @@
       <button id="titleReturnButton" data-j="backTitle">Return to title</button>
       <button id="levelBookButton" data-j="practiceLegacy">Practice & previous edition</button>
       <button id="archiveButton" data-j="archive">Collected notes</button>
+      <button id="candleMotionButton" aria-pressed="true">烛光动态 / Candlelight</button>
       <button id="helpButton" data-j="help">How to play</button>
       <button id="checkButton" data-j="check">Check this map</button>
       <fieldset><legend data-j="language">Language</legend><button data-locale="zh-CN">中</button><button data-locale="en">EN</button></fieldset>
@@ -89,6 +92,6 @@
     <header><h2 id="readingTitle"></h2><button class="close-dialog" data-j="close">Close</button></header><div id="readingBody" class="story-body"></div><button id="readingBack" hidden></button>
   </dialog>
   <noscript>This game needs JavaScript. 此游戏需要启用 JavaScript。</noscript>
-  <script type="module" src="./journey-app.mjs"></script>
+  <script type="module" src="./journey-app.mjs?v=12"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 """Fixed-size continuous campaign. Legacy campaign generation stays unchanged."""
 
 from .level import build_region_map
+import math
 
 WIDTH, HEIGHT = 32, 24
 
@@ -26,7 +27,14 @@ def _connected(cells: set[int]) -> bool:
 
 def build_journey_map() -> list[int]:
     """Keep the seven geographic neighbors; trim Pel to a 48-cell opening."""
-    regions = build_region_map(WIDTH, HEIGHT)
+    original = build_region_map(WIDTH, HEIGHT)
+    # Gentle coordinate warping gives the same seven neighbors winding borders.
+    regions = []
+    for y in range(HEIGHT):
+        for x in range(WIDTH):
+            sx = max(0, min(WIDTH-1, round(x + 1.4*math.sin(y*.32))))
+            sy = max(0, min(HEIGHT-1, round(y + 0.7*math.sin(x*.25))))
+            regions.append(original[sy*WIDTH+sx])
     pel = {i for i, region in enumerate(regions) if region == 6}
     cx = sum(i % WIDTH for i in pel) / len(pel)
     cy = sum(i // WIDTH for i in pel) / len(pel)
@@ -42,4 +50,6 @@ def build_journey_map() -> list[int]:
             break
         else:
             raise ValueError('Cannot trim opening country without disconnecting it')
+    if any(not _connected({i for i,r in enumerate(regions) if r == country}) for country in range(7)):
+        raise ValueError("Atlas regions must remain connected")
     return regions

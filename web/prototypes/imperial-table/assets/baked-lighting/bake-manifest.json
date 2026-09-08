@@ -1,0 +1,48 @@
+{
+  "blender": "5.2.1 LTS",
+  "seconds": 127.53,
+  "cpu_threads": 2,
+  "samples": 32,
+  "panorama": [
+    1024,
+    512
+  ],
+  "bakes": [
+    1024,
+    1024
+  ],
+  "probe_three": [
+    0,
+    4.8,
+    0
+  ],
+  "uv": "u=x/12+0.5; v=z/19+0.5",
+  "indirect_only": true,
+  "limitations": "Static lighting proxy; no moving-object GI, no candle direct light baked; no per-object probe parallax correction.",
+  "files": {
+    "imperial-room-1k.hdr": 1223494,
+    "table-ao.png": 849142,
+    "table-indirect.png": 5486082
+  },
+  "runtime_maps": {
+    "table-ao.webp": {
+      "bytes": 467698,
+      "resolution": [
+        1024,
+        1024
+      ],
+      "encoding": "8-bit linear non-color WebP lossless",
+      "sampling_noise_filter_pixels": 0.7
+    },
+    "table-indirect.webp": {
+      "bytes": 442434,
+      "resolution": [
+        1024,
+        1024
+      ],
+      "encoding": "8-bit linear non-color WebP lossless",
+      "sampling_noise_filter_pixels": 1.5
+    }
+  },
+  "note": "PNG intermediates replaced by filtered, 8-bit non-color WebP; original bake is reproducible. This is not lossless relative to floating-point Cycles output."
+}

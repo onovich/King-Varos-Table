@@ -4,9 +4,9 @@
 
 | 标记 | 用户选择 | 本轮可继承的东西 | 明确不继承的东西 |
 | --- | --- | --- | --- |
-| **S1** | ![S1：宴席地图](user-selected-references/selected-01-banqueting-map.png) | 深色外框＋暖纸主盘；顶部国家筛选；中心棋盘；左操作、右叙事的稳定三段层级；低饱和国别色。 | 格内过细的装饰插画、任何烘焙的进度／规则文字。 |
-| **S2** | ![S2：地图册棋盘](user-selected-references/selected-02-atlas-board.png) | 欧陆印刷品式的留白、页边地图线、一个大而干净的棋盘、轻薄国别色和档案入口。 | “Numbers in a country cannot repeat”是错误规则；卷轴、火漆、过度做旧、真实地理联想。 |
-| **S3** | ![S3：皇家晚宴编年](user-selected-references/selected-03-royal-chronicle.png) | 深色顶栏、暖纸工作面、简练的金色分隔线、清晰工具区、晚宴叙事作为副层。 | 锅具、真实文化联想、额外“新条目／书签／回溯／封印”等未经确认功能。 |
+| **S1** | ![S1：宴席地图](user-selected-references/selected-01-banqueting-map.webp) | 深色外框＋暖纸主盘；顶部国家筛选；中心棋盘；左操作、右叙事的稳定三段层级；低饱和国别色。 | 格内过细的装饰插画、任何烘焙的进度／规则文字。 |
+| **S2** | ![S2：地图册棋盘](user-selected-references/selected-02-atlas-board.webp) | 欧陆印刷品式的留白、页边地图线、一个大而干净的棋盘、轻薄国别色和档案入口。 | “Numbers in a country cannot repeat”是错误规则；卷轴、火漆、过度做旧、真实地理联想。 |
+| **S3** | ![S3：皇家晚宴编年](user-selected-references/selected-03-royal-chronicle.webp) | 深色顶栏、暖纸工作面、简练的金色分隔线、清晰工具区、晚宴叙事作为副层。 | 锅具、真实文化联想、额外“新条目／书签／回溯／封印”等未经确认功能。 |
 
 ## 已确认的审美偏好
 

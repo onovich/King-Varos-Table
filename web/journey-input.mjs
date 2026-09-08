@@ -7,7 +7,8 @@ export function installJourneyInput(viewport, api) {
   const pointers = new Map();
   let gesture = null, space = false, spacePanned = false, lastPointerCommit = -Infinity;
   const point = event => { const r = viewport.getBoundingClientRect(); return {x:event.clientX-r.left,y:event.clientY-r.top}; };
-  const hit = p => cellAtPoint(api.level(),api.camera(),p);
+  const hit = p => api.hit?api.hit(p):cellAtPoint(api.level(),api.camera(),p);
+  const editable=()=>api.editable?api.editable():canEditAtScale(api.camera().scale);
   const distance = ([a,b]) => Math.hypot(a.x-b.x,a.y-b.y);
   const center = ([a,b]) => ({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
   const cancel = () => { pointers.clear(); gesture=null; api.preview(null); };
@@ -29,7 +30,7 @@ export function installJourneyInput(viewport, api) {
     const index=hit(p);
     if (event.pointerType==='touch') gesture={kind:'tap',start:p,last:p,index,value:index===null ? -1 : target(index,event)};
     else if (space || event.button===1 || api.tool()==='move') { gesture={kind:'pan',last:p};if(space)spacePanned=true; }
-    else if (index!==null && canEditAtScale(api.camera().scale) && api.canEdit(index)) {
+    else if (index!==null && editable() && api.canEdit(index)) {
       api.focus(index);
       gesture={kind:'paint',cells:new Set(),value:target(index,event),last:index}; extend(index); event.preventDefault();
     } else gesture={kind:'select',index};
@@ -59,7 +60,7 @@ export function installJourneyInput(viewport, api) {
     else if (done?.kind==='tap' || done?.kind==='select') {
       if (done.index!==null) {
         api.focus(done.index);
-        if (done.kind==='tap' && api.tool()!=='move' && canEditAtScale(api.camera().scale) && api.canEdit(done.index)) api.mark([done.index],done.value);
+        if (done.kind==='tap' && api.tool()!=='move' && editable() && api.canEdit(done.index)) api.mark([done.index],done.value);
         else api.select(api.level().regionMap[done.index]);
       }
     }
@@ -70,7 +71,7 @@ export function installJourneyInput(viewport, api) {
     const cell=event.target.closest('[data-index]');if(!cell)return;
     const index=Number(cell.dataset.index);
     api.focus(index);
-    if(canEditAtScale(api.camera().scale) && api.canEdit(index) && api.tool()!=='move')api.mark([index],target(index,event));
+    if(editable() && api.canEdit(index) && api.tool()!=='move')api.mark([index],target(index,event));
     else api.select(api.level().regionMap[index]);
   });
   viewport.addEventListener('pointercancel',cancel);
@@ -102,7 +103,7 @@ export function installJourneyInput(viewport, api) {
       event.preventDefault();api.focus(next);
     } else if (keyboardTool) {
       event.preventDefault();
-      if (!canEditAtScale(api.camera().scale) || !api.canEdit(index) || api.tool()==='move') api.select(api.level().regionMap[index]);
+      if (!editable() || !api.canEdit(index) || api.tool()==='move') api.select(api.level().regionMap[index]);
       else api.mark([index],markValueForTool(api.values()[index],event.shiftKey && event.key==='Enter'?'dark':keyboardTool));
     }
   });

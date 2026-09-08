@@ -406,7 +406,7 @@ class CampaignDomContractTests(unittest.TestCase):
         html = (project_root / "web" / "index.html").read_text(encoding="utf-8")
         app = (project_root / "web" / "journey-app.mjs").read_text(encoding="utf-8")
         dialogs = (project_root / "web" / "journey-dialogs.mjs").read_text(encoding="utf-8")
-        self.assertIn('src="./journey-app.mjs"', html)
+        self.assertIn('src="./journey-app.mjs?v=12"', html)
         self.assertNotIn('id="banquetPanel"', html)
         self.assertIn('class="reading-strip"', html)
         self.assertIn('id="archiveButton"', html)

@@ -96,3 +96,9 @@ Selecting a country and pressing Focus now interpolate the live x/y/scale camera
 The user explicitly requested all outstanding work, including the experimental 3D direction. This submission includes the independent imperial-table prototype, local Three.js dependency and license, credited scanned food models and PBR textures, all three rounds of screenshots, prototype tests, prior world-atlas modules and styles, visual concept images, research notes, and the relief-chronicle reference screenshot under tmp/. The production entry still loads journey-app.mjs; the 3D prototype remains a separate entry at web/prototypes/imperial-table/index.html. Historical atlas HTML is retained as a design archive.
 
 Pre-push validation: all 80 unittest cases passed in 5.437 seconds with MiniZinc on PATH; git diff --check passed. The prototype README and review gallery record the earlier browser checks and visual results. Mobile hardware performance remains unverified. No deployment or replacement of the production menu is included.
+
+## Production 3D banquet and seating revision 12 — 2026-09-09
+
+User requested pushing the accumulated local work. Includes production 3D gameplay integration, smooth camera and focus masking, lighting controls, parchment UI, optimized reference images, headless Blender furniture/tableware and HDR/PBR assets, historical rationale and browser acceptance records. Revision 12 calibrates seat width/depth/back height and table underside clearance; the distant throne backdrop is removed.
+
+Latest completed validation: 96 unittest cases passed; git diff --check passed. The commit wrapper reruns the configured unittest suite before staging. Formal scene, chair closeups and an approximate seated envelope were checked in the browser; detailed limitations and images are recorded in seating-proportions-12.md. Push targets codex/continuous-journey without force push; no explicit deployment is performed.

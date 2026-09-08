@@ -1,0 +1,317 @@
+{
+  "original_commit": "d6568b6cd49bc482fc2dd2dc2ae863be73d079db",
+  "encoding": "WebP lossless, method=6, exact=True; original dimensions and ICC profile retained",
+  "source_bytes": 69057708,
+  "output_bytes": 47595416,
+  "saved_bytes": 21462292,
+  "images": [
+    {
+      "source": "docs/ui-concepts/01-lacquer-archive.png",
+      "output": "docs/ui-concepts/01-lacquer-archive.webp",
+      "source_bytes": 2430674,
+      "output_bytes": 1816592,
+      "dimensions": [
+        1680,
+        945
+      ],
+      "rgba_sha256": "6c4ce3e9b2942f9fea79d39328be1121f697ffada4117d4667f7db4502682234"
+    },
+    {
+      "source": "docs/ui-concepts/02-nautical-atlas.png",
+      "output": "docs/ui-concepts/02-nautical-atlas.webp",
+      "source_bytes": 3911288,
+      "output_bytes": 2026380,
+      "dimensions": [
+        1664,
+        936
+      ],
+      "rgba_sha256": "ec725fcb620ea1bd916ba5a9ab7a1c914ffb02618e3c005fe62dfdbe61faf092"
+    },
+    {
+      "source": "docs/ui-concepts/03-banqueting-mosaic.png",
+      "output": "docs/ui-concepts/03-banqueting-mosaic.webp",
+      "source_bytes": 3918857,
+      "output_bytes": 1879566,
+      "dimensions": [
+        1680,
+        945
+      ],
+      "rgba_sha256": "f6bf2590e471a3619628796d8d41a6854489f2bae657b6301e24f7a17e710e81"
+    },
+    {
+      "source": "docs/ui-concepts/04-epigraphic-ledger.png",
+      "output": "docs/ui-concepts/04-epigraphic-ledger.webp",
+      "source_bytes": 2790602,
+      "output_bytes": 1962614,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "f8aba5b64eff38263772e86a6ce9bcb00b6d1bc7b706bcaaae31acc7d37a31f1"
+    },
+    {
+      "source": "docs/ui-concepts/05-second-edition-map.png",
+      "output": "docs/ui-concepts/05-second-edition-map.webp",
+      "source_bytes": 2113141,
+      "output_bytes": 1545982,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "dfd6e5f123007b83beb6786d25111591c8d08e4be9cab710b84ab91f3b39c07c"
+    },
+    {
+      "source": "docs/ui-concepts/06-relief-chronicle.png",
+      "output": "docs/ui-concepts/06-relief-chronicle.webp",
+      "source_bytes": 201342,
+      "output_bytes": 91464,
+      "dimensions": [
+        1680,
+        945
+      ],
+      "rgba_sha256": "6cdd55239d3414236ea809e8b3c80e8e302be6897d605fa3ff28b27e0428295c"
+    },
+    {
+      "source": "docs/ui-concepts/07-woven-atlas.png",
+      "output": "docs/ui-concepts/07-woven-atlas.webp",
+      "source_bytes": 2922041,
+      "output_bytes": 2124056,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "64aff282f07ea8905a672dbbc58b95497ce60afbc007970d9eb9d5b9b919d2ea"
+    },
+    {
+      "source": "docs/ui-concepts/08-tidal-nocturne.png",
+      "output": "docs/ui-concepts/08-tidal-nocturne.webp",
+      "source_bytes": 2630099,
+      "output_bytes": 1268598,
+      "dimensions": [
+        1600,
+        900
+      ],
+      "rgba_sha256": "edaa74be0b61187ebdbdd9ca36424dcfc141e754d1e5d7b91a4e8006d211efa9"
+    },
+    {
+      "source": "docs/ui-concepts/09-mineral-glass-atlas.png",
+      "output": "docs/ui-concepts/09-mineral-glass-atlas.webp",
+      "source_bytes": 2492519,
+      "output_bytes": 1861270,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "44af2fdab575ea1861f16e763729f5d296ea50c37d1993149fe34b2c1fb2d02e"
+    },
+    {
+      "source": "docs/ui-concepts/10-solar-triumph-mural.png",
+      "output": "docs/ui-concepts/10-solar-triumph-mural.webp",
+      "source_bytes": 2813704,
+      "output_bytes": 2233304,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "ae98cbb7366ae0fc416a2f7033f354a872b6054112047e64f890d2c89f1a72e7"
+    },
+    {
+      "source": "docs/ui-concepts/11-tribute-tapestry.png",
+      "output": "docs/ui-concepts/11-tribute-tapestry.webp",
+      "source_bytes": 3072927,
+      "output_bytes": 2390328,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "f2c6dfa1b113622ac9ad843054d034d63bb540a6c903668f1f59cc352a65da37"
+    },
+    {
+      "source": "docs/ui-concepts/12-obsidian-throne-map.png",
+      "output": "docs/ui-concepts/12-obsidian-throne-map.webp",
+      "source_bytes": 2323812,
+      "output_bytes": 1676734,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "b9220dfce6bcac42af6f72db0f1e5c814173ca0c1eae3b227ed2c4f10a0c5495"
+    },
+    {
+      "source": "docs/ui-concepts/13-jeweled-capital-mosaic.png",
+      "output": "docs/ui-concepts/13-jeweled-capital-mosaic.webp",
+      "source_bytes": 3097191,
+      "output_bytes": 2451280,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "f034946ab0a2b24a3bd8404282da9454f03be50fdd484b32d79aa500b5a1a5e9"
+    },
+    {
+      "source": "docs/ui-concepts/14-last-campaign.png",
+      "output": "docs/ui-concepts/14-last-campaign.webp",
+      "source_bytes": 2932997,
+      "output_bytes": 2109448,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "1f51b53d29317961111cb61992f21e013e2dfb598d064bc06af03804893718a7"
+    },
+    {
+      "source": "docs/ui-concepts/15-fractured-dynasty-atlas.png",
+      "output": "docs/ui-concepts/15-fractured-dynasty-atlas.webp",
+      "source_bytes": 3305542,
+      "output_bytes": 2491726,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "252509c63380ec31271150c5102a9da768526e13aeb6f75c7022a3ec73f1591b"
+    },
+    {
+      "source": "docs/ui-concepts/16-continental-register.png",
+      "output": "docs/ui-concepts/16-continental-register.webp",
+      "source_bytes": 1460034,
+      "output_bytes": 1104472,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "ad20a06616085ce6590d935065af495465fe84c30c0c1efb744f4f444bf5cad4"
+    },
+    {
+      "source": "docs/ui-concepts/17-banqueting-ledger.png",
+      "output": "docs/ui-concepts/17-banqueting-ledger.webp",
+      "source_bytes": 1622952,
+      "output_bytes": 1229630,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "7312deb21a83a22f257f671d7cafc76cef228fc6e71d2d33a0d7a27d9b134bfd"
+    },
+    {
+      "source": "docs/ui-concepts/18-fading-atlas-edition.png",
+      "output": "docs/ui-concepts/18-fading-atlas-edition.webp",
+      "source_bytes": 1769649,
+      "output_bytes": 1325260,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "81034c7bc513f874e5c820a009ab2097f2a4b9e9aa18a12acf3c46220bbecd14"
+    },
+    {
+      "source": "docs/ui-concepts/19-royal-chronicle-map.png",
+      "output": "docs/ui-concepts/19-royal-chronicle-map.webp",
+      "source_bytes": 1713499,
+      "output_bytes": 1312024,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "fd6a8d49f71795695db080782ed6f92dde17b64bdf14b37abd7bf51d10691b28"
+    },
+    {
+      "source": "docs/ui-concepts/20-sealed-banquet-atlas.png",
+      "output": "docs/ui-concepts/20-sealed-banquet-atlas.webp",
+      "source_bytes": 1859593,
+      "output_bytes": 1415420,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "90fd18ac6d1a82204343cedeebebc1a91ef316a2b3561649c9be72981b0f238c"
+    },
+    {
+      "source": "docs/ui-concepts/21-badge-atlas-at-dusk.png",
+      "output": "docs/ui-concepts/21-badge-atlas-at-dusk.webp",
+      "source_bytes": 1998456,
+      "output_bytes": 1515960,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "ee5188c031d84113378292d7c6953dc74e8e0a47970cf57ca446320c64bb096d"
+    },
+    {
+      "source": "docs/ui-concepts/22-sun-moon-chronicle.png",
+      "output": "docs/ui-concepts/22-sun-moon-chronicle.webp",
+      "source_bytes": 1835594,
+      "output_bytes": 1414014,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "614b6d9b832431d669a93b4f675155c0f85db4c6d3c3558a04a1029cd518eaad"
+    },
+    {
+      "source": "docs/ui-concepts/23-sealed-daybook.png",
+      "output": "docs/ui-concepts/23-sealed-daybook.webp",
+      "source_bytes": 2517486,
+      "output_bytes": 1834890,
+      "dimensions": [
+        1672,
+        941
+      ],
+      "rgba_sha256": "7a3e8d67cf0a898efdf8fd0f9586c1f823813a6158decbc342d647c178d3ec99"
+    },
+    {
+      "source": "docs/ui-concepts/user-selected-references/selected-01-banqueting-map.png",
+      "output": "docs/ui-concepts/user-selected-references/selected-01-banqueting-map.webp",
+      "source_bytes": 3070623,
+      "output_bytes": 1879566,
+      "dimensions": [
+        1680,
+        945
+      ],
+      "rgba_sha256": "f6bf2590e471a3619628796d8d41a6854489f2bae657b6301e24f7a17e710e81"
+    },
+    {
+      "source": "docs/ui-concepts/user-selected-references/selected-02-atlas-board.png",
+      "output": "docs/ui-concepts/user-selected-references/selected-02-atlas-board.webp",
+      "source_bytes": 3203991,
+      "output_bytes": 2026380,
+      "dimensions": [
+        1664,
+        936
+      ],
+      "rgba_sha256": "ec725fcb620ea1bd916ba5a9ab7a1c914ffb02618e3c005fe62dfdbe61faf092"
+    },
+    {
+      "source": "docs/ui-concepts/user-selected-references/selected-03-royal-chronicle.png",
+      "output": "docs/ui-concepts/user-selected-references/selected-03-royal-chronicle.webp",
+      "source_bytes": 2962028,
+      "output_bytes": 1816592,
+      "dimensions": [
+        1680,
+        945
+      ],
+      "rgba_sha256": "6c4ce3e9b2942f9fea79d39328be1121f697ffada4117d4667f7db4502682234"
+    },
+    {
+      "source": "tmp/relief-chronicle-1280x720.png",
+      "output": "tmp/relief-chronicle-1280x720.webp",
+      "source_bytes": 729683,
+      "output_bytes": 477772,
+      "dimensions": [
+        1280,
+        720
+      ],
+      "rgba_sha256": "9ee6792414f844db9ee10437a3f3529ad7b2bcf6212fd7a53a2b730691145a5f"
+    },
+    {
+      "source": "web/prototypes/imperial-table/assets/sea-chart.png",
+      "output": "web/prototypes/imperial-table/assets/sea-chart.webp",
+      "source_bytes": 3357384,
+      "output_bytes": 2314094,
+      "dimensions": [
+        1086,
+        1448
+      ],
+      "rgba_sha256": "ff3a7171f47123bce80ff9796bc46d6b5d320df04e5d9f9fdf0382911e75f4f9"
+    }
+  ]
+}

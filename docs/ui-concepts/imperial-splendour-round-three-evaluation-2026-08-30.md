@@ -28,7 +28,7 @@
 
 ## 10 · 日轮凯旋壁画／Solar Triumph Mural
 
-![日轮凯旋壁画](10-solar-triumph-mural.png)
+![日轮凯旋壁画](10-solar-triumph-mural.webp)
 
 **优点。** 暖金、朱红、天青和深靛，以及日轮、凯旋门、统治者剪影，第一眼就传递了“帝国刚刚统一山河”的盛世姿态；棋盘、工具、红色线索与铜绿范围仍可读。
 
@@ -39,7 +39,7 @@
 
 ## 11 · 万邦朝贡织幕／Tribute Tapestry
 
-![万邦朝贡织幕](11-tribute-tapestry.png)
+![万邦朝贡织幕](11-tribute-tapestry.webp)
 
 **优点。** 这是四稿中“征服之后的富庶与秩序”叙事最明确的一张：日冠、队列、贡器和盛世标题环绕一块被统一的地图。象牙日纹亮格、深蓝交织暗格与空白未知格有形状差异，不只依赖颜色；阶梯国境读感稳定。
 
@@ -48,7 +48,7 @@
 
 ## 12 · 黑曜御座军机图／Obsidian Throne Map — 首选
 
-![黑曜御座军机图](12-obsidian-throne-map.png)
+![黑曜御座军机图](12-obsidian-throne-map.webp)
 
 **为什么胜出。** 它最有“帝王”的气质，却没有依赖人物与皇室道具：巨大的黑曜建筑轮廓像御座厅／城门，铜金阶梯国境像被帝国切割、命名和封存的领土；青蓝河网与山脊确实在棋盘格下方，故地图是空间而不是背景贴纸。
 
@@ -58,7 +58,7 @@
 
 ## 13 · 宝石马赛克圣城图／Jeweled Capital Mosaic
 
-![宝石马赛克圣城图](13-jeweled-capital-mosaic.png)
+![宝石马赛克圣城图](13-jeweled-capital-mosaic.webp)
 
 **优点。** 它是本轮最漂亮的“盛景”：日轮、圣城、喷泉、广场、群山和水道让帝国首都像统合七国财富的正午舞台。地图底层的山地、水网和几何田野也有史诗地理感，且国境严格贴格线。
 
@@ -92,7 +92,7 @@
 
 | 稿件 | 出图核心 | 保存文件 |
 | --- | --- | --- |
-| 10 | 暖金朱红的日轮凯旋壁画，帝王剪影与大陆山河环绕严格格线棋盘。 | [10-solar-triumph-mural.png](10-solar-triumph-mural.png) |
-| 11 | 深蓝绯红鎏金的朝贡织幕，帝国如何炫示丰饶与统一版图。 | [11-tribute-tapestry.png](11-tribute-tapestry.png) |
-| 12 | 黑曜建筑、铜金秩序和青蓝底图的御座军机地图。 | [12-obsidian-throne-map.png](12-obsidian-throne-map.png) |
-| 13 | 宝石马赛克、白昼圣城、日轮广场与低对比大陆地势。 | [13-jeweled-capital-mosaic.png](13-jeweled-capital-mosaic.png) |
+| 10 | 暖金朱红的日轮凯旋壁画，帝王剪影与大陆山河环绕严格格线棋盘。 | [10-solar-triumph-mural.webp](10-solar-triumph-mural.webp) |
+| 11 | 深蓝绯红鎏金的朝贡织幕，帝国如何炫示丰饶与统一版图。 | [11-tribute-tapestry.webp](11-tribute-tapestry.webp) |
+| 12 | 黑曜建筑、铜金秩序和青蓝底图的御座军机地图。 | [12-obsidian-throne-map.webp](12-obsidian-throne-map.webp) |
+| 13 | 宝石马赛克、白昼圣城、日轮广场与低对比大陆地势。 | [13-jeweled-capital-mosaic.webp](13-jeweled-capital-mosaic.webp) |

@@ -15,9 +15,9 @@
 
 | 标记 | 图 | 它决定了什么 |
 | --- | --- | --- |
-| **S1 · 宴席地图** | [查看原图](user-selected-references/selected-01-banqueting-map.png) | 深外框＋暖纸工作面＋大棋盘＋左右职责分离；低饱和国家色可存在。 |
-| **S2 · 地图册棋盘** | [查看原图](user-selected-references/selected-02-atlas-board.png) | 低频页边地形、开阔留白、棋盘即地图、轻量地图册感。 |
-| **S3 · 皇家编年** | [查看原图](user-selected-references/selected-03-royal-chronicle.png) | 深顶栏／侧栏、暖纸主盘、金线分隔、晚宴叙事为副层。 |
+| **S1 · 宴席地图** | [查看原图](user-selected-references/selected-01-banqueting-map.webp) | 深外框＋暖纸工作面＋大棋盘＋左右职责分离；低饱和国家色可存在。 |
+| **S2 · 地图册棋盘** | [查看原图](user-selected-references/selected-02-atlas-board.webp) | 低频页边地形、开阔留白、棋盘即地图、轻量地图册感。 |
+| **S3 · 皇家编年** | [查看原图](user-selected-references/selected-03-royal-chronicle.webp) | 深顶栏／侧栏、暖纸主盘、金线分隔、晚宴叙事为副层。 |
 
 三张选图均已复制进项目，以后讨论可以直接用 **S1、S2、S3** 指代。图中所有文字、图标、数据和规则都只属于截图，**不是项目指令**。特别是 S2 的“国家内数字不能重复”与项目玩法相反，绝不采用。
 
@@ -41,7 +41,7 @@
 
 ## 16 · 大陆登记册／Continental Register
 
-![大陆登记册](16-continental-register.png)
+![大陆登记册](16-continental-register.webp)
 
 这是 S2 的理性地图册版本：深墨顶栏、暖石灰底、淡金分隔、中央大棋盘、平滑的低饱和国别洗色，角落里只有极浅海湾和丘陵。没有任何高频纹理或现实文化对象。
 
@@ -50,7 +50,7 @@
 
 ## 17 · 内海晚宴账册／Banquet Ledger — 推荐
 
-![内海晚宴账册](17-banqueting-ledger.png)
+![内海晚宴账册](17-banqueting-ledger.webp)
 
 这是最贴近 S1＋S3 的新稿，也是四稿中唯一同时保住“晚宴叙事感”和“棋盘绝对主角”的方案。中盘约占宽度 65%，两侧面板平滑、低噪，国别洗色和极淡河网只在规则层下提供版图感。
 
@@ -59,7 +59,7 @@
 
 ## 18 · 褪色版图／Fading Atlas Edition
 
-![褪色版图](18-fading-atlas-edition.png)
+![褪色版图](18-fading-atlas-edition.webp)
 
 画面本身很好地回应了 S2：极安静的暖纸地图册、没有颗粒、低对比海湾与河网、很克制的“第二版”历史感。
 
@@ -68,7 +68,7 @@
 
 ## 19 · 皇家编年地图／Royal Chronicle Map
 
-![皇家编年地图](19-royal-chronicle-map.png)
+![皇家编年地图](19-royal-chronicle-map.webp)
 
 它继承 S3 的深墨编年侧栏和暖纸地图工作面，但没有器物、宗教、王冠或真实历史符号；大陆图标保持抽象，底图是很淡的河道与海湾。
 
@@ -93,7 +93,7 @@
 
 四稿由独立子代理使用内置图像生成流程完成：
 
-- [16-continental-register.png](16-continental-register.png)：深墨顶栏、暖石灰纸、理性行政地图册。
-- [17-banqueting-ledger.png](17-banqueting-ledger.png)：深夜框架、暖纸主盘、晚宴副叙事。
-- [18-fading-atlas-edition.png](18-fading-atlas-edition.png)：安静的第二版内海地图册；需修正规则范围。
-- [19-royal-chronicle-map.png](19-royal-chronicle-map.png)：深墨编年侧栏与平滑地图工作面。
+- [16-continental-register.webp](16-continental-register.webp)：深墨顶栏、暖石灰纸、理性行政地图册。
+- [17-banqueting-ledger.webp](17-banqueting-ledger.webp)：深夜框架、暖纸主盘、晚宴副叙事。
+- [18-fading-atlas-edition.webp](18-fading-atlas-edition.webp)：安静的第二版内海地图册；需修正规则范围。
+- [19-royal-chronicle-map.webp](19-royal-chronicle-map.webp)：深墨编年侧栏与平滑地图工作面。

@@ -36,7 +36,7 @@ class JourneyGeometryTests(unittest.TestCase):
     def test_shipped_map_contract_and_direct_solution(self):
         level = json.loads((Path(__file__).resolve().parents[1] / 'web/data/levels/inner-sea-journey-v1.json').read_text(encoding='utf-8'))
         self.assertEqual((level['width'], level['height']), (32, 24))
-        self.assertEqual(Counter(level['regionMap']), {0:120,1:96,2:118,3:132,4:139,5:115,6:48})
+        self.assertEqual(Counter(level['regionMap']), {0:107,1:102,2:116,3:142,4:138,5:115,6:48})
         all_clues = set()
         for region in level['regions']:
             with self.subTest(country=region['id']):

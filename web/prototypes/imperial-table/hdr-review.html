@@ -1,0 +1,9 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>御宴厅 · HDR 第五稿</title>
+<style>body{max-width:1080px;margin:auto;padding:5vw;background:#14201e;color:#e9ddc3;font:16px/1.8 system-ui}h1{font:40px SimSun,serif}nav{display:flex;gap:24px;flex-wrap:wrap}a{color:#d6b878}img{width:100%;height:auto;border:1px solid #766547}figure{margin:32px 0}small,figcaption{color:#b7ad96}table{border-collapse:collapse;width:100%}td,th{text-align:left;padding:10px;border-bottom:1px solid #766547}details{margin:24px 0}</style>
+<h1>窗光入席</h1><p>专用 HDR 环境、桌面间接光与接触阴影。由同尺寸宴厅代理场景烘焙，保留实时烛火。</p>
+<nav><a href="./">进入 HDR 第五稿</a><a href="./?lighting=legacy">对照简化环境光</a><a href="hall-review.html">第四稿截图</a></nav>
+<p>状态：资源与代码检查通过；本轮浏览器自动化工具启动失败，实际截图、画面对比及帧率测量尚未完成。下图是 HDR 数据的显示预览，不是 Three.js 实时截图。</p>
+<figure><img src="assets/baked-lighting/hdr-preview.jpg" width="1024" height="512" alt="匹配宴厅窗位的 HDR 全景显示预览"><figcaption>离线全景探针：三扇后窗、御座背幕、灰绿墙体与木桌；运行时按亮度数据采样，不显示这张背景图。</figcaption></figure>
+<table><tr><th>项目</th><th>本轮实现</th></tr><tr><td>HDR 环境</td><td>1024×512，1.17 MiB，加载时 PMREM 预过滤</td></tr><tr><td>静态桌面光照</td><td>两张 1024×1024 线性 WebP，合计约 0.87 MiB</td></tr><tr><td>材质</td><td>石材、木材、纸面与金属使用标准 PBR；布料、瓷釉、玻璃保留高级效果</td></tr><tr><td>实时开销</td><td>增加桌面贴图采样；不新增实时阴影灯、动态环境捕获或光追</td></tr><tr><td>性能实测</td><td>待验证；不沿用第四稿 FPS</td></tr></table>
+<details><summary>查看静态接触 AO 烘焙</summary><img loading="lazy" src="assets/baked-lighting/table-ao.webp" width="1024" height="1024" alt="桌面接触遮蔽分布"><p>器皿位置固定时适用。移动器物后需要重烘焙，当前只有 Blender 器物版使用这些烘焙图。</p></details>
+<small>HDR 为单个局部探针，未做逐物体视差校正；静态代理烘焙也不等同于实时全局光照。第五稿尚待实际视觉验收。</small></html>
